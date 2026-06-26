@@ -1,0 +1,18 @@
+# Node / Vite
+node_modules/
+dist/
+.DS_Store
+*.log
+
+# Beads（ローカルの段取り管理ツール。公開リポには載せない）
+.beads/
+.dolt/
+*.db
+.beads-credential-key
+
+# AI開発ツール系の設定（ローカル保持・公開不要）
+CLAUDE.md
+AGENTS.md
+.claude/
+.codex/
+.agents/

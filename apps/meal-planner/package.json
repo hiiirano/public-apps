@@ -1,0 +1,19 @@
+{
+  "name": "meal-planner",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "週間献立プランナー — 家族の入力から7日分の献立＋買い物リストを生成する静的Webアプリ",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "test": "tsx src/generator.test.ts && tsx src/shopping.test.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^26.0.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.5"
+  }
+}
