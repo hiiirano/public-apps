@@ -10,9 +10,13 @@ REMOTE="https://github.com/hiiirano/public-apps.git"
 echo "==> build meal-planner"
 npm --prefix "$ROOT/apps/meal-planner" run build
 
+echo "==> build pantry-tracker"
+npm --prefix "$ROOT/apps/pantry-tracker" run build
+
 STAGE="$(mktemp -d)"
-mkdir -p "$STAGE/meal-planner"
+mkdir -p "$STAGE/meal-planner" "$STAGE/pantry-tracker"
 cp -R "$ROOT/apps/meal-planner/dist/." "$STAGE/meal-planner/"
+cp -R "$ROOT/apps/pantry-tracker/dist/." "$STAGE/pantry-tracker/"
 cp "$ROOT/deploy/index.html" "$STAGE/index.html"
 touch "$STAGE/.nojekyll"
 
@@ -25,4 +29,7 @@ git -c user.name="hiiirano" -c user.email="128061664+hiiirano@users.noreply.gith
 git remote add origin "$REMOTE"
 git push -f -q origin gh-pages
 
-echo "==> done: https://hiiirano.github.io/public-apps/meal-planner/"
+echo "==> done:"
+echo "    https://hiiirano.github.io/public-apps/"
+echo "    https://hiiirano.github.io/public-apps/meal-planner/"
+echo "    https://hiiirano.github.io/public-apps/pantry-tracker/"
