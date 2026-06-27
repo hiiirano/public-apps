@@ -1,0 +1,19 @@
+{
+  "name": "flashcards",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "暗記カード(AI生成ファースト) — テキストを貼るとAIがQ&Aカードを自動生成し、SM-2間隔反復で復習する静的Webアプリ",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "test": "tsx src/srs.test.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^26.0.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.5"
+  }
+}
