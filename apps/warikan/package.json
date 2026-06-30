@@ -1,0 +1,19 @@
+{
+  "name": "warikan",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "割り勘/立替精算(warikan) — アカウント不要・端末内保存・URL共有で完結する割り勘アプリ。債務最小化で送金回数を最小化する静的Webアプリ",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "test": "tsx src/warikan.test.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^26.0.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.5"
+  }
+}

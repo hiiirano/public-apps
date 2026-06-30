@@ -19,12 +19,16 @@ npm --prefix "$ROOT/apps/flashcards" run build
 echo "==> build kakeibo"
 npm --prefix "$ROOT/apps/kakeibo" run build
 
+echo "==> build warikan"
+npm --prefix "$ROOT/apps/warikan" run build
+
 STAGE="$(mktemp -d)"
-mkdir -p "$STAGE/meal-planner" "$STAGE/pantry-tracker" "$STAGE/flashcards" "$STAGE/kakeibo"
+mkdir -p "$STAGE/meal-planner" "$STAGE/pantry-tracker" "$STAGE/flashcards" "$STAGE/kakeibo" "$STAGE/warikan"
 cp -R "$ROOT/apps/meal-planner/dist/." "$STAGE/meal-planner/"
 cp -R "$ROOT/apps/pantry-tracker/dist/." "$STAGE/pantry-tracker/"
 cp -R "$ROOT/apps/flashcards/dist/." "$STAGE/flashcards/"
 cp -R "$ROOT/apps/kakeibo/dist/." "$STAGE/kakeibo/"
+cp -R "$ROOT/apps/warikan/dist/." "$STAGE/warikan/"
 cp "$ROOT/deploy/index.html" "$STAGE/index.html"
 touch "$STAGE/.nojekyll"
 
@@ -43,3 +47,4 @@ echo "    https://hiiirano.github.io/public-apps/meal-planner/"
 echo "    https://hiiirano.github.io/public-apps/pantry-tracker/"
 echo "    https://hiiirano.github.io/public-apps/flashcards/"
 echo "    https://hiiirano.github.io/public-apps/kakeibo/"
+echo "    https://hiiirano.github.io/public-apps/warikan/"
