@@ -8,6 +8,11 @@
 | # | アプリ | 状態 | 公開URL | 場所 |
 |---|---|---|---|---|
 | 1 | 週間献立プランナー | 公開中 | https://hiiirano.github.io/public-apps/meal-planner/ | [`apps/meal-planner/`](apps/meal-planner/) |
+| 2 | 在庫管理 | 公開中 | https://hiiirano.github.io/public-apps/pantry-tracker/ | [`apps/pantry-tracker/`](apps/pantry-tracker/) |
+| 3 | 暗記カード | 公開中 | https://hiiirano.github.io/public-apps/flashcards/ | [`apps/flashcards/`](apps/flashcards/) |
+| 4 | 家計簿 kakeibo | 公開中 | https://hiiirano.github.io/public-apps/kakeibo/ | [`apps/kakeibo/`](apps/kakeibo/) |
+| 5 | 割り勘 warikan | 公開中 | https://hiiirano.github.io/public-apps/warikan/ | [`apps/warikan/`](apps/warikan/) |
+| 6 | PFC・TDEE計算 macro-planner | 公開中 | https://hiiirano.github.io/public-apps/macro-planner/ | [`apps/macro-planner/`](apps/macro-planner/) |
 
 入口ページ: https://hiiirano.github.io/public-apps/
 
