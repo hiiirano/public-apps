@@ -1,0 +1,16 @@
+{
+  "name": "筋トレ記録 gym-log",
+  "short_name": "gym-log",
+  "description": "自重・ジムマシンのトレーニングをその場で記録。前回値表示とローテーション提案つき。",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f4f6f8",
+  "theme_color": "#e2612b",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
