@@ -1,0 +1,19 @@
+{
+  "name": "gym-log",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "筋トレ記録(gym-log) — アカウント不要・端末内保存。自重＋チョコザップ標準マシンのプリセットで、セット・レップ・重量をその場で記録。前回値表示と上半身/下半身のおすすめローテーション提案つきの静的Webアプリ",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "test": "tsx src/logic.test.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^26.0.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.5"
+  }
+}
