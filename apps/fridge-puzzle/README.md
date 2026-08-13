@@ -14,6 +14,11 @@
 
 無限生成と家庭内コメディを両立する方針、60個以上のミッション案、開発ロードマップ、Antigravity向け第1実装ブリーフは [`EXPANSION_DESIGN.md`](EXPANSION_DESIGN.md) にまとめています。
 
+その後の企画検討で、冷蔵庫単体の長期パズルではなく、理不尽な短編ゲーム集の一作 **「ヒエヒエ冷蔵庫」** として再構成する方針になりました。現時点では未実装の企画チェックポイントです。
+
+- [`CORE_REDESIGN.md`](CORE_REDESIGN.md) — ヒエヒエ冷蔵庫、キャラクター4択、共有比較の検討過程
+- [`KUSOGE_COLLECTION_DESIGN.md`](KUSOGE_COLLECTION_DESIGN.md) — 「知らんがなゲームス」全体企画、初期5ゲーム、共通シェル
+
 ## 開発
 
 ```bash
