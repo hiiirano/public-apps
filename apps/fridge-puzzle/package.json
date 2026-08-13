@@ -1,0 +1,19 @@
+{
+  "name": "fridge-puzzle",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "子どもが散らかした冷蔵庫を片づけるコミカルなロジックパズル",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "test": "tsx src/game.test.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^26.0.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.5"
+  }
+}

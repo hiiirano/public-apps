@@ -28,8 +28,11 @@ npm --prefix "$ROOT/apps/macro-planner" run build
 echo "==> build gym-log"
 npm --prefix "$ROOT/apps/gym-log" run build
 
+echo "==> build fridge-puzzle"
+npm --prefix "$ROOT/apps/fridge-puzzle" run build
+
 STAGE="$(mktemp -d)"
-mkdir -p "$STAGE/meal-planner" "$STAGE/pantry-tracker" "$STAGE/flashcards" "$STAGE/kakeibo" "$STAGE/warikan" "$STAGE/macro-planner" "$STAGE/gym-log"
+mkdir -p "$STAGE/meal-planner" "$STAGE/pantry-tracker" "$STAGE/flashcards" "$STAGE/kakeibo" "$STAGE/warikan" "$STAGE/macro-planner" "$STAGE/gym-log" "$STAGE/fridge-puzzle"
 cp -R "$ROOT/apps/meal-planner/dist/." "$STAGE/meal-planner/"
 cp -R "$ROOT/apps/pantry-tracker/dist/." "$STAGE/pantry-tracker/"
 cp -R "$ROOT/apps/flashcards/dist/." "$STAGE/flashcards/"
@@ -37,6 +40,7 @@ cp -R "$ROOT/apps/kakeibo/dist/." "$STAGE/kakeibo/"
 cp -R "$ROOT/apps/warikan/dist/." "$STAGE/warikan/"
 cp -R "$ROOT/apps/macro-planner/dist/." "$STAGE/macro-planner/"
 cp -R "$ROOT/apps/gym-log/dist/." "$STAGE/gym-log/"
+cp -Rf "$ROOT/apps/fridge-puzzle/dist/." "$STAGE/fridge-puzzle/"
 cp "$ROOT/deploy/index.html" "$STAGE/index.html"
 touch "$STAGE/.nojekyll"
 
@@ -58,3 +62,4 @@ echo "    https://hiiirano.github.io/public-apps/kakeibo/"
 echo "    https://hiiirano.github.io/public-apps/warikan/"
 echo "    https://hiiirano.github.io/public-apps/macro-planner/"
 echo "    https://hiiirano.github.io/public-apps/gym-log/"
+echo "    https://hiiirano.github.io/public-apps/fridge-puzzle/"
