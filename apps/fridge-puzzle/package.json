@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "子どもが散らかした冷蔵庫を片づけるコミカルなロジックパズル",
+  "description": "甘い物だらけの冷蔵庫の持ち主を根拠なく当てる理不尽ミニゲーム",
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
