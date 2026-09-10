@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "甘い物だらけの冷蔵庫の持ち主を根拠なく当てる理不尽ミニゲーム",
+  "description": "3×3冷蔵庫整理の後に偽ヒントで持ち主を当てる二段構えの理不尽ミニゲーム",
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",

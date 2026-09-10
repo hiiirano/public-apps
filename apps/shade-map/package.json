@@ -1,0 +1,19 @@
+{
+  "name": "shade-map",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "新宿の公共地下通路・屋根付き区間を使い、最短経路と日差し回避経路を比較する固定データ型マップ",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "test": "tsx src/router.test.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^26.0.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.5"
+  }
+}

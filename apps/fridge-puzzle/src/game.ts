@@ -1,21 +1,33 @@
 export const GAME_ID = "hiehie-fridge";
-export const ROUND_ID = "sweets-01";
+export const ROUND_ID = "sweets-02";
 
-export const CHARACTER_IDS = ["gothic", "hobbyist", "kid", "grandma"] as const;
+export const CHARACTER_IDS = ["gothic", "kid", "grandma", "cardigan", "athlete", "office", "hat"] as const;
 export type CharacterId = (typeof CHARACTER_IDS)[number];
 
 export interface Character {
   id: CharacterId;
   revealName: string;
-  spriteIndex: number;
+  image: string;
 }
 
 export const CHARACTERS: readonly Character[] = [
-  { id: "gothic", revealName: "黒い服の人", spriteIndex: 0 },
-  { id: "hobbyist", revealName: "ミント色の服の人", spriteIndex: 1 },
-  { id: "kid", revealName: "黄色い服の子", spriteIndex: 2 },
-  { id: "grandma", revealName: "赤い服のおばあちゃん", spriteIndex: 3 },
+  { id: "gothic", revealName: "黒い服の人", image: "./assets/character-gothic.webp" },
+  { id: "kid", revealName: "黄色い服の子", image: "./assets/character-kid.webp" },
+  { id: "grandma", revealName: "赤い服のおばあちゃん", image: "./assets/character-grandma.webp" },
+  { id: "cardigan", revealName: "赤いカーディガンの人", image: "./assets/character-cardigan.webp" },
+  { id: "athlete", revealName: "ジャージの人", image: "./assets/character-athlete.webp" },
+  { id: "office", revealName: "紺色の上着の人", image: "./assets/character-office.webp" },
+  { id: "hat", revealName: "帽子のおじさん", image: "./assets/character-hat.webp" },
 ];
+
+export type PuzzleItemId = "pudding" | "cake" | "icecream";
+export type PuzzleSlot = number;
+
+export interface PuzzleState {
+  slots: PuzzleItemId[];
+  selected: PuzzleSlot | null;
+  moves: number;
+}
 
 export interface Round {
   id: typeof ROUND_ID;
@@ -50,16 +62,44 @@ function seededRandom(seed: number): () => number {
   };
 }
 
+function shuffledCharacters(seed: string): CharacterId[] {
+  const pool = [...CHARACTER_IDS];
+  const random = seededRandom(hashText(`${seed}:characters`));
+  for (let index = pool.length - 1; index > 0; index -= 1) {
+    const other = Math.floor(random() * (index + 1));
+    [pool[index], pool[other]] = [pool[other]!, pool[index]!];
+  }
+  return pool;
+}
+
 export function createRound(seed: string): Round {
   if (!isValidSeed(seed)) throw new Error("invalid round seed");
-  const order = [...CHARACTER_IDS];
-  const random = seededRandom(hashText(`${seed}:order`));
-  for (let index = order.length - 1; index > 0; index -= 1) {
-    const other = Math.floor(random() * (index + 1));
-    [order[index], order[other]] = [order[other]!, order[index]!];
-  }
-  const correct = CHARACTER_IDS[hashText(`${seed}:answer`) % CHARACTER_IDS.length]!;
+  const order = shuffledCharacters(seed).slice(0, 4);
+  const correct = order[hashText(`${seed}:answer`) % order.length]!;
   return { id: ROUND_ID, seed, order, correct };
+}
+
+export function createPuzzleState(): PuzzleState {
+  return {
+    slots: ["cake", "icecream", "pudding", "cake", "pudding", "icecream", "cake", "pudding", "icecream"],
+    selected: null,
+    moves: 0,
+  };
+}
+
+export function selectPuzzleSlot(state: PuzzleState, slot: PuzzleSlot): PuzzleState {
+  if (!Number.isInteger(slot) || slot < 0 || slot >= state.slots.length) return state;
+  if (state.selected === null) return { ...state, selected: slot };
+  if (state.selected === slot) return { ...state, selected: null };
+  const slots: PuzzleState["slots"] = [...state.slots];
+  [slots[state.selected], slots[slot]] = [slots[slot], slots[state.selected]];
+  return { slots, selected: null, moves: state.moves + 1 };
+}
+
+export function isPuzzleSolved(state: PuzzleState): boolean {
+  if (state.slots.length !== 9) return false;
+  const rows = [state.slots.slice(0, 3), state.slots.slice(3, 6), state.slots.slice(6, 9)];
+  return rows.every((row) => row.every((item) => item === row[0])) && new Set(rows.map((row) => row[0])).size === 3;
 }
 
 export function isValidSeed(seed: string): boolean {

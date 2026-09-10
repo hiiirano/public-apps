@@ -15,6 +15,7 @@
 | 6 | PFC・TDEE計算 macro-planner | 公開中 | https://hiiirano.github.io/public-apps/macro-planner/ | [`apps/macro-planner/`](apps/macro-planner/) |
 | 7 | 筋トレ記録 gym-log | 公開中 | https://hiiirano.github.io/public-apps/gym-log/ | [`apps/gym-log/`](apps/gym-log/) |
 | 8 | 冷蔵庫つめつめパズル | 公開中 | https://hiiirano.github.io/public-apps/fridge-puzzle/ | [`apps/fridge-puzzle/`](apps/fridge-puzzle/) |
+| 9 | 日陰MAP 新宿β | 開発中 | - | [`apps/shade-map/`](apps/shade-map/) |
 
 入口ページ: https://hiiirano.github.io/public-apps/
 
