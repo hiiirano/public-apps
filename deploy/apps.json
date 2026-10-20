@@ -1,0 +1,11 @@
+[
+  {"slug": "warikan", "emoji": "🧮", "name": "割り勘", "note": "旅行や飲み会の精算をURLで共有", "show": true},
+  {"slug": "gym-log", "emoji": "🏋️", "name": "筋トレ記録", "note": "今日のメニューと記録", "show": true},
+  {"slug": "meal-planner", "emoji": "🍽️", "name": "週間献立プランナー", "note": "家族の条件から1週間の献立と買い物リスト", "show": false},
+  {"slug": "fridge-puzzle", "emoji": "🧊", "name": "ヒエヒエ冷蔵庫", "note": "アイスとケーキを正しい段へ入れ替える3分パズル", "show": false},
+  {"slug": "shade-map", "emoji": "⛱️", "name": "日陰MAP 新宿β", "note": "地下通路や屋根を使って日差しを避けるルート比較", "show": false},
+  {"slug": "kakeibo", "emoji": "📒", "name": "家計簿", "note": "使いすぎを月の途中で先回り警告", "show": false},
+  {"slug": "macro-planner", "emoji": "🥗", "name": "PFC・TDEE計算", "note": "体重から1日の目標カロリーを計算", "show": false},
+  {"slug": "pantry-tracker", "emoji": "🧺", "name": "在庫管理", "note": "家にある物と期限を管理", "show": false},
+  {"slug": "flashcards", "emoji": "🧠", "name": "暗記カード", "note": "忘れる前に出してくれる単語帳", "show": false}
+]

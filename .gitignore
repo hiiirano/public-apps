@@ -16,3 +16,6 @@ AGENTS.md
 .claude/
 .codex/
 .agents/
+
+# レビュー時の操作記録（スクショ・ログ・テスト用バックアップ）は公開しない
+deploy/review_tmp/
