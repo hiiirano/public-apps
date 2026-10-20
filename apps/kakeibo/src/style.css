@@ -1,3 +1,6 @@
+@import "../../_shared/ui.css";
+
+@layer legacy {
 :root {
   --bg: #faf8f3;
   --card: #ffffff;
@@ -376,4 +379,16 @@ footer a {
   .budgets {
     grid-template-columns: 1fr;
   }
+}
+
+}
+
+.entry { margin-bottom: 24px; }
+.savings.neutral { color: var(--text); }
+li.item { flex-wrap: wrap; padding: 16px; }
+li.item .body { flex-basis: 100%; overflow-wrap: anywhere; }
+@media (max-width: 480px) {
+  .badges { display: grid; grid-template-columns: 1fr; }
+  .badges .badge { display: flex; flex-direction: row-reverse; justify-content: space-between; align-items: center; padding: 12px; gap: 12px; }
+  .badge .num { overflow-wrap: anywhere; min-width: 0; }
 }

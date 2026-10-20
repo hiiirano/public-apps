@@ -1,3 +1,6 @@
+@import "../../_shared/ui.css";
+
+@layer legacy {
 :root {
   --bg: #faf8f3;
   --card: #ffffff;
@@ -281,3 +284,12 @@ footer {
   text-align: center;
   margin-top: 24px;
 }
+
+}
+
+.members { display: grid; gap: 12px; }
+.member-row { display: flex; justify-content: space-between; align-items: center; gap: 16px; border-bottom: 1px solid var(--line); padding-bottom: 12px; }
+.member-row span, .ex-main, ul.settle li { overflow-wrap: anywhere; min-width: 0; }
+table.balances { font-size: .94rem; table-layout: fixed; }
+table.balances td, table.balances th { overflow-wrap: anywhere; }
+ul.settle li { flex-wrap: wrap; gap: 12px; }

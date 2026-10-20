@@ -5,7 +5,6 @@ import {
   type ExpenseDraft,
   type MonthBudget,
   ALL_CATEGORIES,
-  CATEGORY_EMOJI,
   CATEGORY_HINT,
 } from "./types";
 import {
@@ -98,7 +97,7 @@ function render(): void {
     : null;
 
   app.innerHTML = `
-    <h1>📒 家計簿 <span class="brand">kakeibo</span></h1>
+    <h1>家計簿 <span class="brand">kakeibo</span></h1>
     <p class="sub">使う前に向き合う家計簿。データはこの端末のブラウザだけに保存され、サーバーには送られません。登録不要・無料。</p>
 
     <div class="card">
@@ -110,13 +109,14 @@ function render(): void {
       </div>
     </div>
 
+    <nav class="actions entry" aria-label="はじめの操作"><button id="go-budget">予算を設定</button><button id="go-expense" class="primary">支出を記録</button></nav>
     ${dashboardCard(sum)}
 
     ${budgetCard(budget, sum.available)}
 
     <div class="card">
-      <h2>${editing ? "✏️ 支出を編集" : "➕ 支出を記録"}</h2>
-      <form id="exp-form">
+      <h2>${editing ? "支出を編集" : "支出を記録"}</h2>
+      <form id="exp-form" tabindex="-1">
         <div class="grid">
           <div>
             <label>日付</label>
@@ -144,7 +144,7 @@ function render(): void {
     </div>
 
     <div class="card">
-      <h2>📋 ${esc(currentMonth)} の支出（${list.length}件）</h2>
+      <h2>${esc(currentMonth)} の支出（${list.length}件）</h2>
       ${
         list.length === 0
           ? `<p class="empty">この月の支出はまだありません。上のフォームから記録してください。</p>`
@@ -157,7 +157,7 @@ function render(): void {
 
     <div class="card">
       <details class="llm">
-        <summary>🤖 LLM拡張（任意）— レシート/明細から支出を取り込む</summary>
+        <summary>LLM拡張（任意）— レシート/明細から支出を取り込む</summary>
         <p class="hint">レシートや明細を貼り付けて、支出を自動抽出します。OpenAI互換APIキーが必要です。<br>
         APIキーはこの端末のブラウザ（localStorage）にのみ保存され、サーバーには送られません。未設定でも本体機能はすべて使えます。</p>
         <div class="grid">
@@ -206,7 +206,7 @@ function dashboardCard(sum: ReturnType<typeof summarize>): string {
       : sum.spentTotal > 0
         ? 100
         : 0;
-  const savingsClass = sum.savingsOnTrack ? "ok" : "warn-text";
+  const savingsClass = "neutral";
   return `
     <div class="card">
       <div class="badges">
@@ -218,8 +218,8 @@ function dashboardCard(sum: ReturnType<typeof summarize>): string {
         <div class="bar-fill ${spentPct >= 100 ? "over" : ""}" style="width:${spentPct}%"></div>
       </div>
       <p class="savings ${savingsClass}">
-        ${sum.savingsOnTrack ? "✅" : "⚠️"} このペースでの貯金見込み <b>${yen(sum.projectedSavings)}</b>
-        （目標 ${yen(sum.savingsGoal)}）
+        参考：このペースでの貯金見込み <b>${yen(sum.projectedSavings)}</b>
+        （目標 ${yen(sum.savingsGoal)}）<br><span class="hint">入力済み支出だけで計算。未入力の日や支出があると、実際の貯金額とは異なります。</span>
       </p>
     </div>`;
 }
@@ -230,14 +230,14 @@ function budgetCard(budget: MonthBudget, available: number): string {
   const rows = ALL_CATEGORIES.map((c) => {
     return `
       <div class="brow">
-        <span class="bname">${CATEGORY_EMOJI[c]} ${c}</span>
+        <span class="bname">${c}</span>
         <input class="bval" data-cat="${c}" type="number" min="0" step="1" inputmode="numeric" value="${budget.budgets[c] || 0}" />
       </div>`;
   }).join("");
   return `
     <div class="card">
-      <details ${budget.income === 0 ? "open" : ""}>
-        <summary>⚙️ ${esc(currentMonth)} の予算設定（収入・貯金目標・4分類）</summary>
+      <details id="budget-panel">
+        <summary>${esc(currentMonth)} の予算設定（押して開く・閉じる）</summary>
         <div class="grid" style="margin-top:10px">
           <div><label>今月の収入</label><input id="b-income" type="number" min="0" step="1" inputmode="numeric" value="${budget.income || 0}" /></div>
           <div><label>貯金目標</label><input id="b-savings" type="number" min="0" step="1" inputmode="numeric" value="${budget.savingsGoal || 0}" /></div>
@@ -275,7 +275,7 @@ function reflectionCard(sum: ReturnType<typeof summarize>): string {
       return `
         <div class="cat">
           <div class="cat-head">
-            <span class="bname">${CATEGORY_EMOJI[cs.category]} ${cs.category}</span>
+            <span class="bname">${cs.category}</span>
             <span class="cat-amt">${yen(cs.spent)} / ${yen(cs.budget)}</span>
           </div>
           <div class="bar small">
@@ -288,7 +288,7 @@ function reflectionCard(sum: ReturnType<typeof summarize>): string {
     .join("");
   return `
     <div class="card">
-      <h2>📊 分類別の予算ペース</h2>
+      <h2>分類別の予算ペース</h2>
       <p class="hint">「このペースだと月末に超過」を先回りで警告します（バーンレート予測）。━ は月末の着地予測位置。</p>
       ${rows}
     </div>`;
@@ -298,7 +298,7 @@ function expRow(e: Expense): string {
   return `
     <li class="item cat-${e.category}" data-id="${e.id}">
       <div class="body">
-        <div class="name">${yen(e.amount)} <span class="tag">${CATEGORY_EMOJI[e.category]} ${e.category}</span></div>
+        <div class="name">${yen(e.amount)} <span class="tag">${e.category}</span></div>
         <div class="meta">${esc(e.date)}${e.memo ? " ・ " + esc(e.memo) : ""}</div>
       </div>
       <div class="actions">
@@ -325,6 +325,16 @@ function wire(): void {
     }
   });
 
+  document.getElementById("go-budget")!.addEventListener("click", () => {
+    const panel = document.querySelector<HTMLDetailsElement>("#budget-panel")!;
+    panel.open = true;
+    panel.scrollIntoView({ block: "start" });
+    panel.querySelector("summary")!.focus();
+  });
+  document.getElementById("go-expense")!.addEventListener("click", () => {
+    document.getElementById("exp-form")!.scrollIntoView({ block: "center" });
+    document.querySelector<HTMLInputElement>('#exp-form [name="amount"]')?.focus();
+  });
   // 予算保存
   document.querySelector("#budget-save")?.addEventListener("click", saveBudgetFromForm);
   document.querySelector("#budget-auto")?.addEventListener("click", () => {

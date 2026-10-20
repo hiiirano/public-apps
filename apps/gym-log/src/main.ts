@@ -52,7 +52,6 @@ const KIND_LABEL: Record<ExerciseKind, string> = {
   machine: "マシン",
 };
 const REC_LABEL = { upper: "上半身の日", lower: "下半身の日", rest: "休養日" };
-const REC_ICON = { upper: "💪", lower: "🦵", rest: "😴" };
 
 function exById(id: string): Exercise | undefined {
   return exercises.find((e) => e.id === id);
@@ -174,7 +173,7 @@ function render(): void {
   app.innerHTML = "";
   app.append(el(`
     <header>
-      <h1>🏋️ 筋トレ記録 <span class="brand">gym-log</span></h1>
+      <h1>筋トレ記録 <span class="brand">gym-log</span></h1>
       <p class="sub">データはこの端末のブラウザだけに保存。登録不要・無料。</p>
     </header>
   `));
@@ -187,10 +186,10 @@ function render(): void {
   app.append(main);
 
   const tabs: Array<[Tab, string]> = [
-    ["today", "🏠 今日"],
-    ["history", "📅 履歴"],
-    ["exercises", "📋 種目"],
-    ["settings", "⚙️ 設定"],
+    ["today", "今日"],
+    ["history", "履歴"],
+    ["exercises", "種目"],
+    ["settings", "設定"],
   ];
   const nav = el(`<nav class="tabbar"></nav>`);
   for (const [key, label] of tabs) {
@@ -211,7 +210,7 @@ function renderToday(main: HTMLElement): void {
     const rec = recommend(workouts, exercises, today);
     main.append(el(`
       <section class="card rec rec-${rec.kind}">
-        <div class="rec-title">${REC_ICON[rec.kind]} 今日のおすすめ: <b>${REC_LABEL[rec.kind]}</b></div>
+        <div class="rec-title">今日のおすすめ: <b>${REC_LABEL[rec.kind]}</b></div>
         <div class="rec-reason">${rec.reason}</div>
       </section>
     `));
@@ -238,7 +237,7 @@ function renderToday(main: HTMLElement): void {
 function renderActiveWorkout(main: HTMLElement, w: Workout): void {
   const head = el(`
     <section class="card active-head">
-      <div>🔴 記録中 <span class="elapsed" id="elapsed"></span></div>
+      <div>記録中 <span class="elapsed" id="elapsed"></span></div>
     </section>
   `);
   const finish = el(`<button class="finish">終了</button>`);
@@ -284,10 +283,10 @@ function renderActiveWorkout(main: HTMLElement, w: Workout): void {
       const row = el(`
         <div class="set-row">
           <span class="set-no">${i + 1}</span>
-          <input type="number" inputmode="decimal" step="0.5" min="0" class="w"
-                 value="${s.weight ?? ""}" placeholder="${prev?.[i]?.weight ?? "自重"}" /><span class="u">kg</span>
-          <input type="number" inputmode="numeric" step="1" min="0" class="r"
-                 value="${s.reps || ""}" placeholder="${prev?.[i]?.reps ?? ""}" /><span class="u">${unit}</span>
+          <label class="set-field">${ex.kind === "bodyweight" ? "追加重量（任意）" : "重量kg"}<input type="number" inputmode="decimal" step="0.5" min="0" class="w"
+                 value="${s.weight ?? ""}" placeholder="${prev?.[i]?.weight ?? (ex.kind === "bodyweight" ? "0" : "重量")}" /></label>
+          <label class="set-field">${unit}<input type="number" inputmode="numeric" step="1" min="0" class="r"
+                 value="${s.reps || ""}" placeholder="${prev?.[i]?.reps ?? ""}" /></label>
         </div>
       `);
       // change時にstateだけ更新（再renderしない=フォーカス維持）
@@ -300,7 +299,7 @@ function renderActiveWorkout(main: HTMLElement, w: Workout): void {
         s.reps = Number((e.target as HTMLInputElement).value) || 0;
         persist();
       });
-      const del = el(`<button class="ghost small">×</button>`);
+      const del = el(`<button class="ghost small danger" aria-label="${i + 1}セット目を削除">削除</button>`);
       del.addEventListener("click", () => {
         we.sets.splice(i, 1);
         persist();
@@ -549,12 +548,7 @@ function renderSettings(main: HTMLElement): void {
   danger.append(clear);
   main.append(danger);
 
-  main.append(el(`
-    <p class="hint">
-      Phase 2 予定: Androidアプリ化（Capacitor）でヘルスコネクトに筋トレセッションを自動記録。
-      それまでの記録もこのアプリ内にすべて残ります。
-    </p>
-  `));
+
 }
 
 // ---- PWA ----

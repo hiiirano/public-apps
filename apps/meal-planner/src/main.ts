@@ -47,7 +47,27 @@ function parseList(s: string): string[] {
 
 let input = loadInput();
 let llm = loadLlmSettings();
+const RESULT_KEY = "meal-planner.result.v1";
 let plan: WeeklyPlan | null = null;
+let planInput: PlannerInput = input;
+let checked = new Set<number>();
+try {
+  const saved = JSON.parse(localStorage.getItem(RESULT_KEY) || "null");
+  if (saved?.input) {
+    planInput = saved.input;
+    plan = saved.plan ?? buildPlan(planInput);
+    checked = new Set<number>(saved.checked || []);
+  }
+} catch { /* Invalid or unavailable storage: start with an empty result. */ }
+function saveResult(): boolean {
+  try {
+    localStorage.setItem(RESULT_KEY, JSON.stringify({ input: planInput, plan, checked: [...checked] }));
+    return true;
+  } catch {
+    flash("端末に保存できませんでした。買い物リストをコピーしてください。");
+    return false;
+  }
+}
 
 const app = document.querySelector<HTMLDivElement>("#app")!;
 
@@ -72,7 +92,7 @@ function allergenCheckboxes(): string {
 function renderShell(): void {
   app.innerHTML = `
     <header>
-      <h1>🍽️ 週間献立プランナー</h1>
+      <h1>週間献立プランナー</h1>
       <p class="sub">家族の条件を選ぶだけで、1週間分の献立と買い物リストを自動作成。<br/>登録不要・無料・オフラインでも動きます。</p>
     </header>
 
@@ -112,7 +132,7 @@ function renderShell(): void {
     </form>
 
     <details class="card llm" id="llmPanel">
-      <summary>🤖 AI拡張（任意）— APIキーを入れると献立に一言アドバイスが付きます</summary>
+      <summary>AI拡張（任意）— APIキーを入れると献立に一言アドバイスが付きます</summary>
       <p class="note">キーはこのブラウザにのみ保存され、入力した提供元へ直接送信されます（自前サーバは経由しません）。空でもコア機能はすべて使えます。</p>
       <label class="toggle"><input type="checkbox" id="llmEnabled" ${llm.enabled ? "checked" : ""}/> 有効にする</label>
       <label class="full">エンドポイント<input type="text" id="llmEndpoint" value="${llm.endpoint}" /></label>
@@ -121,7 +141,7 @@ function renderShell(): void {
       <button type="button" id="llmSave" class="ghost">保存</button>
     </details>
 
-    <section id="result"></section>
+    <section id="result" tabindex="-1" aria-label="献立の結果"></section>
   `;
 
   wireForm();
@@ -170,14 +190,22 @@ function wireForm(): void {
 }
 
 function generate(): void {
-  saveInput(input);
-  plan = buildPlan(input);
+  try { saveInput(input); } catch { /* Result persistence reports storage failure below. */ }
+  planInput = structuredClone(input);
+  plan = buildPlan(planInput);
+  checked.clear();
+  const saved = saveResult();
   renderResult();
+  const result = document.getElementById("result")!;
+  result.scrollIntoView({ block: "start" });
+  result.focus({ preventScroll: true });
+  if (saved) flash("献立を作成し、端末に保存しました");
 }
 
 function flash(msg: string): void {
   const el = document.createElement("div");
   el.className = "flash";
+  el.setAttribute("role", "status");
   el.textContent = msg;
   document.body.appendChild(el);
   setTimeout(() => el.remove(), 2200);
@@ -192,7 +220,7 @@ function renderResult(): void {
   }
 
   const warnHtml = plan.warnings.length
-    ? `<div class="warn">${plan.warnings.map((w) => `⚠️ ${w}`).join("<br/>")}</div>`
+    ? `<div class="warn">${plan.warnings.map((w) => `${w}`).join("<br/>")}</div>`
     : "";
 
   const daysHtml = plan.days
@@ -215,6 +243,7 @@ function renderResult(): void {
     .join("");
 
   const groups = groupByCategory(plan.shopping);
+  let shoppingIndex = 0;
   const shopHtml = groups
     .map(
       (g) => `
@@ -223,10 +252,10 @@ function renderResult(): void {
         <ul>
           ${g.items
             .map(
-              (it) =>
-                `<li><label><input type="checkbox"/> ${it.name} <span class="qty">${formatQty(
-                  it.qty,
-                )}${it.unit}</span></label></li>`,
+              (it) => {
+                const index = shoppingIndex++;
+                return `<li><label><input type="checkbox" data-shopping="${index}" ${checked.has(index) ? "checked" : ""}/><span>${it.name}</span><span class="qty">${formatQuantity(it.qty, it.unit)}</span></label></li>`;
+              }
             )
             .join("")}
         </ul>
@@ -241,7 +270,7 @@ function renderResult(): void {
       <p class="comment" id="comment">${plan.comment}</p>
       ${
         isLlmReady(llm)
-          ? `<button type="button" id="aiComment" class="ghost small">🤖 AIに一言もらう</button>`
+          ? `<button type="button" id="aiComment" class="ghost small">AIに一言もらう</button>`
           : ""
       }
       <div class="days">${daysHtml}</div>
@@ -249,10 +278,31 @@ function renderResult(): void {
 
     <div class="card">
       <h2>買い物リスト</h2>
-      <p class="sub">${input.adults + input.children}人分（子どもは0.5人前換算）</p>
+      <p class="sub">${planInput.adults + planInput.children}人分（子どもは0.5人前換算）</p>
+      <button id="copy-shopping" class="ghost">買い物リストをコピー</button>
       <div class="shopping">${shopHtml}</div>
     </div>
   `;
+
+  result.querySelectorAll<HTMLInputElement>("[data-shopping]").forEach((box) => {
+    box.addEventListener("change", () => {
+      const index = Number(box.dataset.shopping);
+      if (box.checked) checked.add(index); else checked.delete(index);
+      saveResult();
+    });
+  });
+  document.getElementById("copy-shopping")!.addEventListener("click", async () => {
+    let index = 0;
+    const text = groups.map((g) => `${g.category}\n${g.items.map((it) =>
+      `${checked.has(index++) ? "購入済み" : "未購入"} ${it.name} ${formatQuantity(it.qty, it.unit)}`
+    ).join("\n")}`).join("\n\n");
+    try { await navigator.clipboard.writeText(text); flash("買い物リストをコピーしました"); }
+    catch { flash("コピーできませんでした。下の欄から選択してコピーしてください。");
+      let fallback = document.querySelector<HTMLTextAreaElement>("#copy-fallback");
+      if (!fallback) { fallback = document.createElement("textarea"); fallback.id = "copy-fallback"; fallback.setAttribute("aria-label", "コピー用の買い物リスト"); result.append(fallback); }
+      fallback.value = text; fallback.focus(); fallback.select();
+    }
+  });
 
   const aiBtn = document.getElementById("aiComment");
   if (aiBtn) {
@@ -273,8 +323,9 @@ function renderResult(): void {
   }
 }
 
-function formatQty(q: number): string {
-  return Number.isInteger(q) ? String(q) : String(q);
+function formatQuantity(q: number, unit: string): string {
+  if (unit === "少々") return unit;
+  return ["大さじ", "小さじ"].includes(unit) ? `${unit}${q}` : `${q}${unit}`;
 }
 
 renderShell();

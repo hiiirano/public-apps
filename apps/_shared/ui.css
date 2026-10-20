@@ -1,0 +1,54 @@
+@import url('https://fonts.googleapis.com/css2?family=Kiwi+Maru:wght@400;500&family=M+PLUS+Rounded+1c:wght@400;500;700&display=swap');
+
+:root {
+  color-scheme: light;
+  --bg: #fff6e4; --card: #ffffff; --text: #2b2a26; --ink: var(--text);
+  --muted: #5f5a50; --line: #2b2a26; --accent: #2b4a3a; --accent-dark: var(--accent);
+  --neg: #b4461f; --over: var(--neg); --pace: var(--neg); --pos: var(--accent); --ok: var(--accent);
+  --blue: var(--accent); --notice: #ffe1d6; --success: #e3f1e2; --yellow: #ffd36b;
+  --on-primary: #fff6e4;
+  font-family: 'M PLUS Rounded 1c', 'Hiragino Maru Gothic ProN', sans-serif;
+  font-size: 17px;
+}
+@media (prefers-color-scheme: dark) {
+  :root { color-scheme: dark; --bg: #23211d; --card: #2e2b26; --text: #f6eedd; --line: #f6eedd; --muted: #d0c7b6; --accent: #9fd3b0; --on-primary: #23211d; --neg: #ffb59c; --notice: #52372d; --success: #304535; --yellow: #665020; }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: inherit; font-size: 1rem; line-height: 1.8; }
+#app { padding: 28px 16px 96px; }
+h1, h2, h3 { font-family: 'Kiwi Maru', 'Hiragino Maru Gothic ProN', sans-serif; line-height: 1.5; overflow-wrap: anywhere; }
+h1, header h1 { font-size: 1.8rem; margin: 8px 0 12px; }
+h2, .card h2 { font-size: 1.25rem; margin: 0 0 16px; }
+h3, .card h3 { font-size: 1.05rem; margin: 20px 0 10px; }
+.card { background: var(--card); border: 2px solid var(--line); border-radius: 24px; padding: 22px; margin: 0 0 24px; box-shadow: none; }
+button, .file-btn, .ghost-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; min-width: 48px; padding: 10px 18px; border: 2px solid var(--line); border-radius: 999px; font: inherit; font-weight: 700; line-height: 1.5; background: var(--card); color: var(--text); cursor: pointer; touch-action: manipulation; white-space: normal; }
+button.primary, button.finish { background: var(--accent); color: var(--on-primary); border-color: var(--accent); }
+button:hover, button.ghost:hover, button.pick:active { background: var(--success); color: var(--text); }
+button.primary:hover, button.primary:active { background: var(--accent); color: var(--on-primary); filter: brightness(1.1); }
+button.danger { color: var(--neg); }
+button:disabled { opacity: .55; cursor: not-allowed; }
+input, select, textarea { font: inherit; font-size: 1rem; min-width: 0; max-width: 100%; min-height: 48px; border: 2px solid var(--line); border-radius: 14px; padding: 10px 12px; background: var(--card); color: var(--text); }
+input[type=checkbox], input[type=radio] { width: 24px; height: 24px; min-height: 24px; flex: none; accent-color: var(--accent); }
+label:has(input[type=checkbox]), label:has(input[type=radio]) { min-height: 44px; cursor: pointer; }
+summary { min-height: 48px; padding: 10px 0; cursor: pointer; font-weight: 700; }
+:focus-visible { outline: 3px solid var(--neg); outline-offset: 4px; }
+::placeholder { color: var(--muted); opacity: 1; }
+a { color: var(--accent); display: inline-flex; align-items: center; min-height: 44px; }
+.sub, header .sub, .muted, .hint, .note, .tag, .badge, .lbl, .meta, .prev, .time, .day-no, .qty, .rec-reason, .hist-summary, .elapsed, footer, label, legend, .expense-form .parts, .check, .cat-head, .cat-note, .savings, .stat .lbl, .badge .lbl, .item .meta, h1 .brand { font-size: .94rem; }
+.sub, .muted, .hint, .note, footer { color: var(--muted); }
+.sub, header .sub { margin-bottom: 24px; }
+.row, .actions, .inline, .row-btns { gap: 12px; flex-wrap: wrap; }
+.chip, .badge, .tag, .set-no, ul.settle li, .comment, .tab.active { background: var(--success); color: var(--text); }
+.warn, .tag.over, .tag.pace { background: var(--notice); color: var(--neg); border-color: var(--neg); }
+.day, button.pick, .danger-zone { background: var(--card); }
+.badge.和, .badge.洋, .badge.中 { background: var(--success); color: var(--text); }
+.bar { background: var(--success); }
+.bar-proj { border-color: var(--text); }
+.flash { background: var(--text); color: var(--bg); max-width: calc(100% - 32px); width: max-content; box-shadow: none; }
+.shop-group li label { min-height: 48px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.shop-group input:checked + span { text-decoration: line-through; }
+fieldset { border: 2px solid var(--line); border-radius: 14px; }
+.tabbar { gap: 6px; border-top: 2px solid var(--line); }
+.tab { padding: 8px 4px; font-size: .94rem; }
+.ex-main, .hist-head, .cat-head { flex-wrap: wrap; gap: 8px; }
+@media (max-width: 480px) { .card { padding: 18px; } h1, header h1 { font-size: 1.55rem; } }

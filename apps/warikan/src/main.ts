@@ -68,7 +68,7 @@ function renderSharePreview(g: Group): void {
   const settlements = minimizeSettlements(balances);
   app.innerHTML = `
     <header>
-      <h1>👀 共有された割り勘</h1>
+      <h1>共有された割り勘</h1>
       <p class="sub">読み取り専用プレビュー。あなたの端末にはまだ保存されていません。</p>
     </header>
     <section class="card">
@@ -116,7 +116,7 @@ function settlementHtml(g: Group, settlements: ReturnType<typeof minimizeSettlem
         <td>${esc(memberName(g.members, b.memberId))}</td>
         <td class="num">${yen(b.paid)}</td>
         <td class="num">${yen(b.owed)}</td>
-        <td class="num ${cls}">${b.net > 0 ? "+" : ""}${yen(b.net)} <span class="tag">${label}</span></td>
+        <td class="num ${cls}">${Math.abs(b.net).toLocaleString("ja-JP")}円 <span class="tag">${label}</span></td>
       </tr>`;
     })
     .join("");
@@ -169,7 +169,7 @@ function render(): void {
 
   app.innerHTML = `
     <header>
-      <h1>🧮 割り勘 <span class="brand">warikan</span></h1>
+      <h1>割り勘 <span class="brand">warikan</span></h1>
       <p class="sub">アカウント不要・この端末だけに保存。結果はURLで共有できます。</p>
     </header>
 
@@ -197,7 +197,7 @@ function render(): void {
         ${g.members
           .map(
             (m) =>
-              `<span class="chip">${esc(m.name)} <button class="rm-member" data-id="${m.id}" title="削除">×</button></span>`,
+              `<div class="member-row"><span>${esc(m.name)}</span><button class="rm-member danger" data-id="${m.id}" aria-label="${esc(m.name)}を削除">削除</button></div>`,
           )
           .join("")}
       </div>
@@ -238,7 +238,7 @@ function render(): void {
 function renderEmpty(): void {
   app.innerHTML = `
     <header>
-      <h1>🧮 割り勘 <span class="brand">warikan</span></h1>
+      <h1>割り勘 <span class="brand">warikan</span></h1>
       <p class="sub">アカウント不要・この端末だけに保存。結果はURLで共有できます。</p>
     </header>
     <section class="card">

@@ -1,3 +1,6 @@
+@import "../../_shared/ui.css";
+
+@layer legacy {
 :root {
   --bg: #f4f6f8;
   --card: #ffffff;
@@ -239,3 +242,12 @@ button.pick:active { background: #fdf0e9; }
   font-weight: 700;
   background: #fdf0e9;
 }
+
+}
+
+.set-row { display: grid; grid-template-columns: 24px minmax(0, 1fr) minmax(0, 1fr); gap: 12px; border-top: 1px solid var(--line); padding: 16px 0; }
+.set-field { margin: 0; }
+.set-row input { width: 100%; }
+.set-row > button { grid-column: 2 / -1; justify-self: end; margin-top: 4px; }
+.exercise .ex-head { gap: 16px; }
+.tabbar { z-index: 10; }
