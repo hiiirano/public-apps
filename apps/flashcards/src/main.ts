@@ -93,12 +93,12 @@ function render(): void {
 function renderHome(): void {
   const today = new Date();
   app.innerHTML = `
-    <h1>🧠 暗記カード</h1>
-    <p class="sub">テキストを貼ればAIがカードを自動生成。SM-2間隔反復で効率よく覚えられます。データはこの端末のブラウザにのみ保存されます。</p>
+    <h1>暗記カード</h1>
+    <p class="sub">問いと答えを登録して、少しずつ復習。データはこの端末のブラウザにのみ保存されます。</p>
 
     <div class="card">
       <div class="row between">
-        <h2>📚 デッキ</h2>
+        <h2>デッキ</h2>
         <button id="new-deck">＋ 新しいデッキ</button>
       </div>
       ${
@@ -114,7 +114,7 @@ function renderHome(): void {
 
     <div class="card">
       <details>
-        <summary>💾 バックアップ（エクスポート / インポート）</summary>
+        <summary>バックアップ（エクスポート / インポート）</summary>
         <p class="hint">この端末のデータをJSONで書き出し・読み込みできます。別の端末への移行やバックアップに使えます。インポートは既存データに追加されます。</p>
         <div class="row">
           <button type="button" class="ghost" id="export">エクスポート</button>
@@ -134,17 +134,16 @@ function deckRow(d: Deck, today: Date): string {
   const s = summarizeDeck(cardsOf(d.id), today);
   return `
     <li class="deck" data-id="${d.id}">
-      <div class="body">
-        <div class="name">${esc(d.name)}</div>
-        <div class="meta">
+      <button class="deck-open" data-act="open">
+        <span class="name">${esc(d.name)}</span>
+        <span class="meta">
           <span class="tag total">${s.total}枚</span>
           ${s.due > 0 ? `<span class="tag due">復習 ${s.due}</span>` : ""}
           ${s.fresh > 0 ? `<span class="tag fresh">新規 ${s.fresh}</span>` : ""}
-          ${s.due === 0 && s.fresh === 0 ? `<span class="tag done">今日はなし</span>` : ""}
-        </div>
-      </div>
+          ${s.total > 0 && s.due === 0 && s.fresh === 0 ? `<span class="tag done">今日はなし</span>` : ""}
+        </span>
+      </button>
       <div class="actions">
-        <button class="mini ghost" data-act="open">開く</button>
         <button class="mini danger" data-act="del-deck">削除</button>
       </div>
     </li>`;
@@ -171,30 +170,17 @@ function renderDeck(): void {
         <div class="badge"><span class="num">${s.total}</span><span class="lbl">総カード</span></div>
       </div>
       <div class="row end" style="margin-top:12px">
-        <button id="start-study" ${studyCount === 0 ? "disabled" : ""}>
-          ${studyCount === 0 ? "今日の学習は完了" : `▶ 今日の学習（${studyCount}枚）`}
+        <button class="primary" id="${s.total === 0 ? "first-card" : "start-study"}" ${s.total > 0 && studyCount === 0 ? "disabled" : ""}>
+          ${s.total === 0 ? "最初のカードを追加" : studyCount === 0 ? "今日の学習は完了" : `今日の学習（${studyCount}枚）`}
         </button>
       </div>
     </div>
 
     <div class="card">
-      <h2>🤖 AIでカードを作る</h2>
-      <p class="hint">ノートや教科書の文章を貼り付けて「カードを生成」を押すと、AIが一問一答に変換します。プレビューで選んでから追加できます。${
-        isLlmReady(llm)
-          ? ""
-          : '<br><b>LLM拡張が未設定です。</b>下部の「LLM拡張」で有効化してください（無料で手動追加も使えます）。'
-      }</p>
-      <textarea id="ai-text" rows="5" placeholder="例: 鎌倉幕府は1192年に源頼朝が開いた。執権は北条氏が世襲した。&#10;ここに覚えたい内容を貼り付け…"></textarea>
-      <div class="row end"><button type="button" id="ai-gen" ${isLlmReady(llm) ? "" : "disabled"}>カードを生成</button></div>
-      <p class="hint" id="ai-status"></p>
-      ${aiPreview.length > 0 ? aiPreviewBlock() : ""}
-    </div>
-
-    <div class="card">
-      <h2>${editingCardId ? "✏️ カードを編集" : "✍️ 手動でカードを追加"}</h2>
+      <h2>${editingCardId ? "カードを編集" : "手動でカードを追加"}</h2>
       <form id="card-form">
-        <div class="full"><label>表（問い）*</label><textarea name="front" rows="2" required placeholder="例: 鎌倉幕府の成立年は？"></textarea></div>
-        <div class="full" style="margin-top:8px"><label>裏（答え）*</label><textarea name="back" rows="2" required placeholder="例: 1192年（諸説あり）"></textarea></div>
+        <div class="full"><label for="front">表（問い）*</label><textarea name="front" rows="2" required placeholder="例: 鎌倉幕府の成立年は？" id="front"></textarea></div>
+        <div class="full" style="margin-top:8px"><label for="back">裏（答え）*</label><textarea name="back" rows="2" required placeholder="例: 1192年（諸説あり）" id="back"></textarea></div>
         <div class="row end">
           ${editingCardId ? '<button type="button" class="ghost" id="cancel-edit">キャンセル</button>' : ""}
           <button type="submit">${editingCardId ? "更新" : "追加"}</button>
@@ -202,11 +188,25 @@ function renderDeck(): void {
       </form>
     </div>
 
+    <details class="card" id="ai-panel" ${aiPreview.length ? "open" : ""}>
+      <summary>AIでカードを作る（任意）</summary>
+      <p class="hint">ノートや教科書の文章を貼り付けて「カードを生成」を押すと、AIが一問一答に変換します。プレビューで選んでから追加できます。${
+        isLlmReady(llm)
+          ? ""
+          : '<br><b>AIでカードを作る機能は未設定です。</b>設定画面で有効化できます。'
+      }</p>
+      <button type="button" id="ai-settings">AI設定を開く</button>
+      <textarea id="ai-text" rows="5" placeholder="例: 鎌倉幕府は1192年に源頼朝が開いた。執権は北条氏が世襲した。&#10;ここに覚えたい内容を貼り付け…"></textarea>
+      <div class="row end"><button type="button" id="ai-gen" ${isLlmReady(llm) ? "" : "disabled"}>カードを生成</button></div>
+      <p class="hint" id="ai-status"></p>
+      ${aiPreview.length > 0 ? aiPreviewBlock() : ""}
+    </details>
+
     <div class="card">
-      <h2>🗂️ カード一覧（${list.length}）</h2>
+      <h2>カード一覧（${list.length}）</h2>
       ${
         list.length === 0
-          ? `<p class="empty">まだカードがありません。AI生成か手動追加で作りましょう。</p>`
+          ? `<p class="empty">まだカードがありません。上の欄に問いと答えを入力してください。</p>`
           : `<ul class="cardlist">${list.map(cardRow).join("")}</ul>`
       }
     </div>
@@ -265,7 +265,7 @@ function renderStudy(): void {
   const ss = session!;
   if (ss.idx >= ss.queue.length) {
     app.innerHTML = `
-      <h1>🎉 おつかれさま！</h1>
+      <h1>おつかれさま！</h1>
       <div class="card center">
         <p class="big">このデッキの今日の学習が終わりました。</p>
         <p class="hint">${ss.reviewed}枚を復習しました。</p>
@@ -319,14 +319,14 @@ function llmPanel(): string {
   return `
     <div class="card">
       <details class="llm" ${isLlmReady(llm) ? "" : ""}>
-        <summary>🤖 LLM拡張（任意）— AIカード生成を有効にする</summary>
+        <summary>AIでカードを作る（任意・上級者向け）</summary>
         <p class="hint">OpenAI互換のAPIキーを設定すると、デッキ画面でテキストからカードを自動生成できます。<br>
         APIキーはこの端末のブラウザ（localStorage）にのみ保存され、サーバーには送られません。未設定でも手動追加・学習はすべて使えます。</p>
         <div class="grid">
-          <label class="inline full"><input type="checkbox" id="llm-enabled" ${llm.enabled ? "checked" : ""}/> LLM拡張を有効にする</label>
-          <div class="full"><label>エンドポイント</label><input id="llm-endpoint" value="${esc(llm.endpoint)}" /></div>
-          <div><label>モデル</label><input id="llm-model" value="${esc(llm.model)}" /></div>
-          <div><label>APIキー</label><input id="llm-key" type="password" value="${esc(llm.apiKey)}" placeholder="sk-..." /></div>
+          <label class="inline full"><input type="checkbox" id="llm-enabled" ${llm.enabled ? "checked" : ""}/> AIでカードを作る機能を使う</label>
+          <div class="full"><label for="llm-endpoint">エンドポイント</label><input id="llm-endpoint" value="${esc(llm.endpoint)}" /></div>
+          <div><label for="llm-model">モデル</label><input id="llm-model" value="${esc(llm.model)}" /></div>
+          <div><label for="llm-key">APIキー</label><input id="llm-key" type="password" value="${esc(llm.apiKey)}" placeholder="sk-..." /></div>
         </div>
         <div class="row end"><button type="button" class="ghost" id="llm-save">設定を保存</button></div>
         <p class="hint" id="llm-status"></p>
@@ -429,6 +429,21 @@ function wireIo(): void {
 
 // ---- wiring: Deck ----
 function wireDeck(): void {
+  document.querySelector("#first-card")?.addEventListener("click", () => {
+    document.querySelector<HTMLTextAreaElement>('[name="front"]')?.focus();
+  });
+  document.querySelector("#ai-settings")?.addEventListener("click", () => {
+    view = "home";
+    render();
+    const panel = document.querySelector<HTMLDetailsElement>("details.llm")!;
+    panel.open = true;
+    panel.querySelector<HTMLElement>("summary")!.focus();
+    panel.scrollIntoView({block: "start"});
+    const back = document.createElement("button");
+    back.textContent = "カード作成へ戻る";
+    back.addEventListener("click", () => openDeck(currentDeckId!));
+    panel.append(back);
+  });
   document.querySelector("#to-home")?.addEventListener("click", () => goHome());
 
   document.querySelector("#start-study")?.addEventListener("click", () => {

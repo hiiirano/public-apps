@@ -98,6 +98,7 @@ function mapMarkup(shortest: RouteResult, shade: RouteResult): string {
     .join("");
 
   return `
+    <p class="map-description">模式図：位置関係の目安です。縮尺・形状は正確ではありません。</p>
     <div class="map-shell">
       <svg class="route-map" viewBox="0 0 100 76" role="img" aria-label="新宿駅周辺の模式図。選択した経路を表示しています。">
         <rect class="map-bg" x="0" y="0" width="100" height="76" rx="3" />
@@ -164,7 +165,7 @@ function render(): void {
   app.innerHTML = `
     <header class="hero">
       <div class="eyebrow"><span class="sun-dot"></span> SHINJUKU BETA <span class="data-badge">固定データ版</span></div>
-      <h1>日陰<span>MAP</span></h1>
+      <h1>新宿 地下・屋根ルート比較</h1>
       <p class="lead">なるべく外に出ない道を、いま選ぶ。</p>
       <p class="scope">新宿の公共地下通路・屋根付き区間だけで比べます。</p>
     </header>
@@ -173,7 +174,7 @@ function render(): void {
       <section class="planner card" aria-labelledby="route-title">
         <div class="section-heading">
           <span>01</span>
-          <div><h2 id="route-title">行き先を選ぶ</h2><p>まずは5地点だけ。迷わない最小版です。</p></div>
+          <div><h2 id="route-title">行き先を選ぶ</h2><p>出発地と目的地を選んで、2つのルートを比べます。</p></div>
         </div>
         <div class="select-grid">
           <label>出発地
@@ -235,7 +236,7 @@ function render(): void {
     </main>
 
     <footer>
-      <p><strong>日陰MAP</strong> — トラッカーゼロの小さな地図実験</p>
+      <p><strong>新宿 地下・屋根ルート比較</strong> — トラッカーゼロの小さな地図実験</p>
       <p>次の対象エリア：梅田</p>
     </footer>
   `;

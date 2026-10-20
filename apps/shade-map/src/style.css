@@ -1,3 +1,6 @@
+@import "../../_shared/ui.css";
+
+@layer legacy {
 :root {
   font-family: Inter, "Hiragino Sans", "Yu Gothic", system-ui, sans-serif;
   color: #173038;
@@ -353,4 +356,37 @@ footer p { margin: 3px; }
 
 @media (prefers-reduced-motion: reduce) {
   * { scroll-behavior: auto !important; }
+}
+
+}
+:root { --navy: var(--text); --mint-dark: var(--accent); --mint: var(--success); --sun: var(--yellow); }
+#app { padding: 0; }
+.hero { padding: 28px 16px; }
+h1 { color: var(--text); letter-spacing: normal; }
+.lead, label { color: var(--text); }
+.eyebrow { font-size: .94rem; color: var(--muted); flex-wrap: wrap; letter-spacing: normal; }
+.data-badge { color: var(--text); background: var(--success); }
+.select-grid { grid-template-columns: minmax(0, 1fr) 48px minmax(0, 1fr); gap: 12px; }
+.swap { width: 48px; height: 48px; padding: 8px; }
+.route-card { border-radius: 18px; align-items: flex-start; padding: 18px; }
+.route-card.active { background: var(--success); border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.route-label, .route-meta, .route-caption, .section-heading p, .scope, .legend, .schematic-note, .step-tags span, .step p, .safety li, .sources > p, .sources li, .beta-warning p, .beta-warning strong { font-size: .94rem; }
+.exposure { font-size: 1.15rem; color: var(--text); }
+.route-meta { color: var(--accent); }
+.map-section { background: var(--card); color: var(--text); }
+.section-heading.light p, .map-description { color: var(--muted); }
+.map-shell { background: var(--card); border: 2px solid var(--line); }
+.legend, .schematic-note { color: var(--text); }
+.route-map { min-height: 270px; }
+.step-tags { flex-wrap: wrap; }
+.step-tags span, .step.is-outdoor .step-tags span { color: var(--text); background: var(--success); }
+.step-notice { color: var(--neg); font-size: .94rem !important; }
+.beta-warning { background: var(--success); }
+.beta-warning p, .safety li { color: var(--text); }
+footer { background: var(--bg); }
+@media (max-width: 540px) {
+  .select-grid { grid-template-columns: minmax(0, 1fr); }
+  .swap { justify-self: center; }
+  .route-choices { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .route-card strong { font-size: 1.5rem; }
 }

@@ -1,3 +1,6 @@
+@import "../../_shared/ui.css";
+
+@layer legacy {
 :root {
   --bg: #f7f8fa;
   --card: #ffffff;
@@ -303,3 +306,20 @@ footer {
     grid-template-columns: 1fr;
   }
 }
+
+}
+:root { --expired: var(--neg); --soon: var(--neg); --near: var(--text); --low: var(--accent); }
+.badges { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.badge { min-width: 0; }
+li.item { display: grid; grid-template-columns: 1fr; gap: 16px; padding: 18px; border-radius: 16px; margin-bottom: 16px; }
+.item .name, .stock { font-size: 1.1rem; font-weight: 700; overflow-wrap: anywhere; }
+.item .meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; overflow-wrap: anywhere; }
+.item .tag { font-size: .94rem; background: var(--success); color: var(--text); }
+.item .tag.expired, .item .tag.soon, .item .tag.near { background: var(--notice); color: var(--neg); }
+.item .actions { padding-top: 12px; border-top: 1px solid var(--line); justify-content: flex-end; }
+.qty { gap: 16px; }
+.qty button { flex: 1; }
+button[type=submit], #llm-extract { background: var(--accent); color: var(--on-primary); }
+#item-panel summary { margin-bottom: 8px; }
+.grid { gap: 16px; }
+.inline { display: inline-flex; align-items: center; }

@@ -11,7 +11,6 @@ import {
   budgetTotal,
   expensesOfMonth,
   monthKeyOf,
-  monthOfDate,
   sortExpenses,
   summarize,
   toCsv,
@@ -76,17 +75,6 @@ function opt(values: readonly string[], selected?: string): string {
     .join("");
 }
 
-/** 保有データに存在する月キー＋当月＋当月の前月を候補にする */
-function monthOptions(): string[] {
-  const set = new Set<string>([currentMonth]);
-  for (const e of expenses) {
-    const m = monthOfDate(e.date);
-    if (m) set.add(m);
-  }
-  for (const k of Object.keys(budgets)) set.add(k);
-  return [...set].sort().reverse();
-}
-
 function render(): void {
   const today = new Date();
   const budget = budgetFor(budgets, currentMonth);
@@ -103,9 +91,8 @@ function render(): void {
     <div class="card">
       <div class="monthbar">
         <label class="inline">対象月
-          <select id="month-select">${opt(monthOptions(), currentMonth)}</select>
+          <input type="month" id="month-pick" value="${currentMonth}" />
         </label>
-        <input type="month" id="month-pick" value="${currentMonth}" />
       </div>
     </div>
 
@@ -311,11 +298,6 @@ function expRow(e: Expense): string {
 // ---- wiring ----
 function wire(): void {
   // 月切替
-  document.querySelector("#month-select")?.addEventListener("change", (e) => {
-    currentMonth = (e.target as HTMLSelectElement).value;
-    editingId = null;
-    render();
-  });
   document.querySelector("#month-pick")?.addEventListener("change", (e) => {
     const v = (e.target as HTMLInputElement).value;
     if (/^\d{4}-\d{2}$/.test(v)) {

@@ -77,7 +77,7 @@ function render(): void {
   const visible = sortItems(filterItems(items, filter, today), today);
 
   app.innerHTML = `
-    <h1>🧺 在庫管理</h1>
+    <h1>在庫管理</h1>
     <p class="sub">家にある物を、消費期限と残量で管理。データはこの端末のブラウザだけに保存されます。</p>
 
     <div class="card">
@@ -89,42 +89,34 @@ function render(): void {
       </div>
     </div>
 
-    <div class="card">
-      <h2>${editingId ? "✏️ 在庫を編集" : "➕ 在庫を追加"}</h2>
+    <details class="card" id="item-panel" ${editingId || items.length === 0 ? "open" : ""}>
+      <summary>${editingId ? "在庫を編集" : "在庫を追加"}</summary>
       <form id="item-form">
         <div class="grid">
           <div class="full">
-            <label>品名 *</label>
-            <input name="name" required placeholder="例: 牛乳" autocomplete="off" />
+            <label for="name">品名 *</label><input name="name" required placeholder="例: 牛乳" autocomplete="off" / id="name">
           </div>
           <div>
-            <label>数量</label>
-            <input name="qty" type="number" min="0" step="any" value="1" />
+            <label for="qty">数量</label><input name="qty" type="number" min="0" step="any" value="1" / id="qty">
           </div>
           <div>
-            <label>単位</label>
-            <input name="unit" list="units" value="個" autocomplete="off" />
+            <label for="unit">単位</label><input name="unit" list="units" value="個" autocomplete="off" / id="unit">
             <datalist id="units">${opt(UNIT_SUGGESTIONS)}</datalist>
           </div>
           <div>
-            <label>カテゴリ</label>
-            <select name="category">${opt(ALL_CATEGORIES)}</select>
+            <label for="category">カテゴリ</label><select name="category" id="category">${opt(ALL_CATEGORIES)}</select>
           </div>
           <div>
-            <label>保管場所</label>
-            <select name="location">${opt(ALL_LOCATIONS)}</select>
+            <label for="location">保管場所</label><select name="location" id="location">${opt(ALL_LOCATIONS)}</select>
           </div>
           <div>
-            <label>消費/賞味期限（任意）</label>
-            <input name="expiry" type="date" />
+            <label for="expiry">消費/賞味期限（任意）</label><input name="expiry" type="date" / id="expiry">
           </div>
           <div>
-            <label>最低在庫（0=通知なし）</label>
-            <input name="minQty" type="number" min="0" step="any" value="0" />
+            <label for="minQty">最低在庫（0=通知なし）</label><input name="minQty" type="number" min="0" step="any" value="0" / id="minQty">
           </div>
           <div class="full">
-            <label>メモ（任意）</label>
-            <input name="note" autocomplete="off" />
+            <label for="note">メモ（任意）</label><input name="note" autocomplete="off" / id="note">
           </div>
         </div>
         <div class="row end">
@@ -132,10 +124,10 @@ function render(): void {
           <button type="submit">${editingId ? "更新" : "追加"}</button>
         </div>
       </form>
-    </div>
+    </details>
 
     <div class="card">
-      <h2>📋 在庫一覧</h2>
+      <h2 id="inventory-title" tabindex="-1">在庫一覧</h2>
       <div class="filters">
         <select id="f-category"><option value="">カテゴリ：全部</option>${opt(ALL_CATEGORIES, filter.category)}</select>
         <select id="f-location"><option value="">場所：全部</option>${opt(ALL_LOCATIONS, filter.location)}</select>
@@ -144,26 +136,25 @@ function render(): void {
       </div>
       ${
         visible.length === 0
-          ? `<p class="empty">${items.length === 0 ? "まだ在庫がありません。上のフォームから追加してください。" : "条件に合う在庫がありません。"}</p>`
+          ? `<p class="empty">${items.length === 0 ? "まだ在庫がありません。「在庫を追加」を開いて登録してください。" : "条件に合う在庫がありません。"}</p>`
           : `<ul class="items">${visible.map((it) => itemRow(it, today)).join("")}</ul>`
       }
     </div>
 
     <div class="card">
       <details class="llm" ${isLlmReady(llm) ? "" : ""}>
-        <summary>🤖 LLM拡張（任意）— テキストから在庫を取り込む</summary>
+        <summary>LLM拡張（任意）— テキストから在庫を取り込む</summary>
         <p class="hint">レシートやメモを貼り付けて、在庫アイテムを自動抽出します。OpenAI互換APIキーが必要です。<br>
         APIキーはこの端末のブラウザ（localStorage）にのみ保存され、サーバーには送られません。未設定でも本体機能はすべて使えます。</p>
         <div class="grid">
           <label class="inline full"><input type="checkbox" id="llm-enabled" ${llm.enabled ? "checked" : ""}/> LLM拡張を有効にする</label>
-          <div class="full"><label>エンドポイント</label><input id="llm-endpoint" value="${esc(llm.endpoint)}" /></div>
-          <div><label>モデル</label><input id="llm-model" value="${esc(llm.model)}" /></div>
-          <div><label>APIキー</label><input id="llm-key" type="password" value="${esc(llm.apiKey)}" placeholder="sk-..." /></div>
+          <div class="full"><label for="llm-endpoint">エンドポイント</label><input id="llm-endpoint" value="${esc(llm.endpoint)}" /></div>
+          <div><label for="llm-model">モデル</label><input id="llm-model" value="${esc(llm.model)}" /></div>
+          <div><label for="llm-key">APIキー</label><input id="llm-key" type="password" value="${esc(llm.apiKey)}" placeholder="sk-..." /></div>
         </div>
         <div class="row end"><button type="button" class="ghost" id="llm-save">設定を保存</button></div>
         <div class="full" style="margin-top:10px">
-          <label>取り込むテキスト</label>
-          <textarea id="llm-text" rows="4" placeholder="例: 牛乳1本 2026-07-01まで / 卵1パック / トイレットペーパー2袋"></textarea>
+          <label for="llm-text">取り込むテキスト</label><textarea id="llm-text" rows="4" placeholder="例: 牛乳1本 2026-07-01まで / 卵1パック / トイレットペーパー2袋"></textarea>
         </div>
         <div class="row end"><button type="button" id="llm-extract">抽出して追加</button></div>
         <p class="hint" id="llm-status"></p>
@@ -183,6 +174,7 @@ function itemRow(it: Item, today: Date): string {
     <li class="item ${u}" data-id="${it.id}">
       <div class="body">
         <div class="name">${esc(it.name)}</div>
+        <div class="stock">残量 ${formatQty(it.qty)}${esc(it.unit)}</div>
         <div class="meta">
           <span class="tag">${esc(it.category)}</span>
           <span class="tag">${esc(it.location)}</span>
@@ -193,7 +185,7 @@ function itemRow(it: Item, today: Date): string {
       </div>
       <div class="qty">
         <button class="mini ghost" data-act="dec" title="減らす">−</button>
-        <span class="val">${formatQty(it.qty)}${esc(it.unit)}</span>
+        <span class="val">数量</span>
         <button class="mini ghost" data-act="inc" title="増やす">＋</button>
       </div>
       <div class="actions">
@@ -232,6 +224,7 @@ function wire(_today: Date): void {
     }
     persist();
     render();
+    document.querySelector<HTMLElement>("#inventory-title")?.focus();
   });
 
   document
@@ -267,6 +260,9 @@ function wire(_today: Date): void {
     }
     persist();
     render();
+    if (act === "edit") {
+      formFocus();
+    }
   });
 
   // フィルタ
@@ -286,6 +282,10 @@ function wire(_today: Date): void {
   });
 
   wireLlm();
+}
+
+function formFocus(): void {
+  document.querySelector<HTMLInputElement>('#item-form [name="name"]')?.focus();
 }
 
 function bindFilter(sel: string, key: "category" | "location"): void {

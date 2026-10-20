@@ -1,3 +1,6 @@
+@import "../../_shared/ui.css";
+
+@layer legacy {
 :root {
   --bg: #f7f8fa;
   --card: #ffffff;
@@ -414,3 +417,20 @@ footer a,
     display: none;
   }
 }
+
+}
+:root { --due: var(--neg); --fresh: var(--accent); --done: var(--accent); --danger: var(--neg); }
+li.deck { display: grid; grid-template-columns: minmax(0, 1fr); padding: 0; gap: 12px; border: 0; margin-bottom: 24px; }
+.deck-open { width: 100%; flex-direction: column; align-items: flex-start; text-align: left; border-radius: 18px; padding: 20px; overflow-wrap: anywhere; }
+.deck-open .name { font-size: 1.15rem; }
+.deck .actions { justify-content: flex-end; }
+li.ccard { flex-direction: column; padding: 16px; gap: 16px; }
+.ccard .actions { align-self: flex-end; }
+.tag, .tag.due, .tag.fresh, .tag.done { background: var(--success); color: var(--text); }
+.back, .counter, .grade .gh { font-size: .94rem; }
+.grade .gh { display: block; }
+.grades { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.grade { border-color: var(--line); border-radius: 18px; }
+button[type=submit], #new-deck, #reveal, #ai-gen { background: var(--accent); color: var(--on-primary); }
+#ai-text { margin-top: 16px; }
+.grid { gap: 16px; }
