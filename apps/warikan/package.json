@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "割り勘/立替精算(warikan) — アカウント不要・端末内保存・URL共有で完結する割り勘アプリ。債務最小化で送金回数を最小化する静的Webアプリ",
+  "description": "飲み会・食事のその場の割り勘。傾斜・固定額・端数に対応。",
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",

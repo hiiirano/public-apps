@@ -22,7 +22,8 @@ export type Allergen =
   | "落花生"
   | "えび"
   | "かに"
-  | "大豆";
+  | "大豆"
+  | "くるみ";
 
 export const ALL_ALLERGENS: Allergen[] = [
   "卵",
@@ -33,6 +34,7 @@ export const ALL_ALLERGENS: Allergen[] = [
   "えび",
   "かに",
   "大豆",
+  "くるみ",
 ];
 
 export const ALL_GENRES: Genre[] = ["和", "洋", "中"];

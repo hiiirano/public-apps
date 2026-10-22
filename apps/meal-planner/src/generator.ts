@@ -2,7 +2,7 @@ import type {
   Recipe,
   PlannerInput,
   DayPlan,
-  MainType,
+  Genre,
 } from "./types";
 import { MAIN_RECIPES, SIDE_RECIPES } from "./data/recipes";
 
@@ -87,34 +87,49 @@ function pickMains(
 ): { mains: Recipe[]; warning?: string } {
   const filtered = filterRecipes(MAIN_RECIPES, input);
   if (filtered.length === 0) {
-    return { mains: [], warning: "条件に合う主菜がありません。除外設定を緩めてください。" };
+    return { mains: [], warning: "条件に合う主菜がありません。アレルギーの除外はそのままに、ジャンルや時短の条件を見直してください。" };
   }
   const pool = prioritize(filtered, input, rng);
+  // Search the seven genre slots first. Hard filters are never relaxed.
+  const genres = [...new Set(pool.map(r => r.genre))];
+  const counts = Object.fromEntries(genres.map(g => [g, pool.filter(r => r.genre === g).length]));
+  const schedule: Genre[] = [];
+  function scheduleGenres(unique: boolean): boolean {
+    if (schedule.length === DAYS) return true;
+    const ranked = [...genres].sort((a, b) =>
+      schedule.filter(g => g === a).length - schedule.filter(g => g === b).length);
+    for (const genre of ranked) {
+      const count = schedule.filter(g => g === genre).length;
+      if (count >= 3 || (unique && count >= counts[genre])) continue;
+      if (schedule.length >= 2 && schedule.at(-1) === genre && schedule.at(-2) === genre) continue;
+      schedule.push(genre);
+      if (scheduleGenres(unique)) return true;
+      schedule.pop();
+    }
+    return false;
+  }
+  const balanced = input.genres.length === 0 && (scheduleGenres(true) || scheduleGenres(false));
   const result: Recipe[] = [];
   const used = new Set<string>();
-  let lastType: MainType | undefined;
-
   for (let d = 0; d < DAYS; d++) {
-    // 未使用 かつ 直前と別タイプ を最優先
-    let pick =
-      pool.find((r) => !used.has(r.id) && r.mainType !== lastType) ??
-      pool.find((r) => !used.has(r.id));
-
-    // 候補が尽きたら used をリセットして循環（重複を許容）
-    if (!pick) {
-      used.clear();
-      pick =
-        pool.find((r) => r.mainType !== lastType) ?? pool[0];
+    let candidates = balanced ? pool.filter(r => r.genre === schedule[d]) : pool;
+    if (!balanced && input.genres.length === 0) {
+      const ranked = [...genres].sort((a,b) =>
+        result.filter(r => r.genre === a).length - result.filter(r => r.genre === b).length);
+      candidates = pool.filter(r => r.genre === ranked[0]);
     }
+    const fresh = candidates.filter(r => !used.has(r.id));
+    const available = fresh.length ? fresh : candidates;
+    const pick = available.find(r => r.mainType !== result.at(-1)?.mainType) ?? available[0];
     result.push(pick);
     used.add(pick.id);
-    lastType = pick.mainType;
   }
-
-  const warning =
-    filtered.length < DAYS
-      ? `条件に合う主菜が${filtered.length}種しかないため、一部の献立が重複しています。`
-      : undefined;
+  const messages: string[] = [];
+  if (new Set(result.map(r => r.id)).size < DAYS)
+    messages.push("条件に合う候補が少ないため、一部の主菜が重複しています。");
+  if (input.genres.length === 0 && !balanced)
+    messages.push("除外条件に合うジャンルが足りず、週3日まで・連続2日までの分散ができませんでした。除外条件は守っています。");
+  const warning = messages.join(" ") || undefined;
   return { mains: result, warning };
 }
 
@@ -148,7 +163,7 @@ function buildComment(days: DayPlan[]): string {
   const genres = new Set(days.map((d) => d.main.genre));
   const quick = days.filter((d) => d.main.timeMin <= QUICK_MIN).length;
   const parts: string[] = [];
-  parts.push(`主菜は${days.length}日分、ジャンルは${[...genres].join("・")}でバランスよく組みました。`);
+  parts.push(`主菜は${days.length}日分、ジャンルは${[...genres].join("・")}で組みました。`);
   if (quick >= 4) parts.push(`${quick}日は20分以内で作れる時短メニューです。`);
   const fish = days.filter((d) => d.main.mainType === "魚").length;
   if (fish >= 2) parts.push(`お魚の日が${fish}日入っています。`);
@@ -171,6 +186,8 @@ export function generateWeeklyPlan(input: PlannerInput): {
   }
 
   const sides = input.withSide ? pickSides(mains, input, rng) : mains.map(() => undefined);
+
+  if (input.withSide && sides.some(s => !s)) warnings.push("条件に合う副菜がないため、主菜のみ表示しています。");
 
   const days: DayPlan[] = mains.map((main, i) => ({
     day: i + 1,

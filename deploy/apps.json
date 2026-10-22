@@ -1,7 +1,7 @@
 [
-  {"slug": "warikan", "emoji": "🧮", "name": "割り勘", "note": "旅行や飲み会の精算をURLで共有", "show": true},
+  {"slug": "warikan", "emoji": "🧮", "name": "割り勘", "note": "飲み会の会計を、多め・少なめ・おごり込みで30秒で", "show": true},
   {"slug": "gym-log", "emoji": "🏋️", "name": "筋トレ記録", "note": "今日のメニューと記録", "show": true},
-  {"slug": "meal-planner", "emoji": "🍽️", "name": "週間献立プランナー", "note": "家族の条件から1週間の献立と買い物リスト", "show": true},
+  {"slug": "meal-planner", "emoji": "🍽️", "name": "週間献立プランナー", "note": "和・洋・中141品から1週間の献立と買い物リスト", "show": true},
   {"slug": "kakeibo", "emoji": "📒", "name": "家計簿", "note": "使いすぎを月の途中で先回り警告", "show": true},
   {"slug": "fridge-puzzle", "emoji": "🧊", "name": "ヒエヒエ冷蔵庫", "note": "アイスとケーキを正しい段へ入れ替える3分パズル", "show": false},
   {"slug": "shade-map", "emoji": "⛱️", "name": "日陰MAP 新宿β", "note": "地下通路や屋根を使って日差しを避けるルート比較", "show": false},

@@ -1,610 +1,144 @@
 import "./style.css";
-import type { Group } from "./types";
-import {
-  computeBalances,
-  memberName,
-  minimizeSettlements,
-  totalAmount,
-} from "./warikan";
-import {
-  loadGroups,
-  loadCurrentId,
-  newId,
-  normalizeGroup,
-  saveCurrentId,
-  saveGroups,
-} from "./storage";
-import { buildShareUrl, readShareHash } from "./share";
-import {
-  type LlmSettings,
-  extractExpenses,
-  isLlmReady,
-  loadLlmSettings,
-  saveLlmSettings,
-} from "./llm";
-
-// ---- state ----
-let groups: Group[] = loadGroups();
-let currentId: string | null = loadCurrentId();
-let llm: LlmSettings = loadLlmSettings();
-let editingId: string | null = null;
-let showLlm = false;
-
-const app = document.querySelector<HTMLDivElement>("#app")!;
-
-function persist(): void {
-  saveGroups(groups);
-  if (currentId) saveCurrentId(currentId);
-}
-
-function currentGroup(): Group | null {
-  return groups.find((g) => g.id === currentId) ?? null;
-}
-
-function touch(g: Group): void {
-  g.updatedAt = Date.now();
-}
-
-// ---- helpers ----
-function esc(s: string): string {
-  return s.replace(
+import type { Level } from "./types";
+import { calculate, differenceText, nameOf } from "./warikan";
+import { load, save } from "./storage";
+const state = load(),
+  app = document.querySelector<HTMLDivElement>("#app")!;
+const labels: Record<Level, string> = {
+    gift: "おごり",
+    less: "少なめ",
+    normal: "ふつう",
+    more: "多め",
+  },
+  levels = Object.keys(labels) as Level[];
+const esc = (s: string) =>
+  s.replace(
     /[&<>"']/g,
     (c) =>
       ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[
         c
       ]!,
   );
+const yen = (n: number) => n.toLocaleString("ja-JP") + "円";
+const art = (n: string, cls = "icon") =>
+  `<img class="${cls}" src="./art/${n}.svg" alt="">`;
+let copyText = "";
+function persist() {
+  document.querySelector("#save-status")!.textContent = save(state)
+    ? "人数・名前・設定はこの端末に自動保存"
+    : "端末に保存できません。画面を閉じると設定が失われます。";
 }
-
-function yen(n: number): string {
-  return `¥${Math.round(n).toLocaleString("ja-JP")}`;
-}
-
-// =============================================================
-// 共有プレビュー（URL に #data= がある場合・読み取り専用）
-// =============================================================
-function renderSharePreview(g: Group): void {
-  const balances = computeBalances(g);
-  const settlements = minimizeSettlements(balances);
-  app.innerHTML = `
-    <header>
-      <h1>共有された割り勘</h1>
-      <p class="sub">読み取り専用プレビュー。あなたの端末にはまだ保存されていません。</p>
-    </header>
-    <section class="card">
-      <h2>${esc(g.name)}</h2>
-      <p class="muted">メンバー ${g.members.length}人 / 支出 ${g.expenses.length}件 / 総額 ${yen(totalAmount(g))}</p>
-      ${settlementHtml(g, settlements)}
-    </section>
-    <div class="actions">
-      <button id="import-shared" class="primary">この割り勘を取り込む</button>
-      <button id="discard-shared">破棄して自分のデータを開く</button>
-    </div>
-    <footer>${footerHtml()}</footer>
-  `;
-  app.querySelector("#import-shared")!.addEventListener("click", () => {
-    const imported = normalizeGroup({ ...g, id: newId("g") });
-    groups.push(imported);
-    currentId = imported.id;
-    persist();
-    clearHash();
-    render();
-  });
-  app.querySelector("#discard-shared")!.addEventListener("click", () => {
-    clearHash();
-    render();
-  });
-}
-
-function clearHash(): void {
-  if (typeof location !== "undefined") {
-    history.replaceState(null, "", location.pathname + location.search);
-  }
-}
-
-// =============================================================
-// 精算結果（収支 + 最小送金リスト）— 共有プレビューとメインで共用
-// =============================================================
-function settlementHtml(g: Group, settlements: ReturnType<typeof minimizeSettlements>): string {
-  const balances = computeBalances(g);
-  const rows = balances
-    .map((b) => {
-      const cls = b.net > 0 ? "pos" : b.net < 0 ? "neg" : "zero";
-      const label =
-        b.net > 0 ? "受取" : b.net < 0 ? "支払" : "±0";
-      return `<tr>
-        <td>${esc(memberName(g.members, b.memberId))}</td>
-        <td class="num">${yen(b.paid)}</td>
-        <td class="num">${yen(b.owed)}</td>
-        <td class="num ${cls}">${Math.abs(b.net).toLocaleString("ja-JP")}円 <span class="tag">${label}</span></td>
-      </tr>`;
-    })
-    .join("");
-
-  const settleList =
-    settlements.length === 0
-      ? `<p class="muted">精算の必要はありません（全員清算済み）。</p>`
-      : `<ul class="settle">` +
-        settlements
-          .map(
-            (s) =>
-              `<li><strong>${esc(memberName(g.members, s.from))}</strong> → <strong>${esc(memberName(g.members, s.to))}</strong> <span class="amt">${yen(s.amount)}</span></li>`,
-          )
-          .join("") +
-        `</ul>`;
-
-  return `
-    <h3>収支</h3>
-    <table class="balances">
-      <thead><tr><th>名前</th><th class="num">立替</th><th class="num">負担</th><th class="num">差引</th></tr></thead>
-      <tbody>${rows}</tbody>
-    </table>
-    <h3>精算（最小 ${settlements.length} 回の送金）</h3>
-    ${settleList}
-  `;
-}
-
-// =============================================================
-// メイン画面
-// =============================================================
-function render(): void {
-  // 共有 URL で開かれたら最優先でプレビュー
-  if (typeof location !== "undefined") {
-    const shared = readShareHash(location.hash);
-    if (shared) {
-      renderSharePreview(shared);
-      return;
-    }
-  }
-
-  if (groups.length === 0) {
-    renderEmpty();
+function results() {
+  const out = document.querySelector("#results")!;
+  if (state.amount === "") {
+    out.innerHTML = `<div class="empty">${art("plate", "empty-art")}<h2>お会計はいくら？</h2><p>合計を入れると、ここに1人分が出ます。</p></div>`;
+    copyText = "";
     return;
   }
-  if (!currentGroup()) {
-    currentId = groups[0].id;
-  }
-  const g = currentGroup()!;
-  const settlements = minimizeSettlements(computeBalances(g));
-
-  app.innerHTML = `
-    <header>
-      <h1>割り勘 <span class="brand">warikan</span></h1>
-      <p class="sub">アカウント不要・この端末だけに保存。結果はURLで共有できます。</p>
-    </header>
-
-    <section class="card">
-      <div class="grouprow">
-        <label>グループ
-          <select id="group-select">
-            ${groups
-              .map(
-                (gr) =>
-                  `<option value="${gr.id}" ${gr.id === currentId ? "selected" : ""}>${esc(gr.name)}</option>`,
-              )
-              .join("")}
-          </select>
-        </label>
-        <button id="new-group">＋新規</button>
-        <button id="rename-group">名前変更</button>
-        <button id="delete-group" class="danger">削除</button>
-      </div>
-    </section>
-
-    <section class="card">
-      <h2>メンバー（${g.members.length}人）</h2>
-      <div class="members">
-        ${g.members
-          .map(
-            (m) =>
-              `<div class="member-row"><span>${esc(m.name)}</span><button class="rm-member danger" data-id="${m.id}" aria-label="${esc(m.name)}を削除">削除</button></div>`,
-          )
-          .join("")}
-      </div>
-      <form id="member-form" class="inline">
-        <input id="member-name" type="text" placeholder="名前を追加" maxlength="20" />
-        <button type="submit">追加</button>
-      </form>
-    </section>
-
-    <section class="card">
-      <h2>支出（${g.expenses.length}件 / 総額 ${yen(totalAmount(g))}）</h2>
-      ${g.members.length < 1 ? `<p class="muted">先にメンバーを追加してください。</p>` : expenseFormHtml(g)}
-      ${expenseListHtml(g)}
-    </section>
-
-    <section class="card result">
-      ${settlementHtml(g, settlements)}
-    </section>
-
-    <section class="card">
-      <h2>共有・バックアップ</h2>
-      <div class="actions">
-        <button id="share-url" class="primary">共有リンクをコピー</button>
-        <button id="export-json">JSONエクスポート</button>
-        <button id="import-json">JSONインポート</button>
-        <button id="toggle-llm">${showLlm ? "LLM設定を隠す" : "AI明細取り込み"}</button>
-      </div>
-      <p id="share-msg" class="muted"></p>
-      ${showLlm ? llmHtml() : ""}
-    </section>
-
-    <footer>${footerHtml()}</footer>
-  `;
-
-  bindMain(g);
-}
-
-function renderEmpty(): void {
-  app.innerHTML = `
-    <header>
-      <h1>割り勘 <span class="brand">warikan</span></h1>
-      <p class="sub">アカウント不要・この端末だけに保存。結果はURLで共有できます。</p>
-    </header>
-    <section class="card">
-      <h2>はじめる</h2>
-      <p class="muted">旅行・飲み会・同棲など、精算したいグループを作成します。</p>
-      <form id="first-group" class="inline">
-        <input id="first-group-name" type="text" placeholder="グループ名（例: 沖縄旅行）" maxlength="30" />
-        <button type="submit" class="primary">作成</button>
-      </form>
-    </section>
-    <footer>${footerHtml()}</footer>
-  `;
-  app.querySelector("#first-group")!.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const name =
-      (app.querySelector<HTMLInputElement>("#first-group-name")!.value || "").trim() ||
-      "割り勘";
-    createGroup(name);
-  });
-}
-
-function expenseFormHtml(g: Group): string {
-  const editing = editingId
-    ? g.expenses.find((e) => e.id === editingId)
-    : null;
-  const memberOpts = (selected?: string) =>
-    g.members
-      .map(
-        (m) =>
-          `<option value="${m.id}" ${m.id === selected ? "selected" : ""}>${esc(m.name)}</option>`,
-      )
-      .join("");
-  const checks = g.members
-    .map((m) => {
-      const on = editing
-        ? editing.participantIds.includes(m.id)
-        : true; // 新規は全員参加が既定
-      return `<label class="check"><input type="checkbox" class="part" value="${m.id}" ${on ? "checked" : ""}/> ${esc(m.name)}</label>`;
-    })
-    .join("");
-  return `
-    <form id="expense-form" class="expense-form">
-      <div class="row">
-        <input id="ex-title" type="text" placeholder="項目（例: 居酒屋）" maxlength="40" value="${editing ? esc(editing.title) : ""}" />
-        <input id="ex-amount" type="number" min="0" step="1" placeholder="金額" value="${editing ? editing.amount : ""}" />
-        <label>立替
-          <select id="ex-payer">${memberOpts(editing?.payerId ?? g.members[0]?.id)}</select>
-        </label>
-      </div>
-      <div class="parts">対象: ${checks}</div>
-      <div class="row">
-        <button type="submit" class="primary">${editing ? "更新" : "追加"}</button>
-        ${editing ? `<button type="button" id="cancel-edit">キャンセル</button>` : ""}
-      </div>
-    </form>
-  `;
-}
-
-function expenseListHtml(g: Group): string {
-  if (g.expenses.length === 0) return `<p class="muted">まだ支出がありません。</p>`;
-  const items = [...g.expenses]
-    .sort((a, b) => b.createdAt - a.createdAt)
-    .map(
-      (e) => `
-      <li>
-        <div class="ex-main">
-          <span class="ex-title">${esc(e.title)}</span>
-          <span class="ex-amt">${yen(e.amount)}</span>
-        </div>
-        <div class="ex-sub muted">
-          ${esc(memberName(g.members, e.payerId))} が立替 / 対象 ${e.participantIds.length}人
-        </div>
-        <div class="ex-actions">
-          <button class="edit-ex" data-id="${e.id}">編集</button>
-          <button class="del-ex danger" data-id="${e.id}">削除</button>
-        </div>
-      </li>`,
-    )
-    .join("");
-  return `<ul class="expenses">${items}</ul>`;
-}
-
-function llmHtml(): string {
-  return `
-    <div class="llm">
-      <p class="muted">明細やメモを貼ると AI が支出を抽出します（任意・OpenAI互換APIキーはこの端末のみに保存）。</p>
-      <div class="row">
-        <label><input type="checkbox" id="llm-enabled" ${llm.enabled ? "checked" : ""}/> 有効</label>
-      </div>
-      <div class="row">
-        <input id="llm-endpoint" type="text" placeholder="エンドポイント" value="${esc(llm.endpoint)}" />
-        <input id="llm-model" type="text" placeholder="モデル" value="${esc(llm.model)}" />
-      </div>
-      <div class="row">
-        <input id="llm-key" type="password" placeholder="APIキー" value="${esc(llm.apiKey)}" />
-        <button id="llm-save">設定を保存</button>
-      </div>
-      <textarea id="llm-text" placeholder="ここに明細/メモを貼り付け" rows="4"></textarea>
-      <button id="llm-extract" ${isLlmReady(llm) ? "" : "disabled"}>AIで抽出して追加</button>
-      <p id="llm-msg" class="muted"></p>
-    </div>
-  `;
-}
-
-function footerHtml(): string {
-  return `データはこの端末のブラウザ(localStorage)だけに保存され、サーバーには送信されません。`;
-}
-
-// =============================================================
-// イベント結線（full re-render なので毎回取り直す）
-// =============================================================
-function bindMain(g: Group): void {
-  app.querySelector<HTMLSelectElement>("#group-select")!.addEventListener("change", (e) => {
-    currentId = (e.target as HTMLSelectElement).value;
-    editingId = null;
-    persist();
-    render();
-  });
-  app.querySelector("#new-group")!.addEventListener("click", () => {
-    const name = (prompt("新しいグループ名") || "").trim();
-    if (name) createGroup(name);
-  });
-  app.querySelector("#rename-group")!.addEventListener("click", () => {
-    const name = (prompt("グループ名を変更", g.name) || "").trim();
-    if (name) {
-      g.name = name;
-      touch(g);
-      persist();
-      render();
-    }
-  });
-  app.querySelector("#delete-group")!.addEventListener("click", () => {
-    if (!confirm(`「${g.name}」を削除しますか？この操作は取り消せません。`)) return;
-    groups = groups.filter((x) => x.id !== g.id);
-    currentId = groups[0]?.id ?? null;
-    editingId = null;
-    persist();
-    render();
-  });
-
-  // メンバー
-  app.querySelector("#member-form")!.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const input = app.querySelector<HTMLInputElement>("#member-name")!;
-    const name = (input.value || "").trim();
-    if (!name) return;
-    g.members.push({ id: newId("m"), name });
-    touch(g);
-    persist();
-    render();
-  });
-  app.querySelectorAll<HTMLButtonElement>(".rm-member").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const id = btn.dataset.id!;
-      // この人が payer の支出があれば確認
-      const used = g.expenses.some(
-        (e) => e.payerId === id || e.participantIds.includes(id),
-      );
-      if (used && !confirm("このメンバーは支出に関係しています。削除すると関連も外れます。続けますか？")) return;
-      g.members = g.members.filter((m) => m.id !== id);
-      // 関連を掃除
-      g.expenses = g.expenses.filter((e) => e.payerId !== id);
-      for (const e of g.expenses) {
-        e.participantIds = e.participantIds.filter((p) => p !== id);
-        if (e.shares) delete e.shares[id];
-      }
-      touch(g);
-      persist();
-      render();
-    });
-  });
-
-  // 支出フォーム
-  const exForm = app.querySelector("#expense-form");
-  if (exForm) {
-    exForm.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const title = (app.querySelector<HTMLInputElement>("#ex-title")!.value || "").trim() || "支出";
-      const amount = Math.max(0, Math.round(Number(app.querySelector<HTMLInputElement>("#ex-amount")!.value) || 0));
-      const payerId = app.querySelector<HTMLSelectElement>("#ex-payer")!.value;
-      const participantIds = Array.from(
-        app.querySelectorAll<HTMLInputElement>(".part:checked"),
-      ).map((c) => c.value);
-      if (amount <= 0) {
-        alert("金額を入力してください。");
-        return;
-      }
-      if (participantIds.length === 0) {
-        alert("対象メンバーを1人以上選んでください。");
-        return;
-      }
-      if (editingId) {
-        const ex = g.expenses.find((x) => x.id === editingId);
-        if (ex) {
-          ex.title = title;
-          ex.amount = amount;
-          ex.payerId = payerId;
-          ex.participantIds = participantIds;
-        }
-        editingId = null;
-      } else {
-        g.expenses.push({
-          id: newId("e"),
-          title,
-          amount,
-          payerId,
-          participantIds,
-          createdAt: Date.now(),
-        });
-      }
-      touch(g);
-      persist();
-      render();
-    });
-    const cancel = app.querySelector("#cancel-edit");
-    if (cancel)
-      cancel.addEventListener("click", () => {
-        editingId = null;
-        render();
-      });
-  }
-
-  app.querySelectorAll<HTMLButtonElement>(".edit-ex").forEach((btn) =>
-    btn.addEventListener("click", () => {
-      editingId = btn.dataset.id!;
-      render();
-    }),
-  );
-  app.querySelectorAll<HTMLButtonElement>(".del-ex").forEach((btn) =>
-    btn.addEventListener("click", () => {
-      g.expenses = g.expenses.filter((e) => e.id !== btn.dataset.id);
-      touch(g);
-      persist();
-      render();
-    }),
-  );
-
-  // 共有・バックアップ
-  app.querySelector("#share-url")!.addEventListener("click", async () => {
-    const url = buildShareUrl(g, location.href);
-    const msg = app.querySelector<HTMLParagraphElement>("#share-msg")!;
-    try {
-      await navigator.clipboard.writeText(url);
-      msg.textContent = "共有リンクをコピーしました。相手はアカウント不要で結果を見られます。";
-    } catch {
-      msg.textContent = url;
-    }
-  });
-  app.querySelector("#export-json")!.addEventListener("click", () => {
-    downloadText(`warikan-${g.name}.json`, JSON.stringify(g, null, 2));
-  });
-  app.querySelector("#import-json")!.addEventListener("click", () => {
-    importJson();
-  });
-  app.querySelector("#toggle-llm")!.addEventListener("click", () => {
-    showLlm = !showLlm;
-    render();
-  });
-
-  if (showLlm) bindLlm(g);
-}
-
-function bindLlm(g: Group): void {
-  app.querySelector("#llm-save")!.addEventListener("click", () => {
-    llm = {
-      enabled: app.querySelector<HTMLInputElement>("#llm-enabled")!.checked,
-      endpoint: app.querySelector<HTMLInputElement>("#llm-endpoint")!.value.trim(),
-      model: app.querySelector<HTMLInputElement>("#llm-model")!.value.trim(),
-      apiKey: app.querySelector<HTMLInputElement>("#llm-key")!.value.trim(),
-    };
-    saveLlmSettings(llm);
-    render();
-  });
-  const extractBtn = app.querySelector<HTMLButtonElement>("#llm-extract");
-  if (extractBtn)
-    extractBtn.addEventListener("click", async () => {
-      const text = app.querySelector<HTMLTextAreaElement>("#llm-text")!.value;
-      const msg = app.querySelector<HTMLParagraphElement>("#llm-msg")!;
-      msg.textContent = "抽出中…";
+  try {
+    const r = calculate(
+      /^\d+$/.test(state.amount) ? Number(state.amount) : NaN,
+      state.people,
+      state.ratios,
+      state.unit,
+      state.host,
+    );
+    copyText =
+      `本日の会計 ${yen(Number(state.amount))}\n` +
+      state.people
+        .map(
+          (p, i) =>
+            `${nameOf(p, i)}さん ${yen(r.amounts[i])}${i === state.host ? "（幹事・自分の分）" : ""}`,
+        )
+        .join("\n") +
+      `\n集める額（幹事分含む） ${yen(r.collected)}\n${differenceText(r.difference)}${r.difference < 0 ? "（自分の分に追加）" : ""}\n${nameOf(state.people[state.host], state.host)}さんへお支払いください。`;
+    out.innerHTML = `<div class="section-title"><h2>みんなのお支払い</h2><span class="pill">${state.people.length}人</span></div><p class="muted">${esc(nameOf(state.people[state.host], state.host))}さんへお支払い</p><div class="result-list">${state.people.map((p, i) => `<div class="result-person ${i === state.host ? "host-result" : ""}">${art("person" + (i % 4), "face")}<div><span>${esc(nameOf(p, i))}さん</span>${i === state.host ? "<small>幹事・受け取る側 / 自分の分</small>" : ""}<strong>${yen(r.amounts[i])}</strong></div></div>`).join("")}</div><div class="balance"><div>本日の会計 <b>${yen(Number(state.amount))}</b></div><div>集める額（幹事分含む） <b>${yen(r.collected)}</b></div><p class="difference">${differenceText(r.difference)}</p>${r.difference < 0 ? "<small>不足分は幹事の「自分の分」に追加します。</small>" : ""}<div>他の人から受け取る額 <b>${yen(r.received)}</b></div><div>幹事の実質負担 <b>${yen(r.hostActual)}</b></div></div><button id="copy" class="primary wide">${art("copy")}LINEに貼る文をコピー</button><p id="copy-status" role="status"></p><textarea id="copy-fallback" aria-label="LINEに貼る文" hidden readonly></textarea>`;
+    document.querySelector("#copy")!.addEventListener("click", async () => {
       try {
-        const items = await extractExpenses(
-          text,
-          llm,
-          g.members.map((m) => m.name),
-        );
-        let added = 0;
-        for (const it of items) {
-          const payer =
-            g.members.find((m) => m.name === it.payer)?.id ??
-            g.members[0]?.id;
-          if (!payer) break;
-          g.expenses.push({
-            id: newId("e"),
-            title: it.title,
-            amount: it.amount,
-            payerId: payer,
-            participantIds: g.members.map((m) => m.id),
-            createdAt: Date.now(),
-          });
-          added++;
-        }
-        touch(g);
-        persist();
-        msg.textContent = `${added}件を追加しました。`;
-        setTimeout(render, 600);
-      } catch (err) {
-        msg.textContent = `抽出に失敗しました: ${(err as Error).message}`;
-      }
-    });
-}
-
-// ---- group lifecycle ----
-function createGroup(name: string): void {
-  const g: Group = {
-    id: newId("g"),
-    name,
-    members: [],
-    expenses: [],
-    updatedAt: Date.now(),
-  };
-  groups.push(g);
-  currentId = g.id;
-  editingId = null;
-  persist();
-  render();
-}
-
-// ---- file io ----
-function downloadText(filename: string, text: string): void {
-  const blob = new Blob([text], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
-function importJson(): void {
-  const input = document.createElement("input");
-  input.type = "file";
-  input.accept = "application/json";
-  input.addEventListener("change", () => {
-    const file = input.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      try {
-        const obj = JSON.parse(String(reader.result));
-        const g = normalizeGroup({ ...obj, id: newId("g") });
-        groups.push(g);
-        currentId = g.id;
-        persist();
-        render();
+        await navigator.clipboard.writeText(copyText);
+        document.querySelector("#copy-status")!.textContent =
+          "コピーしました。LINEに貼り付けて送れます。";
       } catch {
-        alert("JSONの読み込みに失敗しました。");
+        const t =
+          document.querySelector<HTMLTextAreaElement>("#copy-fallback")!;
+        t.hidden = false;
+        t.value = copyText;
+        t.select();
+        document.querySelector("#copy-status")!.textContent =
+          "下の文を選択してコピーしてください。";
       }
-    };
-    reader.readAsText(file);
-  });
-  input.click();
+    });
+  } catch (e) {
+    out.innerHTML = `<p role="alert" class="error">${esc((e as Error).message)}</p>`;
+    copyText = "";
+  }
 }
-
-// 共有リンクで開かれた状態からハッシュが変わったら再描画
-if (typeof window !== "undefined") {
-  window.addEventListener("hashchange", render);
+function render() {
+  app.innerHTML = `<header><div class="brand">WARIKAN <span>その場の割り勘</span></div><div class="hero"><div><h1>おいしい時間の、<br>お会計をさくっと。</h1><p>金額を入れて、みんなで割るだけ。</p></div><div class="hero-art">${art("beer", "beer")}${art("plate", "plate")}</div></div></header><main><div class="inputs"><section class="card amount-card"><label for="amount" class="step">01 本日のお会計</label><div class="amount-wrap"><input id="amount" inputmode="numeric" pattern="[0-9]*" maxlength="9" placeholder="0" value="${esc(state.amount)}" autocomplete="off"><span>円</span></div><div class="choices method">${["cash", "digital"].map((m) => `<button data-method="${m}" aria-pressed="${state.method === m}">${m === "cash" ? "現金" : "PayPayなど"}</button>`).join("")}</div><div class="round-row"><span>切り上げ単位</span><div class="choices units">${[1, 10, 100, 500].map((n) => `<button data-unit="${n}" aria-pressed="${state.unit === n}">${n}円</button>`).join("")}</div></div><button id="show-results" class="wide result-jump">割り勘の結果を見る</button></section><section class="card people-card"><div class="section-title"><h2>02 だれと割る？ <span>${state.people.length}人</span></h2><button id="add" aria-label="＋1人" ${state.people.length >= 100 ? "disabled" : ""}>${art("plus")}1人</button></div><p class="muted">名前は空欄でもOK。支払った人を幹事に。</p><div class="people">${state.people.map((p, i) => `<article class="person"><div class="person-head">${art("person" + (i % 4), "face")}<input data-name="${i}" aria-label="${i + 1}人目の名前" placeholder="${i + 1}人目" maxlength="30" value="${esc(p.name)}"><button data-remove="${i}" aria-label="${i + 1}人目を削除" ${state.people.length === 1 ? "disabled" : ""}>${art("trash")}</button></div><button class="host-choice" data-host="${i}" aria-pressed="${state.host === i}">${state.host === i ? "幹事 / 受け取る側" : "この人を幹事に"}</button><div class="choices levels">${levels.map((l) => `<button data-level="${l}" data-person="${i}" aria-pressed="${p.fixed === "" && p.level === l}">${labels[l]}</button>`).join("")}</div><label class="fixed">この人は<input data-fixed="${i}" inputmode="numeric" maxlength="9" placeholder="指定なし" value="${esc(p.fixed)}" aria-label="${i + 1}人目の固定額">円</label><small>固定額を入力すると優先（切り上げなし）</small></article>`).join("")}</div><details id="settings"><summary>${art("settings")} 傾斜の比率を変える</summary><p class="muted">固定額を引いた残りを、この比率で分けます。0は負担なし。</p><div class="ratio-grid">${levels.map((l) => `<label>${labels[l]}<input data-ratio="${l}" type="number" inputmode="decimal" min="0" max="100" step="0.1" value="${state.ratios[l]}"></label>`).join("")}</div><p>固定額の合計が会計を超える場合も指定額を維持し、差額をおつりとして表示します。</p></details></section></div><section class="card results" id="results" aria-label="計算結果" aria-live="polite"></section></main><div class="bottom"><button id="new">${art("refresh")}新しい会計</button><p>金額だけ消して、メンバーと設定はそのまま。</p><p id="save-status" role="status">人数・名前・設定はこの端末に自動保存</p></div><footer>登録不要。入力内容は外部に送信しません。<br>イラスト: Fluent Emoji (MIT) / アイコン: Tabler Icons (MIT)</footer>`;
+  results();
 }
-
+app.addEventListener("input", (e) => {
+  const el = e.target as HTMLInputElement;
+  if (el.id === "amount") state.amount = el.value;
+  else if (el.dataset.name !== undefined)
+    state.people[+el.dataset.name].name = el.value;
+  else if (el.dataset.fixed !== undefined)
+    state.people[+el.dataset.fixed].fixed = el.value;
+  else if (el.dataset.ratio)
+    state.ratios[el.dataset.ratio as Level] =
+      el.value === "" ? NaN : Number(el.value);
+  else return;
+  persist();
+  results();
+  if (el.dataset.fixed !== undefined)
+    el.closest(".person")!
+      .querySelectorAll<HTMLButtonElement>("[data-level]")
+      .forEach((b) =>
+        b.setAttribute(
+          "aria-pressed",
+          String(
+            el.value === "" &&
+              state.people[+el.dataset.fixed!].level === b.dataset.level,
+          ),
+        ),
+      );
+});
+app.addEventListener("click", (e) => {
+  const b = (e.target as HTMLElement).closest("button");
+  if (!b) return;
+  if (b.id === "show-results") {
+    document
+      .querySelector("#results")!
+      .scrollIntoView({ behavior: "smooth", block: "start" });
+    return;
+  }
+  if (b.id === "add")
+    state.people.push({ name: "", level: "normal", fixed: "" });
+  else if (b.dataset.remove !== undefined) {
+    const i = +b.dataset.remove;
+    state.people.splice(i, 1);
+    state.host =
+      state.host === i ? 0 : state.host > i ? state.host - 1 : state.host;
+  } else if (b.dataset.host !== undefined) state.host = +b.dataset.host;
+  else if (b.dataset.level) {
+    const p = state.people[+b.dataset.person!];
+    p.level = b.dataset.level as Level;
+    p.fixed = "";
+  } else if (b.dataset.method) {
+    state.method = b.dataset.method;
+    state.unit = state.method === "cash" ? 100 : 1;
+  } else if (b.dataset.unit) state.unit = +b.dataset.unit;
+  else if (b.id === "new") state.amount = "";
+  else return;
+  render();
+  persist();
+  if (b.id === "new")
+    document.querySelector<HTMLInputElement>("#amount")!.focus();
+  if (b.id === "add")
+    document
+      .querySelector<HTMLInputElement>(
+        `[data-name="${state.people.length - 1}"]`,
+      )!
+      .focus();
+});
 render();

@@ -8,7 +8,7 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "test": "tsx src/generator.test.ts && tsx src/shopping.test.ts"
+    "test": "tsx src/generator.test.ts && tsx src/shopping.test.ts && tsx src/data/recipes.test.ts && tsx src/balance.test.ts"
   },
   "devDependencies": {
     "@types/node": "^26.0.0",

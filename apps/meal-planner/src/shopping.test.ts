@@ -41,12 +41,12 @@ check(
 // 人数スケール: 2人前基準を 3人前(大人2+子2*0.5=3)で 1.5倍
 check("子ども0.5換算で必要人数=3", servingsFor(input) === 3);
 
-// スケール検証: 単一レシピ（鶏もも肉250g/2人前）→ 3人前で375g
-const teriyaki = RECIPES.find((r) => r.id === "m-teriyaki-chicken")!;
+// スケール検証: 単一レシピ（鶏もも肉300g/2人前）→ 3人前で450g
+const teriyaki = RECIPES.find((r) => r.name === "鶏の照り焼き")!;
 const oneDay: DayPlan[] = [{ day: 1, main: teriyaki }];
 const list = buildShoppingList(oneDay, input);
 const chicken = list.find((i) => i.name === "鶏もも肉")!;
-check("人数スケールが量に反映(250g→375g)", chicken.qty === 375);
+check("人数スケールが量に反映(300g→450g)", chicken.qty === 450);
 
 console.log(failed === 0 ? "\nALL PASS" : `\n${failed} FAILED`);
 process.exit(failed === 0 ? 0 : 1);

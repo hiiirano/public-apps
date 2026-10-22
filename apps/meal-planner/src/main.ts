@@ -3,35 +3,33 @@ import type { PlannerInput, WeeklyPlan, Genre, Allergen } from "./types";
 import { ALL_ALLERGENS, ALL_GENRES } from "./types";
 import { buildPlan } from "./plan";
 import { groupByCategory } from "./shopping";
-import {
-  loadLlmSettings,
-  saveLlmSettings,
-  isLlmReady,
-  enhanceComment,
-  type LlmSettings,
-} from "./llm";
+import { recipeArt } from "./art";
+import type { Recipe } from "./types";
+const esc = (s: string) => s.replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]!));
+const icon = (name: string) => `<img class="icon" src="./art/${name}.svg" alt="" width="22" height="22"/>`;
+const art = (r: Recipe) => `<img class="food-art" src="./art/${recipeArt(r)}.svg" alt="" width="80" height="80"/>`;
+// Remove credentials left by older versions; no network AI functionality remains.
+try { localStorage.removeItem("meal-planner.llm"); } catch { /* storage unavailable */ }
 
 const INPUT_KEY = "meal-planner.input";
 
-function loadInput(): PlannerInput {
-  const fallback: PlannerInput = {
-    adults: 2,
-    children: 0,
-    genres: [],
-    excludeAllergens: [],
-    ngKeywords: [],
-    withSide: true,
-    quickOnly: false,
-    pantry: [],
-    seed: 1,
+function normalizeInput(value: unknown): PlannerInput {
+  const v = value && typeof value === "object" ? value as Partial<PlannerInput> : {};
+  const count = (n: unknown, fallback: number, min: number) =>
+    typeof n === "number" && Number.isFinite(n) ? Math.min(10, Math.max(min, Math.floor(n))) : fallback;
+  const strings = (a: unknown): string[] => Array.isArray(a) ? a.filter((x): x is string => typeof x === "string" && !!x.trim()).map(x => x.trim()) : [];
+  return {
+    adults: count(v.adults, 2, 1), children: count(v.children, 0, 0),
+    genres: strings(v.genres).filter((g): g is Genre => ALL_GENRES.includes(g as Genre)),
+    excludeAllergens: strings(v.excludeAllergens).filter((a): a is Allergen => ALL_ALLERGENS.includes(a as Allergen)),
+    ngKeywords: strings(v.ngKeywords), pantry: strings(v.pantry),
+    withSide: v.withSide !== false, quickOnly: v.quickOnly === true,
+    seed: typeof v.seed === "number" && Number.isFinite(v.seed) ? v.seed >>> 0 : 1,
   };
-  try {
-    const raw = localStorage.getItem(INPUT_KEY);
-    if (!raw) return fallback;
-    return { ...fallback, ...JSON.parse(raw) };
-  } catch {
-    return fallback;
-  }
+}
+function loadInput(): PlannerInput {
+  try { return normalizeInput(JSON.parse(localStorage.getItem(INPUT_KEY) || "null")); }
+  catch { return normalizeInput(null); }
 }
 
 function saveInput(i: PlannerInput): void {
@@ -46,22 +44,21 @@ function parseList(s: string): string[] {
 }
 
 let input = loadInput();
-let llm = loadLlmSettings();
-const RESULT_KEY = "meal-planner.result.v1";
+const RESULT_KEY = "meal-planner.result.v2";
 let plan: WeeklyPlan | null = null;
 let planInput: PlannerInput = input;
 let checked = new Set<number>();
 try {
-  const saved = JSON.parse(localStorage.getItem(RESULT_KEY) || "null");
+  const saved = JSON.parse(localStorage.getItem(RESULT_KEY) || localStorage.getItem("meal-planner.result.v1") || "null");
   if (saved?.input) {
-    planInput = saved.input;
-    plan = saved.plan ?? buildPlan(planInput);
-    checked = new Set<number>(saved.checked || []);
+    planInput = normalizeInput(saved.input);
+    plan = buildPlan(planInput);
+    checked = new Set<number>(saved.version === 2 ? saved.checked || [] : []);
   }
 } catch { /* Invalid or unavailable storage: start with an empty result. */ }
 function saveResult(): boolean {
   try {
-    localStorage.setItem(RESULT_KEY, JSON.stringify({ input: planInput, plan, checked: [...checked] }));
+    localStorage.setItem(RESULT_KEY, JSON.stringify({ version: 2, input: planInput, checked: [...checked] }));
     return true;
   } catch {
     flash("端末に保存できませんでした。買い物リストをコピーしてください。");
@@ -91,33 +88,33 @@ function allergenCheckboxes(): string {
 
 function renderShell(): void {
   app.innerHTML = `
-    <header>
+    <header><img class="hero-art" src="./art/steaming-bowl.svg" alt="" width="112" height="112"/><p class="eyebrow">毎日の「何作ろう？」を、ひと休み。</p>
       <h1>週間献立プランナー</h1>
-      <p class="sub">家族の条件を選ぶだけで、1週間分の献立と買い物リストを自動作成。<br/>登録不要・無料・オフラインでも動きます。</p>
+      <p class="sub">家族の条件を選ぶだけで、1週間分の献立と買い物リストを自動作成。<br/>和・洋・中の141品から。登録なしで使えます。</p>
     </header>
 
-    <form id="form" class="card">
+    <form id="form" class="card"><h2>わが家の献立を作ろう</h2><p class="note">子どもは0.5人前で計算します。</p>
       <div class="row">
         <label>大人 <input type="number" id="adults" min="1" max="10" value="${input.adults}" /></label>
         <label>子ども <input type="number" id="children" min="0" max="10" value="${input.children}" /></label>
       </div>
 
       <fieldset>
-        <legend>ジャンル傾向（未選択=すべて）</legend>
-        <div class="chips">${genreCheckboxes()}</div>
+        <legend>食べたいジャンル</legend>
+        <div class="chips">${genreCheckboxes()}</div><p class="note allergy-note">未選択なら、和・洋・中をおまかせで。</p>
       </fieldset>
 
       <fieldset>
         <legend>除外する食物アレルギー</legend>
-        <div class="chips">${allergenCheckboxes()}</div>
+        <div class="chips">${allergenCheckboxes()}</div><p class="note allergy-note">選んだ品目を含む料理を除外します。加工品は商品によって原材料が異なります。購入時は表示を確認してください。対象は上記9品目です。調理時の混入にもご注意ください。</p>
       </fieldset>
 
-      <label class="full">NG食材（カンマ/スペース区切り）
-        <input type="text" id="ng" placeholder="例: なす、ピーマン" value="${input.ngKeywords.join("、")}" />
+      <label class="full">苦手・避けたい食材（「、」で区切る）
+        <input type="text" id="ng" placeholder="例: なす、ピーマン" value="${esc(input.ngKeywords.join("、"))}" />
       </label>
 
       <label class="full">冷蔵庫の残り（あれば優先して使います）
-        <input type="text" id="pantry" placeholder="例: キャベツ、鶏もも肉" value="${input.pantry.join("、")}" />
+        <input type="text" id="pantry" placeholder="例: キャベツ、鶏もも肉" value="${esc(input.pantry.join("、"))}" />
       </label>
 
       <div class="row toggles">
@@ -126,22 +123,12 @@ function renderShell(): void {
       </div>
 
       <div class="actions">
-        <button type="submit" class="primary">献立を作る</button>
-        <button type="button" id="reroll" class="ghost">別の組み合わせ</button>
+        <button type="submit" class="primary">${icon("calendar-week")}献立を作る</button>
+        <button type="button" id="reroll" class="ghost">${icon("refresh")}別の組み合わせ</button>
       </div>
     </form>
 
-    <details class="card llm" id="llmPanel">
-      <summary>AI拡張（任意）— APIキーを入れると献立に一言アドバイスが付きます</summary>
-      <p class="note">キーはこのブラウザにのみ保存され、入力した提供元へ直接送信されます（自前サーバは経由しません）。空でもコア機能はすべて使えます。</p>
-      <label class="toggle"><input type="checkbox" id="llmEnabled" ${llm.enabled ? "checked" : ""}/> 有効にする</label>
-      <label class="full">エンドポイント<input type="text" id="llmEndpoint" value="${llm.endpoint}" /></label>
-      <label class="full">モデル<input type="text" id="llmModel" value="${llm.model}" /></label>
-      <label class="full">APIキー<input type="password" id="llmKey" value="${llm.apiKey}" placeholder="sk-..." /></label>
-      <button type="button" id="llmSave" class="ghost">保存</button>
-    </details>
-
-    <section id="result" tabindex="-1" aria-label="献立の結果"></section>
+    <section id="result" tabindex="-1" aria-label="献立の結果"></section><footer>献立・買い物リストはこの端末に自動保存されます。<br/>イラスト: Fluent Emoji (MIT) / アイコン: Tabler Icons (MIT)</footer>
   `;
 
   wireForm();
@@ -150,8 +137,8 @@ function renderShell(): void {
 
 function readForm(): void {
   const q = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
-  input.adults = Math.max(1, Number(q<HTMLInputElement>("adults").value) || 1);
-  input.children = Math.max(0, Number(q<HTMLInputElement>("children").value) || 0);
+  input.adults = Math.min(10, Math.max(1, Math.floor(Number(q<HTMLInputElement>("adults").value) || 1)));
+  input.children = Math.min(10, Math.max(0, Math.floor(Number(q<HTMLInputElement>("children").value) || 0)));
   input.genres = [...document.querySelectorAll<HTMLInputElement>('input[name="genre"]:checked')].map(
     (e) => e.value as Genre,
   );
@@ -177,16 +164,6 @@ function wireForm(): void {
     generate();
   });
 
-  document.getElementById("llmSave")!.addEventListener("click", () => {
-    llm = {
-      enabled: (document.getElementById("llmEnabled") as HTMLInputElement).checked,
-      endpoint: (document.getElementById("llmEndpoint") as HTMLInputElement).value.trim(),
-      model: (document.getElementById("llmModel") as HTMLInputElement).value.trim(),
-      apiKey: (document.getElementById("llmKey") as HTMLInputElement).value.trim(),
-    } as LlmSettings;
-    saveLlmSettings(llm);
-    flash("AI拡張の設定を保存しました");
-  });
 }
 
 function generate(): void {
@@ -223,22 +200,17 @@ function renderResult(): void {
     ? `<div class="warn">${plan.warnings.map((w) => `${w}`).join("<br/>")}</div>`
     : "";
 
+  if (plan.days.length === 0) { result.innerHTML = warnHtml; return; }
+
   const daysHtml = plan.days
     .map(
       (d) => `
-      <div class="day">
-        <div class="day-no">${d.day}日目</div>
-        <div class="dish main">
-          <span class="badge ${d.main.genre}">${d.main.genre}</span>
-          <span class="name">${d.main.name}</span>
-          <span class="time">⏱${d.main.timeMin}分</span>
-        </div>
-        ${
-          d.side
-            ? `<div class="dish side"><span class="name">＋ ${d.side.name}</span></div>`
-            : ""
-        }
-      </div>`,
+      <article class="day">
+        <div class="day-head"><span class="day-no">${["月", "火", "水", "木", "金", "土", "日"][d.day-1]}曜日</span><span class="badge ${d.main.genre}">${d.main.genre}</span><span class="time">${icon("clock")}${d.main.timeMin}分</span></div>
+        <div class="dish main">${art(d.main)}<h3 class="name">${d.main.name}</h3></div>
+        ${d.side ? `<div class="dish side">${art(d.side)}<span><small>副菜</small><br/>${d.side.name}</span><span class="badge ${d.side.genre}">${d.side.genre}</span></div>` : ""}
+        <details class="ingredients"><summary>材料・アレルゲンを見る</summary>${[d.main, d.side].filter((r): r is Recipe => !!r).map(r => `<p><strong>${r.name}</strong><br/>${planInput.adults + planInput.children * .5}人前：${r.ingredients.map(i => `${i.name} ${formatQuantity(Math.round(i.qty * (planInput.adults + planInput.children * .5) / r.servingsBase * 10) / 10, i.unit)}`).join("、")}<br/><span class="note">対象アレルゲン：${r.allergens.join("・") || "登録した材料では該当なし"}</span></p>`).join("")}</details>
+      </article>`,
     )
     .join("");
 
@@ -268,18 +240,13 @@ function renderResult(): void {
     <div class="card">
       <h2>今週の献立</h2>
       <p class="comment" id="comment">${plan.comment}</p>
-      ${
-        isLlmReady(llm)
-          ? `<button type="button" id="aiComment" class="ghost small">AIに一言もらう</button>`
-          : ""
-      }
       <div class="days">${daysHtml}</div>
     </div>
 
     <div class="card">
       <h2>買い物リスト</h2>
       <p class="sub">${planInput.adults + planInput.children}人分（子どもは0.5人前換算）</p>
-      <button id="copy-shopping" class="ghost">買い物リストをコピー</button>
+      <button id="copy-shopping" class="ghost">${icon("copy")}買い物リストをコピー</button>
       <div class="shopping">${shopHtml}</div>
     </div>
   `;
@@ -304,23 +271,6 @@ function renderResult(): void {
     }
   });
 
-  const aiBtn = document.getElementById("aiComment");
-  if (aiBtn) {
-    aiBtn.addEventListener("click", async () => {
-      const c = document.getElementById("comment")!;
-      aiBtn.setAttribute("disabled", "true");
-      c.textContent = "AIが考えています…";
-      try {
-        c.textContent = await enhanceComment(plan!, llm);
-      } catch (err) {
-        c.textContent = `AIアドバイスの取得に失敗しました（${
-          err instanceof Error ? err.message : "不明なエラー"
-        }）。コア機能はそのまま使えます。`;
-      } finally {
-        aiBtn.removeAttribute("disabled");
-      }
-    });
-  }
 }
 
 function formatQuantity(q: number, unit: string): string {
