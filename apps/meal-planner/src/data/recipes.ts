@@ -7219,7 +7219,415 @@ export const RECIPES: Recipe[] = [
         "category": "調味料"
       }
     ]
+  },
+  {
+    "id": "和-side-142",
+    "name": "豚汁",
+    "role": "side",
+    "genre": "和",
+    "timeMin": 20,
+    "allergens": [
+      "大豆"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "豚バラ肉",
+        "qty": 80.0,
+        "unit": "g",
+        "category": "肉・魚"
+      },
+      {
+        "name": "大根",
+        "qty": 100.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "にんじん",
+        "qty": 40.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "ごぼう",
+        "qty": 40.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "こんにゃく",
+        "qty": 50.0,
+        "unit": "g",
+        "category": "その他"
+      },
+      {
+        "name": "長ねぎ",
+        "qty": 20.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "味噌",
+        "qty": 30.0,
+        "unit": "g",
+        "category": "調味料"
+      },
+      {
+        "name": "水",
+        "qty": 500.0,
+        "unit": "ml",
+        "category": "調味料"
+      }
+    ]
+  },
+  {
+    "id": "和-side-143",
+    "name": "大根と油揚げの味噌汁",
+    "role": "side",
+    "genre": "和",
+    "timeMin": 10,
+    "allergens": [
+      "大豆"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "大根",
+        "qty": 80.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "油揚げ",
+        "qty": 20.0,
+        "unit": "g",
+        "category": "その他"
+      },
+      {
+        "name": "長ねぎ",
+        "qty": 15.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "味噌",
+        "qty": 30.0,
+        "unit": "g",
+        "category": "調味料"
+      },
+      {
+        "name": "かつお節",
+        "qty": 5.0,
+        "unit": "g",
+        "category": "その他"
+      },
+      {
+        "name": "水",
+        "qty": 400.0,
+        "unit": "ml",
+        "category": "調味料"
+      }
+    ]
+  },
+  {
+    "id": "和-side-144",
+    "name": "かき玉汁",
+    "role": "side",
+    "genre": "和",
+    "timeMin": 10,
+    "allergens": [
+      "卵",
+      "小麦",
+      "大豆"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "卵",
+        "qty": 1.0,
+        "unit": "個",
+        "category": "乳・卵"
+      },
+      {
+        "name": "長ねぎ",
+        "qty": 15.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "醤油",
+        "qty": 10.0,
+        "unit": "ml",
+        "category": "調味料"
+      },
+      {
+        "name": "片栗粉",
+        "qty": 5.0,
+        "unit": "g",
+        "category": "主食"
+      },
+      {
+        "name": "かつお節",
+        "qty": 5.0,
+        "unit": "g",
+        "category": "その他"
+      },
+      {
+        "name": "塩",
+        "qty": 1.0,
+        "unit": "g",
+        "category": "調味料"
+      },
+      {
+        "name": "水",
+        "qty": 400.0,
+        "unit": "ml",
+        "category": "調味料"
+      }
+    ]
+  },
+  {
+    "id": "和-side-145",
+    "name": "キャベツと玉ねぎの味噌汁",
+    "role": "side",
+    "genre": "和",
+    "timeMin": 10,
+    "allergens": [
+      "大豆"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "キャベツ",
+        "qty": 80.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "玉ねぎ",
+        "qty": 50.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "味噌",
+        "qty": 30.0,
+        "unit": "g",
+        "category": "調味料"
+      },
+      {
+        "name": "かつお節",
+        "qty": 5.0,
+        "unit": "g",
+        "category": "その他"
+      },
+      {
+        "name": "水",
+        "qty": 400.0,
+        "unit": "ml",
+        "category": "調味料"
+      }
+    ]
+  },
+  {
+    "id": "和-side-146",
+    "name": "きのこのすまし汁",
+    "role": "side",
+    "genre": "和",
+    "timeMin": 10,
+    "allergens": [
+      "小麦",
+      "大豆"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "しめじ",
+        "qty": 50.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "えのき",
+        "qty": 50.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "醤油",
+        "qty": 10.0,
+        "unit": "ml",
+        "category": "調味料"
+      },
+      {
+        "name": "かつお節",
+        "qty": 5.0,
+        "unit": "g",
+        "category": "その他"
+      },
+      {
+        "name": "塩",
+        "qty": 1.0,
+        "unit": "g",
+        "category": "調味料"
+      },
+      {
+        "name": "水",
+        "qty": 400.0,
+        "unit": "ml",
+        "category": "調味料"
+      }
+    ]
+  },
+  {
+    "id": "洋-side-147",
+    "name": "キャベツのコンソメスープ",
+    "role": "side",
+    "genre": "洋",
+    "timeMin": 15,
+    "allergens": [
+      "卵",
+      "乳",
+      "小麦",
+      "大豆"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "キャベツ",
+        "qty": 100.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "玉ねぎ",
+        "qty": 50.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "ベーコン",
+        "qty": 30.0,
+        "unit": "g",
+        "category": "肉・魚"
+      },
+      {
+        "name": "コンソメ",
+        "qty": 5.0,
+        "unit": "g",
+        "category": "調味料"
+      },
+      {
+        "name": "水",
+        "qty": 400.0,
+        "unit": "ml",
+        "category": "調味料"
+      }
+    ]
+  },
+  {
+    "id": "中-side-148",
+    "name": "中華コーンスープ",
+    "role": "side",
+    "genre": "中",
+    "timeMin": 10,
+    "allergens": [
+      "卵",
+      "乳",
+      "小麦",
+      "大豆"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "コーン",
+        "qty": 100.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "卵",
+        "qty": 1.0,
+        "unit": "個",
+        "category": "乳・卵"
+      },
+      {
+        "name": "鶏ガラスープの素",
+        "qty": 5.0,
+        "unit": "g",
+        "category": "調味料"
+      },
+      {
+        "name": "片栗粉",
+        "qty": 5.0,
+        "unit": "g",
+        "category": "主食"
+      },
+      {
+        "name": "水",
+        "qty": 400.0,
+        "unit": "ml",
+        "category": "調味料"
+      }
+    ]
+  },
+  {
+    "id": "中-side-149",
+    "name": "もやしとにらのスープ",
+    "role": "side",
+    "genre": "中",
+    "timeMin": 10,
+    "allergens": [
+      "乳",
+      "小麦",
+      "大豆"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "もやし",
+        "qty": 100.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "にら",
+        "qty": 30.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "鶏ガラスープの素",
+        "qty": 5.0,
+        "unit": "g",
+        "category": "調味料"
+      },
+      {
+        "name": "ごま油",
+        "qty": 5.0,
+        "unit": "ml",
+        "category": "調味料"
+      },
+      {
+        "name": "塩",
+        "qty": 1.0,
+        "unit": "g",
+        "category": "調味料"
+      },
+      {
+        "name": "水",
+        "qty": 400.0,
+        "unit": "ml",
+        "category": "調味料"
+      }
+    ]
   }
 ];
+/** 汁物（味噌汁・スープ）。夕食の「汁物」枠に使う */
+export const isSoup = (r: Recipe): boolean => r.role === "side" && /汁|スープ|ミネストローネ/.test(r.name);
 export const MAIN_RECIPES = RECIPES.filter(r => r.role === "main");
-export const SIDE_RECIPES = RECIPES.filter(r => r.role === "side");
+/** 副菜（汁物を除く） */
+export const SIDE_RECIPES = RECIPES.filter(r => r.role === "side" && !isSoup(r));
+export const SOUP_RECIPES = RECIPES.filter(isSoup);
+export const RECIPE_BY_ID = new Map(RECIPES.map(r => [r.id, r]));

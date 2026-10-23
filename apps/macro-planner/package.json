@@ -1,17 +1,21 @@
 {
   "name": "macro-planner",
-  "version": "0.1.0",
+  "version": "2.0.0",
   "private": true,
   "type": "module",
-  "description": "PFC・TDEE計算(macro-planner) — アカウント不要・端末内保存。プロフィールから1日の目標カロリーとPFCを計算し、食事ログで残量を追える静的Webアプリ",
+  "description": "1日の目標カロリーとPFCを計算し、食べたものを記録できる。登録不要・端末内だけで動く。",
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "test": "tsx src/macro.test.ts"
+    "test": "tsx src/macro.test.ts",
+    "test:e2e": "node tests/e2e.mjs",
+    "fonts": "python3 scripts/subset-fonts.py"
   },
   "devDependencies": {
     "@types/node": "^26.0.0",
+    "axe-core": "^4.14.0",
+    "playwright": "^1.58.2",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2",
     "vite": "^6.0.5"

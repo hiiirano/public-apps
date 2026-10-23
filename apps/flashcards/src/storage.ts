@@ -1,195 +1,276 @@
-// localStorage 永続化（読み込み失敗時は壊さず空にフォールバック）
-
+// 暗記カード — 端末への保存、書き出し・読み込み、形と範囲の検査
 import {
   type Card,
   type CardPair,
+  type Data,
   type Deck,
-  type ExportData,
-  type SeedDeck,
+  type DeckArt,
+  DECK_ARTS,
+  DEFAULT_NEW_PER_DAY,
   INITIAL_EASE,
-  SEED_DECKS,
+  MAX_CARDS,
+  MAX_DAYS,
+  MAX_DECKS,
+  MAX_EASE,
+  MAX_INTERVAL,
+  MIN_EASE,
+  NAME_MAX,
+  NEW_PER_DAY_CHOICES,
+  TEXT_MAX,
 } from "./types";
+import { parseYmd } from "./srs";
 
-const DECKS_KEY = "flashcards.decks";
-const CARDS_KEY = "flashcards.cards";
-const SEEDED_KEY = "flashcards.seeded";
+export const KEY = "flashcards.v2";
+/** 読めなかった保存内容の控え（消さずに残す） */
+export const BROKEN_KEY = "flashcards.v2.broken";
+/** 前の版（v1）のキー。v2 がなければ読み込んで移す */
+const LEGACY_DECKS = "flashcards.decks";
+const LEGACY_CARDS = "flashcards.cards";
 
-/** 軽量な一意ID */
-export function newId(prefix: string): string {
-  const rand = Math.random().toString(36).slice(2, 8);
-  return `${prefix}_${Date.now().toString(36)}_${rand}`;
+let seq = 0;
+export const newId = (prefix: string): string =>
+  `${prefix}${Date.now().toString(36)}${(seq++).toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+
+export function emptyData(): Data {
+  return { version: 2, decks: [], cards: [], days: [], newPerDay: DEFAULT_NEW_PER_DAY };
 }
 
-// ---- 正規化 ----
-
-function isDeck(x: unknown): x is Deck {
-  if (typeof x !== "object" || x === null) return false;
-  const o = x as Record<string, unknown>;
-  return typeof o.id === "string" && typeof o.name === "string";
+export function makeDeck(name: string, art: DeckArt = "own", sample?: string): Deck {
+  const deck: Deck = { id: newId("d"), name: cleanName(name), art, createdAt: new Date().toISOString() };
+  if (sample) deck.sample = sample;
+  return deck;
 }
 
-function isCardLike(x: unknown): x is Record<string, unknown> {
-  if (typeof x !== "object" || x === null) return false;
-  const o = x as Record<string, unknown>;
-  return (
-    typeof o.id === "string" &&
-    typeof o.deckId === "string" &&
-    typeof o.front === "string" &&
-    typeof o.back === "string"
-  );
+export function cleanName(name: string): string {
+  return name.replace(/\s+/g, " ").trim().slice(0, NAME_MAX) || "新しい単語帳";
 }
 
-/** 保存済みカードに後方互換の既定値を埋める */
-export function normalizeCard(raw: Record<string, unknown>): Card {
-  const now = new Date().toISOString();
-  const num = (v: unknown, d: number): number =>
-    typeof v === "number" && Number.isFinite(v) ? v : d;
+/** 新しいカード。createdAt は並び順に使うので、まとめて作るときは i で少しずつずらす */
+export function makeCard(deckId: string, p: CardPair, i = 0): Card {
   return {
-    id: String(raw.id),
-    deckId: String(raw.deckId),
-    front: String(raw.front),
-    back: String(raw.back),
-    repetitions: Math.max(0, Math.trunc(num(raw.repetitions, 0))),
-    interval: Math.max(0, num(raw.interval, 0)),
-    easeFactor: num(raw.easeFactor, INITIAL_EASE),
-    due: typeof raw.due === "string" ? raw.due : undefined,
-    reviews: Math.max(0, Math.trunc(num(raw.reviews, 0))),
-    lastReviewed:
-      typeof raw.lastReviewed === "string" ? raw.lastReviewed : undefined,
-    createdAt: typeof raw.createdAt === "string" ? raw.createdAt : now,
-    updatedAt:
-      typeof raw.updatedAt === "string"
-        ? raw.updatedAt
-        : typeof raw.createdAt === "string"
-          ? raw.createdAt
-          : now,
-  };
-}
-
-// ---- ロード/セーブ ----
-
-export function loadDecks(): Deck[] {
-  try {
-    const raw = localStorage.getItem(DECKS_KEY);
-    if (!raw) return [];
-    const parsed: unknown = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return [];
-    return parsed.filter(isDeck);
-  } catch {
-    return [];
-  }
-}
-
-export function loadCards(): Card[] {
-  try {
-    const raw = localStorage.getItem(CARDS_KEY);
-    if (!raw) return [];
-    const parsed: unknown = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return [];
-    return parsed.filter(isCardLike).map(normalizeCard);
-  } catch {
-    return [];
-  }
-}
-
-export function saveDecks(decks: Deck[]): void {
-  try {
-    localStorage.setItem(DECKS_KEY, JSON.stringify(decks));
-  } catch {
-    // 容量超過等は黙って無視
-  }
-}
-
-export function saveCards(cards: Card[]): void {
-  try {
-    localStorage.setItem(CARDS_KEY, JSON.stringify(cards));
-  } catch {
-    // 容量超過等は黙って無視
-  }
-}
-
-// ---- 生成ヘルパー ----
-
-export function makeDeck(name: string): Deck {
-  return {
-    id: newId("dk"),
-    name: name.trim() || "無題のデッキ",
-    createdAt: new Date().toISOString(),
-  };
-}
-
-/** 表裏ペアから新規カードを作る（SRS は未学習状態） */
-export function makeCard(deckId: string, pair: CardPair): Card {
-  const now = new Date().toISOString();
-  return {
-    id: newId("cd"),
+    id: newId("c"),
     deckId,
-    front: pair.front.trim(),
-    back: pair.back.trim(),
+    front: p.front.trim().slice(0, TEXT_MAX),
+    back: p.back.trim().slice(0, TEXT_MAX),
     repetitions: 0,
     interval: 0,
     easeFactor: INITIAL_EASE,
     reviews: 0,
-    createdAt: now,
-    updatedAt: now,
+    lapses: 0,
+    createdAt: new Date(Date.now() + i).toISOString(),
   };
 }
 
-// ---- 初回シード ----
+// ---- 検査 ----
 
-/** 初回のみサンプルデッキを投入する（once）。投入した {decks, cards} を返す */
-export function seedIfFirstRun(): { decks: Deck[]; cards: Card[] } | null {
+const isStr = (v: unknown, min: number, max: number): v is string =>
+  typeof v === "string" && v.length >= min && v.length <= max;
+const isInt = (v: unknown, min: number, max: number): v is number =>
+  typeof v === "number" && Number.isInteger(v) && v >= min && v <= max;
+const isYmd = (v: unknown): v is string => typeof v === "string" && parseYmd(v) !== null;
+const isIso = (v: unknown): v is string => typeof v === "string" && v.length <= 40 && !Number.isNaN(Date.parse(v));
+const optYmd = (v: unknown) => v === undefined || isYmd(v);
+
+export function validDeck(d: any): d is Deck {
+  return (
+    !!d &&
+    isStr(d.id, 1, 60) &&
+    isStr(d.name, 1, NAME_MAX) &&
+    DECK_ARTS.includes(d.art) &&
+    (d.sample === undefined || isStr(d.sample, 1, 60)) &&
+    isIso(d.createdAt)
+  );
+}
+
+export function validCard(c: any): c is Card {
+  return (
+    !!c &&
+    isStr(c.id, 1, 60) &&
+    isStr(c.deckId, 1, 60) &&
+    isStr(c.front, 1, TEXT_MAX) &&
+    isStr(c.back, 1, TEXT_MAX) &&
+    isInt(c.repetitions, 0, 100000) &&
+    isInt(c.interval, 0, MAX_INTERVAL) &&
+    typeof c.easeFactor === "number" &&
+    c.easeFactor >= MIN_EASE &&
+    c.easeFactor <= MAX_EASE &&
+    isInt(c.reviews, 0, 1000000) &&
+    isInt(c.lapses, 0, 1000000) &&
+    optYmd(c.due) &&
+    optYmd(c.introduced) &&
+    optYmd(c.lastReviewed) &&
+    (c.reviews === 0 ? c.due === undefined : c.due !== undefined) &&
+    isIso(c.createdAt)
+  );
+}
+
+const pickDeck = (d: Deck): Deck => {
+  const o: Deck = { id: d.id, name: d.name, art: d.art, createdAt: d.createdAt };
+  if (d.sample) o.sample = d.sample;
+  return o;
+};
+const pickCard = (c: Card): Card => {
+  const o: Card = {
+    id: c.id,
+    deckId: c.deckId,
+    front: c.front,
+    back: c.back,
+    repetitions: c.repetitions,
+    interval: c.interval,
+    easeFactor: c.easeFactor,
+    reviews: c.reviews,
+    lapses: c.lapses,
+    createdAt: c.createdAt,
+  };
+  if (c.due) o.due = c.due;
+  if (c.introduced) o.introduced = c.introduced;
+  if (c.lastReviewed) o.lastReviewed = c.lastReviewed;
+  return o;
+};
+
+/**
+ * 保存内容・書き出したファイルを読む。全体の形が違えば null。
+ * 1冊・1枚ずつ検査し、壊れたものだけを除く（ほかの単語帳まで消さないため）。
+ */
+export function parseData(raw: string | null): { data: Data; dropped: number } | null {
+  if (raw === null) return null;
+  let o: any;
   try {
-    if (localStorage.getItem(SEEDED_KEY)) return null;
-    if (loadDecks().length > 0) {
-      localStorage.setItem(SEEDED_KEY, "1");
-      return null;
-    }
+    o = JSON.parse(raw);
   } catch {
     return null;
   }
+  if (!o || typeof o !== "object" || o.version !== 2 || !Array.isArray(o.decks) || !Array.isArray(o.cards)) return null;
   const decks: Deck[] = [];
+  const deckIds = new Set<string>();
+  for (const d of o.decks) {
+    if (decks.length >= MAX_DECKS || !validDeck(d) || deckIds.has(d.id)) continue;
+    deckIds.add(d.id);
+    decks.push(pickDeck(d));
+  }
   const cards: Card[] = [];
-  for (const seed of SEED_DECKS as SeedDeck[]) {
-    const deck = makeDeck(seed.name);
-    decks.push(deck);
-    for (const pair of seed.cards) cards.push(makeCard(deck.id, pair));
+  const cardIds = new Set<string>();
+  for (const c of o.cards) {
+    if (cards.length >= MAX_CARDS || !validCard(c) || !deckIds.has(c.deckId) || cardIds.has(c.id)) continue;
+    cardIds.add(c.id);
+    cards.push(pickCard(c));
   }
-  saveDecks(decks);
-  saveCards(cards);
-  try {
-    localStorage.setItem(SEEDED_KEY, "1");
-  } catch {
-    // ignore
-  }
-  return { decks, cards };
+  const days = Array.isArray(o.days) ? [...new Set<string>(o.days.filter(isYmd))].sort().slice(-MAX_DAYS) : [];
+  const newPerDay = (NEW_PER_DAY_CHOICES as readonly number[]).includes(o.newPerDay) ? o.newPerDay : DEFAULT_NEW_PER_DAY;
+  const dropped = o.decks.length - decks.length + (o.cards.length - cards.length);
+  return { data: { version: 2, decks, cards, days, newPerDay }, dropped };
 }
 
-// ---- エクスポート/インポート ----
+/** 前の版（v1: デッキとカードを別々のキーに保存）を v2 に移す。読めなければ null */
+export function migrateV1(decksRaw: string | null, cardsRaw: string | null): Data | null {
+  try {
+    const ds = JSON.parse(decksRaw ?? "null");
+    const cs = JSON.parse(cardsRaw ?? "[]");
+    if (!Array.isArray(ds) || !Array.isArray(cs)) return null;
+    const now = new Date().toISOString();
+    const decks = ds
+      .filter((d: any) => d && isStr(d.id, 1, 60) && typeof d.name === "string")
+      .map((d: any) => ({ id: d.id, name: cleanName(d.name), art: "own", createdAt: isIso(d.createdAt) ? d.createdAt : now }));
+    const cards = cs
+      .filter((c: any) => c && isStr(c.id, 1, 60) && isStr(c.deckId, 1, 60) && typeof c.front === "string" && typeof c.back === "string")
+      .map((c: any) => {
+        const reviews = isInt(c.reviews, 0, 1000000) ? c.reviews : 0;
+        const due = reviews > 0 && isYmd(c.due) ? c.due : undefined;
+        return {
+          id: c.id,
+          deckId: c.deckId,
+          front: String(c.front).trim().slice(0, TEXT_MAX),
+          back: String(c.back).trim().slice(0, TEXT_MAX),
+          repetitions: due && isInt(c.repetitions, 0, 100000) ? c.repetitions : 0,
+          interval: due && isInt(c.interval, 0, MAX_INTERVAL) ? c.interval : 0,
+          easeFactor: typeof c.easeFactor === "number" ? Math.min(MAX_EASE, Math.max(MIN_EASE, c.easeFactor)) : INITIAL_EASE,
+          reviews: due ? reviews : 0,
+          lapses: 0,
+          due,
+          lastReviewed: due && isYmd(c.lastReviewed) ? c.lastReviewed : undefined,
+          introduced: due && isYmd(c.lastReviewed) ? c.lastReviewed : undefined,
+          createdAt: isIso(c.createdAt) ? c.createdAt : now,
+        };
+      });
+    const r = parseData(JSON.stringify({ version: 2, decks, cards, days: [], newPerDay: DEFAULT_NEW_PER_DAY }));
+    return r && r.data.decks.length ? r.data : null;
+  } catch {
+    return null;
+  }
+}
 
-export function buildExport(decks: Deck[], cards: Card[]): ExportData {
-  return { version: 1, decks, cards };
+// ---- 端末への保存 ----
+
+export interface Loaded {
+  data: Data;
+  note: "" | "broken" | "migrated" | "dropped";
+}
+
+export function load(): Loaded {
+  try {
+    const raw = localStorage.getItem(KEY);
+    if (raw === null) {
+      const v1 = migrateV1(localStorage.getItem(LEGACY_DECKS), localStorage.getItem(LEGACY_CARDS));
+      return v1 ? { data: v1, note: "migrated" } : { data: emptyData(), note: "" };
+    }
+    const r = parseData(raw);
+    if (!r) {
+      try {
+        localStorage.setItem(BROKEN_KEY, raw);
+      } catch {
+        /* 控えを残せなくても続ける */
+      }
+      return { data: emptyData(), note: "broken" };
+    }
+    return { data: r.data, note: r.dropped ? "dropped" : "" };
+  } catch {
+    return { data: emptyData(), note: "" };
+  }
+}
+
+/** 保存できたら true。プライベートブラウズや容量不足でも、めくることはできる */
+export function save(d: Data): boolean {
+  try {
+    localStorage.setItem(KEY, JSON.stringify(d));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// ---- 書き出し・読み込み ----
+
+export function exportJson(d: Data): string {
+  return JSON.stringify({ app: "flashcards", exportedAt: new Date().toISOString(), ...d }, null, 1);
+}
+
+export function exportFileName(today: Date): string {
+  const p = (n: number) => String(n).padStart(2, "0");
+  return `anki-cards-${today.getFullYear()}${p(today.getMonth() + 1)}${p(today.getDate())}.json`;
 }
 
 /**
- * エクスポートJSONを解釈して {decks, cards} を返す（壊れた値は除外/正規化）。
- * 解釈できなければ null。
+ * 読み込んだデータを今のデータに足す（純関数）。
+ * 同じ id の単語帳・カードは今のものを残す。上限を超える分は入れない。
  */
-export function parseImport(
-  json: string,
-): { decks: Deck[]; cards: Card[] } | null {
-  let obj: unknown;
-  try {
-    obj = JSON.parse(json);
-  } catch {
-    return null;
-  }
-  if (typeof obj !== "object" || obj === null) return null;
-  const o = obj as Record<string, unknown>;
-  const decks = Array.isArray(o.decks) ? o.decks.filter(isDeck) : [];
-  const cards = Array.isArray(o.cards)
-    ? o.cards.filter(isCardLike).map(normalizeCard)
-    : [];
-  if (decks.length === 0 && cards.length === 0) return null;
-  return { decks, cards };
+export function mergeData(cur: Data, inc: Data): { data: Data; decks: number; cards: number; skipped: number } {
+  const deckIds = new Set(cur.decks.map((d) => d.id));
+  const cardIds = new Set(cur.cards.map((c) => c.id));
+  const newDecks = inc.decks.filter((d) => !deckIds.has(d.id)).slice(0, Math.max(0, MAX_DECKS - cur.decks.length));
+  const allDeckIds = new Set([...deckIds, ...newDecks.map((d) => d.id)]);
+  const newCards = inc.cards
+    .filter((c) => !cardIds.has(c.id) && allDeckIds.has(c.deckId))
+    .slice(0, Math.max(0, MAX_CARDS - cur.cards.length));
+  return {
+    data: {
+      version: 2,
+      decks: [...cur.decks, ...newDecks],
+      cards: [...cur.cards, ...newCards],
+      days: [...new Set([...cur.days, ...inc.days])].sort().slice(-MAX_DAYS),
+      newPerDay: cur.newPerDay,
+    },
+    decks: newDecks.length,
+    cards: newCards.length,
+    skipped: inc.cards.length - newCards.length,
+  };
 }

@@ -1,17 +1,21 @@
 {
   "name": "kakeibo",
-  "version": "0.1.0",
+  "version": "2.0.0",
   "private": true,
   "type": "module",
-  "description": "家計簿(kakeibo) — アカウント不要・端末内保存のマインドフル家計簿。4分類と予算ペース判定で支出を先回り管理する静的Webアプリ",
+  "description": "家計簿ノート — 金額と費目をえらぶだけ。月末の見込みで使いすぎを月の途中で先回り。端末内保存・通信なし。",
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "test": "tsx src/kakeibo.test.ts"
+    "test": "tsx src/kakeibo.test.ts",
+    "test:e2e": "node tests/e2e.mjs",
+    "fonts": "python3 scripts/subset-fonts.py"
   },
   "devDependencies": {
     "@types/node": "^26.0.0",
+    "axe-core": "^4.14.0",
+    "playwright": "^1.58.2",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2",
     "vite": "^6.0.5"

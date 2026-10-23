@@ -1,149 +1,90 @@
-// localStorage 永続化（読み込み失敗時は壊さず空にフォールバック）
+// 端末への保存（localStorage）。保存できない環境でも画面は使える。
+import type { Book } from "./types";
+import { emptyBook } from "./book";
+import { migrateOldBudgets, migrateOldExpense, parseBook } from "./transfer";
 
-import {
-  type Category,
-  type Expense,
-  type ExpenseDraft,
-  type MonthBudget,
-  ALL_CATEGORIES,
-  emptyBudget,
-} from "./types";
+export const KEY = "kakeibo.notebook.v2";
+/** 形が壊れていたときに、消さずに取っておく場所 */
+export const BROKEN_KEY = "kakeibo.notebook.v2.broken";
+/** 前の版の保存先 */
+export const OLD_KEYS = { expenses: "kakeibo.expenses", budgets: "kakeibo.budgets", llm: "kakeibo.llm" };
 
-const EXPENSES_KEY = "kakeibo.expenses";
-const BUDGETS_KEY = "kakeibo.budgets";
+let seq = 0;
+export const newId = (): string =>
+  `e${Date.now().toString(36)}${(seq++).toString(36)}${Math.random().toString(36).slice(2, 6)}`;
 
-/** 軽量な一意ID */
-export function newId(): string {
-  const rand = Math.random().toString(36).slice(2, 8);
-  return `ex_${Date.now().toString(36)}_${rand}`;
-}
-
-/** 0以上の整数に丸める（NaN/負は0） */
-function toYen(v: unknown): number {
-  const n = Math.round(Number(v));
-  return Number.isFinite(n) && n >= 0 ? n : 0;
-}
-
-function isCategory(v: unknown): v is Category {
-  return ALL_CATEGORIES.includes(v as Category);
-}
-
-/** "YYYY-MM-DD" らしき文字列か（厳密な実在日チェックは core 側） */
-function looksLikeDate(s: string): boolean {
-  return /^\d{4}-\d{2}-\d{2}$/.test(s.trim());
-}
-
-/** 任意の入力を ExpenseDraft に正規化 */
-export function normalizeDraft(d: Partial<ExpenseDraft>): ExpenseDraft {
-  const date = (d.date ?? "").toString().trim();
-  return {
-    date: looksLikeDate(date) ? date : todayYmd(),
-    amount: toYen(d.amount),
-    category: isCategory(d.category) ? d.category : "必需",
-    memo: d.memo ? d.memo.toString().trim() : undefined,
-  };
-}
-
-/** 端末ローカルの今日を YYYY-MM-DD で */
-export function todayYmd(d: Date = new Date()): string {
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
-}
-
-function isExpense(x: unknown): x is Expense {
-  if (typeof x !== "object" || x === null) return false;
-  const o = x as Record<string, unknown>;
-  return (
-    typeof o.id === "string" &&
-    typeof o.date === "string" &&
-    typeof o.amount === "number" &&
-    isCategory(o.category)
-  );
-}
-
-export function loadExpenses(): Expense[] {
+/** 文字列から帳面を読む。壊れていれば初期状態 */
+export function parseStored(raw: string | null): { book: Book; dropped: number; broken: boolean } {
+  if (raw === null) return { book: emptyBook(), dropped: 0, broken: false };
   try {
-    const raw = localStorage.getItem(EXPENSES_KEY);
-    if (!raw) return [];
-    const parsed: unknown = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return [];
-    return parsed.filter(isExpense).map((e) => ({
-      ...e,
-      amount: toYen(e.amount),
-      memo: e.memo ? String(e.memo) : undefined,
-      createdAt: e.createdAt ?? new Date().toISOString(),
-    }));
+    const r = parseBook(JSON.parse(raw));
+    if (r) return { ...r, broken: false };
   } catch {
-    return [];
+    /* 下へ */
   }
+  return { book: emptyBook(), dropped: 0, broken: true };
 }
 
-export function saveExpenses(expenses: Expense[]): void {
+/** 前の版（v1）の保存内容を今の形に */
+export function migrateV1(rawExpenses: string | null, rawBudgets: string | null): Book | null {
+  if (rawExpenses === null && rawBudgets === null) return null;
+  const book = emptyBook();
   try {
-    localStorage.setItem(EXPENSES_KEY, JSON.stringify(expenses));
+    const list = JSON.parse(rawExpenses ?? "[]");
+    if (Array.isArray(list))
+      for (const x of list) {
+        const e = migrateOldExpense(x, newId);
+        if (e) book.expenses.push(e);
+      }
   } catch {
-    // 容量超過等は黙って無視（UIは継続動作）
+    /* 読めない分はあきらめる */
   }
-}
-
-/** Draft から新規 Expense を生成 */
-export function makeExpense(draft: ExpenseDraft): Expense {
-  return { ...draft, id: newId(), createdAt: new Date().toISOString() };
-}
-
-// ---- 月予算（月キー → MonthBudget の辞書で保持） ----
-
-function isMonthBudget(x: unknown): x is MonthBudget {
-  if (typeof x !== "object" || x === null) return false;
-  const o = x as Record<string, unknown>;
-  return typeof o.month === "string" && typeof o.budgets === "object";
-}
-
-export function loadBudgets(): Record<string, MonthBudget> {
   try {
-    const raw = localStorage.getItem(BUDGETS_KEY);
-    if (!raw) return {};
-    const parsed: unknown = JSON.parse(raw);
-    if (typeof parsed !== "object" || parsed === null) return {};
-    const out: Record<string, MonthBudget> = {};
-    for (const [k, v] of Object.entries(parsed)) {
-      if (isMonthBudget(v)) out[k] = normalizeBudget(v);
+    book.budgets = migrateOldBudgets(JSON.parse(rawBudgets ?? "{}"));
+  } catch {
+    /* 同上 */
+  }
+  return parseBook(book)?.book ?? emptyBook();
+}
+
+export interface Loaded {
+  book: Book;
+  /** 捨てた件数（壊れた行） */
+  dropped: number;
+  /** 前の版から引き継いだ */
+  migrated: boolean;
+  /** 全体が壊れていて、初期状態にした */
+  broken: boolean;
+}
+
+export function load(): Loaded {
+  try {
+    const raw = localStorage.getItem(KEY);
+    if (raw === null) {
+      const old = migrateV1(localStorage.getItem(OLD_KEYS.expenses), localStorage.getItem(OLD_KEYS.budgets));
+      // 前の版の AI 連携のキー（API キー）は、ここで消す
+      localStorage.removeItem(OLD_KEYS.llm);
+      if (old) {
+        localStorage.setItem(KEY, JSON.stringify(old));
+        localStorage.removeItem(OLD_KEYS.expenses);
+        localStorage.removeItem(OLD_KEYS.budgets);
+        return { book: old, dropped: 0, migrated: true, broken: false };
+      }
     }
-    return out;
+    const r = parseStored(raw);
+    if (r.broken && raw !== null) localStorage.setItem(BROKEN_KEY, raw);
+    return { ...r, migrated: false };
   } catch {
-    return {};
+    return { book: emptyBook(), dropped: 0, migrated: false, broken: false };
   }
 }
 
-/** 欠損カテゴリ予算を0で補完し数値を正規化 */
-export function normalizeBudget(b: MonthBudget): MonthBudget {
-  const budgets = { 必需: 0, 娯楽: 0, 文化: 0, 予備: 0 } as Record<
-    Category,
-    number
-  >;
-  for (const c of ALL_CATEGORIES) budgets[c] = toYen(b.budgets?.[c]);
-  return {
-    month: b.month,
-    income: toYen(b.income),
-    savingsGoal: toYen(b.savingsGoal),
-    budgets,
-  };
-}
-
-export function saveBudgets(budgets: Record<string, MonthBudget>): void {
+/** 保存できたら true */
+export function save(book: Book): boolean {
   try {
-    localStorage.setItem(BUDGETS_KEY, JSON.stringify(budgets));
+    localStorage.setItem(KEY, JSON.stringify(book));
+    return true;
   } catch {
-    // 無視
+    return false;
   }
-}
-
-/** 指定月の予算を取り出す（無ければ空の既定） */
-export function budgetFor(
-  budgets: Record<string, MonthBudget>,
-  month: string,
-): MonthBudget {
-  return budgets[month] ? normalizeBudget(budgets[month]) : emptyBudget(month);
 }

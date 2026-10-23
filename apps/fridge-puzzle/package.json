@@ -1,17 +1,21 @@
 {
   "name": "fridge-puzzle",
-  "version": "0.1.0",
+  "version": "2.0.0",
   "private": true,
   "type": "module",
-  "description": "3×3冷蔵庫整理の後に偽ヒントで持ち主を当てる二段構えの理不尽ミニゲーム",
+  "description": "ヒエヒエ冷蔵庫（しょうもなゲーム #01）。冷蔵庫の中を1段ずつそろえる3面パズルのあと、なぜか持ち主当てが始まる。",
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
-    "preview": "vite preview",
-    "test": "tsx src/game.test.ts"
+    "preview": "vite preview --port 4318 --host 127.0.0.1",
+    "test": "tsx src/game.test.ts",
+    "test:e2e": "node tests/e2e.mjs",
+    "fonts": "python3 scripts/subset-fonts.py"
   },
   "devDependencies": {
     "@types/node": "^26.0.0",
+    "axe-core": "^4.14.0",
+    "playwright": "1.58.2",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2",
     "vite": "^6.0.5"

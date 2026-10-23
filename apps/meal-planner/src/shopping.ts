@@ -16,17 +16,21 @@ const CATEGORY_ORDER: ShoppingCategory[] = [
 ];
 
 /** 子どもは0.5人前換算で必要人数を出す */
-export function servingsFor(input: PlannerInput): number {
+export function servingsFor(input: Pick<PlannerInput, "adults" | "children">): number {
   return input.adults + input.children * 0.5;
 }
 
-function roundQty(qty: number, unit: string): number {
-  // 個数系の単位はあまり細かくしない（小数1桁→端数は0.5刻みに寄せる）
+/** 買う量は少し多めの切りのよい数にする（足りなくならないよう切り上げ） */
+export function roundQty(qty: number, unit: string): number {
   const countish = ["個", "本", "枚", "玉", "丁", "尾", "缶", "袋", "束", "片", "切れ"];
-  if (countish.includes(unit)) {
-    return Math.round(qty * 2) / 2;
+  if (unit === "個") return Math.ceil(qty - 1e-9);
+  if (countish.includes(unit)) return Math.ceil(qty * 2 - 1e-9) / 2;
+  if (unit === "g" || unit === "ml") {
+    if (qty >= 100) return Math.ceil(qty / 10 - 1e-9) * 10;
+    if (qty >= 10) return Math.ceil(qty / 5 - 1e-9) * 5;
+    return Math.ceil(qty - 1e-9);
   }
-  return Math.round(qty * 10) / 10;
+  return Math.ceil(qty * 10 - 1e-9) / 10;
 }
 
 /**
@@ -65,6 +69,7 @@ export function buildShoppingList(
   for (const d of days) {
     addRecipe(d.main);
     if (d.side) addRecipe(d.side);
+    if (d.soup) addRecipe(d.soup);
   }
 
   const items = [...map.values()].map((it) => ({
@@ -96,4 +101,14 @@ export function groupByCategory(
     category,
     items: groups.get(category)!,
   }));
+}
+
+/** 買い物リストの1行を区別するキー（チェックの保存に使う） */
+export const itemKey = (it: Pick<ShoppingItem, "name" | "unit">): string => `${it.name}__${it.unit}`;
+
+/** 量の表示（大さじ2、200g、1個 など） */
+export function formatQuantity(q: number, unit: string): string {
+  if (unit === "少々") return unit;
+  const n = Number.isInteger(q) ? String(q) : q.toFixed(1).replace(/\.0$/, "");
+  return ["大さじ", "小さじ"].includes(unit) ? `${unit}${n}` : `${n}${unit}`;
 }

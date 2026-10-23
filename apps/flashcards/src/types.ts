@@ -1,86 +1,71 @@
-// flashcards 型定義・定数・サンプルデッキseed
+// 暗記カード — 型と定数
 
-/** 4段階の自己評価ボタン */
+/** めくったあとの4つの答え */
 export type Grade = "again" | "hard" | "good" | "easy";
+export const GRADES: readonly Grade[] = ["again", "hard", "good", "easy"];
 
-export const ALL_GRADES: Grade[] = ["again", "hard", "good", "easy"];
-
-/** 評価ボタンのラベルと SM-2 quality */
-export const GRADE_INFO: Record<
-  Grade,
-  { label: string; quality: number; hint: string }
-> = {
-  again: { label: "もう一度", quality: 2, hint: "思い出せなかった" },
-  hard: { label: "むずかしい", quality: 3, hint: "なんとか思い出した" },
-  good: { label: "ふつう", quality: 4, hint: "思い出せた" },
-  easy: { label: "かんたん", quality: 5, hint: "余裕で思い出せた" },
+export const GRADE_LABEL: Record<Grade, string> = {
+  again: "わからない",
+  hard: "むずかしい",
+  good: "わかった",
+  easy: "かんたん",
 };
 
-/** SM-2 の初期パラメータ */
-export const INITIAL_EASE = 2.5;
-export const MIN_EASE = 1.3;
+/** 単語帳の絵 */
+export type DeckArt = "own" | "english" | "japan" | "element";
+export const DECK_ARTS: readonly DeckArt[] = ["own", "english", "japan", "element"];
 
-/** SRS スケジュール状態（カードに埋め込む） */
+/** 次に出す日を決めるための記録（カードの中に持つ） */
 export interface SrsState {
-  repetitions: number; // 連続正答回数（again で 0）
-  interval: number; // 次回までの日数
-  easeFactor: number; // 易しさ係数（初期 2.5・下限 1.3）
-  due?: string; // YYYY-MM-DD。未設定=未学習=即出題
-  reviews: number; // 累計レビュー回数（統計用）
-  lastReviewed?: string; // YYYY-MM-DD
+  repetitions: number; // 続けて思い出せた回数（「わからない」で 0）
+  interval: number; // 次に出すまでの日数（0 = まだ一度もめくっていない）
+  easeFactor: number; // 覚えやすさ（1.3〜3.0。大きいほど間隔がのびる）
+  due?: string; // 次に出す日 YYYY-MM-DD。未設定 = まだめくっていない
+  reviews: number; // めくった回数
+  lapses: number; // 「わからない」の回数
+  introduced?: string; // 初めてめくった日 YYYY-MM-DD（1日の新しいカードの数を数える）
+  lastReviewed?: string; // 最後にめくった日 YYYY-MM-DD
 }
 
 export interface Card extends SrsState {
   id: string;
   deckId: string;
-  front: string; // 表（問い）
-  back: string; // 裏（答え）
+  front: string;
+  back: string;
   createdAt: string; // ISO
-  updatedAt: string; // ISO
 }
 
 export interface Deck {
   id: string;
   name: string;
+  art: DeckArt;
+  sample?: string; // 見本から入れた単語帳なら、その見本の id
   createdAt: string; // ISO
 }
 
-/** 追加フォーム/AI抽出から渡る、表裏だけの最小ペア */
+export interface Data {
+  version: 2;
+  decks: Deck[];
+  cards: Card[];
+  days: string[]; // めくった日（YYYY-MM-DD、古い順、重複なし）
+  newPerDay: number; // 1冊あたり、1日に出す新しいカードの数
+}
+
 export interface CardPair {
   front: string;
   back: string;
 }
 
-/** デッキ単位の学習サマリ */
-export interface DeckSummary {
-  total: number;
-  fresh: number; // 未学習（新規）
-  due: number; // 今日が期限の復習（新規は含まない）
-  learned: number; // 一度以上レビュー済み
-  later: number; // 期限がまだ先
-}
+// ---- 上限 ----
+export const NAME_MAX = 30;
+export const TEXT_MAX = 300;
+export const MAX_DECKS = 200;
+export const MAX_CARDS = 20000;
+export const MAX_DAYS = 800;
+export const NEW_PER_DAY_CHOICES = [5, 10, 20, 30, 50] as const;
+export const DEFAULT_NEW_PER_DAY = 20;
 
-/** エクスポート/インポートのデータ形 */
-export interface ExportData {
-  version: 1;
-  decks: Deck[];
-  cards: Card[];
-}
-
-/** 初回起動時に入れるサンプルデッキ（使い方が一目で分かる最小セット） */
-export interface SeedDeck {
-  name: string;
-  cards: CardPair[];
-}
-
-export const SEED_DECKS: SeedDeck[] = [
-  {
-    name: "サンプル：四字熟語",
-    cards: [
-      { front: "一期一会", back: "一生に一度の出会い。その機会を大切にすること。" },
-      { front: "温故知新", back: "古いことを学び、そこから新しい知識・見解を得ること。" },
-      { front: "臨機応変", back: "その場の状況に応じて適切に対応すること。" },
-      { front: "千載一遇", back: "めったに訪れない、またとない好機。" },
-    ],
-  },
-];
+export const INITIAL_EASE = 2.5;
+export const MIN_EASE = 1.3;
+export const MAX_EASE = 3.0;
+export const MAX_INTERVAL = 3650; // 10年

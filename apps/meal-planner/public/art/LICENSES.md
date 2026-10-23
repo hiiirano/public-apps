@@ -1,25 +1,68 @@
-# 素材のライセンス
+# 素材の出典
 
-Fluent Emoji はすべて Flat 版。操作アイコンは Tabler Outline、stroke-width=2。
+## 料理・食材の絵（public/art/*.webp、48 点）
+- Microsoft Fluent Emoji の 3D 版（PNG 256px）を WebP に変換したもの。
+- 取得元: https://github.com/microsoft/fluentui-emoji （assets/<名前>/3D/<名前>_3d.png）
+- ライセンス: MIT。Copyright (c) Microsoft Corporation. 全文は下に記載。
+- アプリのアイコン（../icon-*.png・../apple-touch-icon.png・../favicon.png）は bento-box を淡い緑の地に置いて作成。
 
-| 素材 | 取得元URL | ライセンス | 著作権 |
-|---|---|---|---|
-| Curry rice | https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Curry%20rice/Flat/curry_rice_flat.svg | MIT | Copyright (c) Microsoft Corporation. |
-| Steaming bowl | https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Steaming%20bowl/Flat/steaming_bowl_flat.svg | MIT | Copyright (c) Microsoft Corporation. |
-| Spaghetti | https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Spaghetti/Flat/spaghetti_flat.svg | MIT | Copyright (c) Microsoft Corporation. |
-| Dumpling | https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Dumpling/Flat/dumpling_flat.svg | MIT | Copyright (c) Microsoft Corporation. |
-| Green salad | https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Green%20salad/Flat/green_salad_flat.svg | MIT | Copyright (c) Microsoft Corporation. |
-| Pot of food | https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Pot%20of%20food/Flat/pot_of_food_flat.svg | MIT | Copyright (c) Microsoft Corporation. |
-| Fried shrimp | https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Fried%20shrimp/Flat/fried_shrimp_flat.svg | MIT | Copyright (c) Microsoft Corporation. |
-| Cooked rice | https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Cooked%20rice/Flat/cooked_rice_flat.svg | MIT | Copyright (c) Microsoft Corporation. |
-| Cooking | https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Cooking/Flat/cooking_flat.svg | MIT | Copyright (c) Microsoft Corporation. |
-| Poultry leg | https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Poultry%20leg/Flat/poultry_leg_flat.svg | MIT | Copyright (c) Microsoft Corporation. |
-| Fish | https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Fish/Flat/fish_flat.svg | MIT | Copyright (c) Microsoft Corporation. |
-| Cut of meat | https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Cut%20of%20meat/Flat/cut_of_meat_flat.svg | MIT | Copyright (c) Microsoft Corporation. |
-| clock | https://raw.githubusercontent.com/tabler/tabler-icons/main/icons/outline/clock.svg | MIT | Copyright (c) 2020-2026 Paweł Kuna |
-| copy | https://raw.githubusercontent.com/tabler/tabler-icons/main/icons/outline/copy.svg | MIT | Copyright (c) 2020-2026 Paweł Kuna |
-| refresh | https://raw.githubusercontent.com/tabler/tabler-icons/main/icons/outline/refresh.svg | MIT | Copyright (c) 2020-2026 Paweł Kuna |
-| calendar-week | https://raw.githubusercontent.com/tabler/tabler-icons/main/icons/outline/calendar-week.svg | MIT | Copyright (c) 2020-2026 Paweł Kuna |
+| ファイル | 元の名前 |
+|---|---|
+| bacon.webp | Bacon |
+| basket.webp | Basket |
+| bell-pepper.webp | Bell pepper |
+| bento-box.webp | Bento box |
+| bowl-with-spoon.webp | Bowl with spoon |
+| broccoli.webp | Broccoli |
+| carrot.webp | Carrot |
+| cheese-wedge.webp | Cheese wedge |
+| cooked-rice.webp | Cooked rice |
+| cooking.webp | Cooking |
+| crab.webp | Crab |
+| cucumber.webp | Cucumber |
+| curry-rice.webp | Curry rice |
+| cut-of-meat.webp | Cut of meat |
+| dumpling.webp | Dumpling |
+| ear-of-corn.webp | Ear of corn |
+| egg.webp | Egg |
+| eggplant.webp | Eggplant |
+| falafel.webp | Falafel |
+| fish.webp | Fish |
+| fried-shrimp.webp | Fried shrimp |
+| glass-of-milk.webp | Glass of milk |
+| green-salad.webp | Green salad |
+| herb.webp | Herb |
+| hot-pepper.webp | Hot pepper |
+| leafy-green.webp | Leafy green |
+| mushroom.webp | Mushroom |
+| oden.webp | Oden |
+| onion.webp | Onion |
+| oyster.webp | Oyster |
+| pea-pod.webp | Pea pod |
+| peanuts.webp | Peanuts |
+| pot-of-food.webp | Pot of food |
+| potato.webp | Potato |
+| poultry-leg.webp | Poultry leg |
+| rice-ball.webp | Rice ball |
+| roasted-sweet-potato.webp | Roasted sweet potato |
+| shallow-pan-of-food.webp | Shallow pan of food |
+| shopping-cart.webp | Shopping cart |
+| shrimp.webp | Shrimp |
+| spaghetti.webp | Spaghetti |
+| spiral-calendar.webp | Spiral calendar |
+| squid.webp | Squid |
+| steaming-bowl.webp | Steaming bowl |
+| stuffed-flatbread.webp | Stuffed flatbread |
+| sushi.webp | Sushi |
+| takeout-box.webp | Takeout box |
+| tomato.webp | Tomato |
+
+## 操作アイコン: Tabler Icons（outline。src/icons.ts にインラインで収録）
+- 取得元: https://github.com/tabler/tabler-icons （icons/outline/*.svg）
+- ライセンス: MIT。Copyright (c) 2020-2026 Paweł Kuna. 全文は TABLER-LICENSE.txt
+
+## 書体（src/fonts/、画面の文字だけに絞った woff2）
+- Kiwi Maru / M PLUS Rounded 1c（Google Fonts、SIL Open Font License 1.1）。全文は OFL.txt（このフォルダ）
 
 ## Fluent Emoji
 
@@ -46,26 +89,3 @@ Fluent Emoji はすべて Flat 版。操作アイコンは Tabler Outline、stro
     SOFTWARE
 
 
-## Tabler Icons
-
-MIT License
-
-Copyright (c) 2020-2026 Paweł Kuna
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.

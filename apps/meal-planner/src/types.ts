@@ -58,22 +58,29 @@ export interface Recipe {
   ingredients: Ingredient[];
 }
 
+/** ジャンルの好み。「和」などを選ぶと、その日を多め（7日のうち4日）にする */
+export type GenrePref = "おまかせ" | Genre;
+export const GENRE_PREFS: GenrePref[] = ["おまかせ", "和", "洋", "中"];
+
 export interface PlannerInput {
-  adults: number;
-  children: number;
-  genres: Genre[]; // 選択ジャンル傾向（空なら全部）
-  excludeAllergens: Allergen[]; // 除外アレルゲン
-  ngKeywords: string[]; // NG食材（材料名 or レシピ名に含むと除外）
-  withSide: boolean; // 主菜＋副菜にするか
-  quickOnly: boolean; // 時短（timeMin <= QUICK_MIN）のみ
-  pantry: string[]; // 冷蔵庫の残り（含むレシピを優先）
-  seed: number; // 再現性のための乱数シード
+  adults: number; // 1..10
+  children: number; // 0..10（0.5人前で計算）
+  genrePref: GenrePref;
+  excludeAllergens: Allergen[]; // 除外アレルゲン（必ず守る）
+  dislikes: string[]; // 苦手な食材（分類名または自由入力の言葉）
+  pantry: string[]; // 冷蔵庫の残り（使う料理を優先）
+  withSide: boolean; // 副菜をつける
+  withSoup: boolean; // 汁物をつける
+  quickOnly: boolean; // 20分以内の料理だけ
+  seed: number; // 組み合わせの番号（同じなら同じ献立）
 }
 
 export interface DayPlan {
-  day: number; // 1..7
+  day: number; // 1..7（月〜日）
+  genre: Genre; // その日に割り当てたジャンル
   main: Recipe;
   side?: Recipe;
+  soup?: Recipe;
 }
 
 export interface ShoppingItem {
@@ -83,9 +90,20 @@ export interface ShoppingItem {
   category: ShoppingCategory;
 }
 
+export interface PantryUse {
+  term: string;
+  /** 料理データの材料に無い言葉（例: リンゴ） */
+  unknown: boolean;
+  /** 使った料理（曜日と料理名） */
+  used: { day: number; recipe: string }[];
+  /** 使う料理はあるが、アレルギー・苦手・時短の条件で外れた */
+  blocked: boolean;
+}
+
 export interface WeeklyPlan {
   days: DayPlan[];
   shopping: ShoppingItem[];
-  comment: string;
-  warnings: string[]; // 候補不足など
+  warnings: string[];
+  notes: string[];
+  pantry: PantryUse[];
 }

@@ -1,7 +1,9 @@
-// gym-log Service Worker — network-first、オフライン時はキャッシュへフォールバック
-const CACHE = "gymlog-v1";
+// 電波の弱いジムでも開けるよう、同じサイト内のファイルを控えておく。
+// 画面は「控えをすぐ出し、裏で新しいものに入れ替える」。更新は次に開いたときに反映される。
+const CACHE = "gym-log-v2";
 
-self.addEventListener("install", () => {
+self.addEventListener("install", (event) => {
+  event.waitUntil(caches.open(CACHE).then((c) => c.addAll(["./", "./manifest.webmanifest"])));
   self.skipWaiting();
 });
 
@@ -14,18 +16,36 @@ self.addEventListener("activate", (event) => {
   );
 });
 
+self.addEventListener("message", (event) => {
+  if (event.data?.type !== "precache" || !Array.isArray(event.data.urls)) return;
+  const urls = event.data.urls.filter((u) => typeof u === "string" && u.startsWith(self.location.origin));
+  event.waitUntil(caches.open(CACHE).then((c) => Promise.all(urls.map((u) => c.add(u).catch(() => {})))));
+});
+
 self.addEventListener("fetch", (event) => {
   const req = event.request;
   if (req.method !== "GET" || !req.url.startsWith(self.location.origin)) return;
+  const isPage = req.mode === "navigate";
   event.respondWith(
-    fetch(req)
-      .then((res) => {
-        if (res.ok) {
-          const copy = res.clone();
-          caches.open(CACHE).then((c) => c.put(req, copy));
-        }
-        return res;
-      })
-      .catch(() => caches.match(req, { ignoreSearch: true })),
+    caches.open(CACHE).then(async (cache) => {
+      const cached = await cache.match(req, { ignoreSearch: isPage });
+      const fresh = fetch(req)
+        .then((res) => {
+          if (res.ok) cache.put(req, res.clone());
+          return res;
+        })
+        .catch(() => undefined);
+      if (cached) {
+        event.waitUntil(fresh);
+        return cached;
+      }
+      const res = await fresh;
+      if (res) return res;
+      if (isPage) {
+        const home = await cache.match("./");
+        if (home) return home;
+      }
+      return new Response("オフラインです", { status: 503, headers: { "Content-Type": "text/plain; charset=utf-8" } });
+    }),
   );
 });

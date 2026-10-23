@@ -2,16 +2,20 @@
 <html lang="ja">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#f8e9c8" />
-    <meta
-      name="description"
-      content="3×3の冷蔵庫整理パズルをクリアすると、偽の手掛かりで突然その持ち主を当てさせられる短編理不尽ミニゲーム。"
-    />
-    <title>ヒエヒエ冷蔵庫｜知らんがなゲームス</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>ヒエヒエ冷蔵庫 — しょうもなゲーム #01</title>
+    <meta name="description" content="冷蔵庫の中を入れかえて、同じ物を1段にそろえるパズル。3面クリアすると、なぜか持ち主当てが始まります。登録不要・無料。" />
+    <meta name="theme-color" content="#efeaff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#1b1446" media="(prefers-color-scheme: dark)" />
+    <meta name="referrer" content="no-referrer" />
+    <link rel="icon" href="./favicon.png" type="image/png" />
+    <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+    <link rel="manifest" href="./manifest.webmanifest" />
   </head>
   <body>
     <div id="app"></div>
+    <div id="live" class="sr-only" aria-live="polite"></div>
+    <noscript><p>このゲームは JavaScript を使います。ブラウザの設定で有効にしてください。</p></noscript>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

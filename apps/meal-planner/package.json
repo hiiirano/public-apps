@@ -1,17 +1,21 @@
 {
   "name": "meal-planner",
-  "version": "0.1.0",
+  "version": "3.0.0",
   "private": true,
   "type": "module",
-  "description": "週間献立プランナー — 家族の入力から7日分の献立＋買い物リストを生成する静的Webアプリ",
+  "description": "家族の人数・アレルギー・苦手なもの・冷蔵庫の残りから、7日分の夕食（主菜・副菜・汁物）と買い物リストを作る。",
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "test": "tsx src/generator.test.ts && tsx src/shopping.test.ts && tsx src/data/recipes.test.ts && tsx src/balance.test.ts"
+    "test": "tsx src/planner.test.ts && tsx src/data/recipes.test.ts",
+    "test:e2e": "node tests/e2e.mjs",
+    "fonts": "python3 scripts/subset-fonts.py"
   },
   "devDependencies": {
     "@types/node": "^26.0.0",
+    "axe-core": "^4.14.0",
+    "playwright": "^1.58.2",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2",
     "vite": "^6.0.5"

@@ -19,3 +19,6 @@ AGENTS.md
 
 # レビュー時の操作記録（スクショ・ログ・テスト用バックアップ）は公開しない
 deploy/review_tmp/
+
+# E2E のスクショ・レポート
+test-results/

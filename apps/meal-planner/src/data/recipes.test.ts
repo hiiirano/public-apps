@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { RECIPES } from './recipes';
+import { RECIPES, SOUP_RECIPES, SIDE_RECIPES } from './recipes';
 import { INGREDIENTS } from './ingredients';
 import { ALL_ALLERGENS, ALL_GENRES } from '../types';
 import type { Allergen } from '../types';
@@ -27,7 +27,7 @@ for (const r of RECIPES) {
   assert.ok(r.timeMin > 0 && r.servingsBase > 0 && r.ingredients.length >= 2, r.name);
   assert.ok(r.role !== 'main' || r.mainType, r.name);
   assert.ok(r.allergens.every(a => ALL_ALLERGENS.includes(a)), r.name);
-  assert.ok(existsSync(`public/art/${recipeArt(r)}.svg`), r.name+' illustration');
+  assert.ok(existsSync(`public/art/${recipeArt(r)}.webp`), r.name+' illustration');
   const names = r.ingredients.map(i => i.name);
   assert.equal(new Set(names).size, names.length, r.name+' ingredient duplicate');
   for (const i of r.ingredients) {
@@ -39,5 +39,9 @@ for (const r of RECIPES) {
     for (const a of [...c.allergens, ...rules.filter(([re]) => re.test(i.name)).flatMap(([,a]) => a)])
       assert.ok(r.allergens.includes(a), `${r.name}: ${i.name} の ${a} 漏れ`);
   }
+}
+for (const g of ALL_GENRES) {
+  assert.ok(SOUP_RECIPES.filter(r => r.genre === g).length >= 4, g + ' 汁物');
+  assert.ok(SIDE_RECIPES.filter(r => r.genre === g).length >= 12, g + ' 副菜');
 }
 console.log(`PASS: ${RECIPES.length}品・ジャンル最低数・重複・材料・アレルゲン・イラスト`);

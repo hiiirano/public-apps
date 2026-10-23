@@ -1,78 +1,53 @@
-// kakeibo 型定義
+// 家計簿の型と決まりごと
 
-/** 家計簿の4分類 */
-export type Category = "必需" | "娯楽" | "文化" | "予備";
+/** 費目。fixed は「月に1回の決まった支払い」として、月末の見込みでのばさない */
+export const CATEGORIES = [
+  { id: "food", label: "食費", hint: "スーパー・コンビニ", fixed: false },
+  { id: "eatout", label: "外食", hint: "ランチ・カフェ", fixed: false },
+  { id: "daily", label: "日用品", hint: "洗剤・服・雑貨", fixed: false },
+  { id: "home", label: "住まい", hint: "家賃・光熱・通信", fixed: true },
+  { id: "transit", label: "交通", hint: "電車・ガソリン", fixed: false },
+  { id: "hobby", label: "趣味", hint: "本・映画・習い事", fixed: false },
+  { id: "social", label: "交際", hint: "贈り物・会費", fixed: false },
+  { id: "medical", label: "医療", hint: "病院・薬", fixed: false },
+  { id: "other", label: "その他", hint: "どれでもないもの", fixed: false },
+] as const;
 
-export const ALL_CATEGORIES: Category[] = ["必需", "娯楽", "文化", "予備"];
+export type CategoryId = (typeof CATEGORIES)[number]["id"];
+export const CATEGORY_IDS: readonly CategoryId[] = CATEGORIES.map((c) => c.id);
 
-/** 各分類の意味（UI のヒント用） */
-export const CATEGORY_HINT: Record<Category, string> = {
-  必需: "生きるのに必要（食費・家賃・光熱・交通・医療）",
-  娯楽: "欲しいけど無くても困らない（外食・買い物・サブスク・趣味）",
-  文化: "心を豊かに（書籍・映画・習い事・美術）",
-  予備: "突発・想定外（冠婚葬祭・修理・急な出費）",
-};
+export function categoryOf(id: CategoryId) {
+  return CATEGORIES.find((c) => c.id === id)!;
+}
 
-export const CATEGORY_EMOJI: Record<Category, string> = {
-  必需: "🍚",
-  娯楽: "🎉",
-  文化: "📚",
-  予備: "🧰",
-};
+export function isCategoryId(v: unknown): v is CategoryId {
+  return typeof v === "string" && (CATEGORY_IDS as readonly string[]).includes(v);
+}
+
+/** 1件の金額の上限（1億円未満） */
+export const MAX_AMOUNT = 99_999_999;
+/** 月の予算の上限 */
+export const MAX_BUDGET = 999_999_999;
+/** メモの長さ */
+export const MEMO_MAX = 40;
+/** 記録できる件数の上限（端末の保存容量のため） */
+export const MAX_EXPENSES = 20_000;
 
 export interface Expense {
   id: string;
-  date: string; // YYYY-MM-DD
-  amount: number; // 円・0以上の整数
-  category: Category;
-  memo?: string;
-  createdAt: string; // ISO
+  /** YYYY-MM-DD */
+  date: string;
+  /** 1〜MAX_AMOUNT の整数の円 */
+  amount: number;
+  cat: CategoryId;
+  memo: string;
+  /** 書いた時刻（ミリ秒）。同じ日の並び順に使う */
+  at: number;
 }
 
-/** 追加/編集フォームから渡る、id/タイムスタンプ抜きの値 */
-export type ExpenseDraft = Omit<Expense, "id" | "createdAt">;
-
-/** 月ごとの予算設定 */
-export interface MonthBudget {
-  month: string; // YYYY-MM
-  income: number; // 今月の収入
-  savingsGoal: number; // 貯金目標
-  budgets: Record<Category, number>; // 4分類への配分
-}
-
-/** 空の予算（既定値） */
-export function emptyBudget(month: string): MonthBudget {
-  return {
-    month,
-    income: 0,
-    savingsGoal: 0,
-    budgets: { 必需: 0, 娯楽: 0, 文化: 0, 予備: 0 },
-  };
-}
-
-/** 1カテゴリの予算消化状況（kakeibo.ts が算出） */
-export interface CategoryStatus {
-  category: Category;
-  budget: number; // 設定予算
-  spent: number; // 当月の実支出
-  remaining: number; // budget - spent（マイナスは超過）
-  ratio: number; // spent / budget（budget=0 は spent>0 で Infinity 相当→1超扱い）
-  projected: number; // 月末着地予測（バーンレート）
-  overBudget: boolean; // すでに予算超過
-  projectedOver: boolean; // このペースだと月末に超過
-}
-
-/** ダッシュボード用サマリ */
-export interface MonthSummary {
-  month: string;
-  income: number;
-  savingsGoal: number;
-  available: number; // income - savingsGoal
-  budgetTotal: number; // 4分類予算の合計
-  spentTotal: number; // 当月の総支出
-  remainingTotal: number; // available - spentTotal
-  projectedSpent: number; // 月末の総支出予測
-  projectedSavings: number; // income - projectedSpent（貯金見込み）
-  savingsOnTrack: boolean; // projectedSavings >= savingsGoal
-  byCategory: CategoryStatus[];
+/** 保存するもの全部 */
+export interface Book {
+  expenses: Expense[];
+  /** "YYYY-MM" → その月からの予算（0 は「予算なし」） */
+  budgets: Record<string, number>;
 }

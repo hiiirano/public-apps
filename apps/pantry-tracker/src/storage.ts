@@ -1,83 +1,119 @@
-// localStorage 永続化（読み込み失敗時は壊さず空にフォールバック）
+// 端末への保存と、書き出し・読み込み。読み込むときは形と範囲を検査し、壊れていれば使わない。
+import { isArt, PLACES, type Art, type Place } from "./catalog";
+import { isYmd, type Ymd } from "./dates";
+import { emptyState, ITEMS_MAX, LOG_MAX, NAME_MAX, QTY_MAX, type Item, type LogEntry, type State } from "./pantry";
+import { guessPreset } from "./catalog";
 
-import {
-  type Item,
-  type ItemDraft,
-  ALL_CATEGORIES,
-  ALL_LOCATIONS,
-} from "./types";
+export const KEY = "pantry-tracker.v2";
+const OLD_KEY = "pantry-tracker.items"; // v0.1 の保存形式（移しかえて使う）
+const OLD_LLM_KEY = "pantry-tracker.llm"; // v0.1 の AI 設定（API キーを含むので消す）
+export const FILE_KIND = "pantry-tracker";
 
-const ITEMS_KEY = "pantry-tracker.items";
+let seq = 0;
+export const newId = (p = "i"): string => `${p}${Date.now().toString(36)}${(seq++).toString(36)}${Math.random().toString(36).slice(2, 6)}`;
 
-/** 軽量な一意ID（衝突しにくければ十分） */
-export function newId(): string {
-  const rand = Math.random().toString(36).slice(2, 8);
-  return `it_${Date.now().toString(36)}_${rand}`;
-}
+const isInt = (v: unknown, min: number, max: number): v is number => typeof v === "number" && Number.isInteger(v) && v >= min && v <= max;
+const isId = (v: unknown): v is string => typeof v === "string" && v.length > 0 && v.length <= 40;
+const isName = (v: unknown): v is string => typeof v === "string" && v.trim().length > 0 && v.length <= NAME_MAX;
 
-/** 任意の入力を Item に正規化（欠損は既定値で補完） */
-export function normalizeDraft(d: Partial<ItemDraft>): ItemDraft {
-  const qty = Number(d.qty);
-  const minQty = Number(d.minQty);
-  return {
-    name: (d.name ?? "").toString().trim(),
-    qty: Number.isFinite(qty) && qty >= 0 ? qty : 1,
-    unit: (d.unit ?? "").toString().trim() || "個",
-    category: ALL_CATEGORIES.includes(d.category as never)
-      ? (d.category as ItemDraft["category"])
-      : "その他",
-    location: ALL_LOCATIONS.includes(d.location as never)
-      ? (d.location as ItemDraft["location"])
-      : "常温",
-    expiry: d.expiry ? d.expiry.toString().trim() : undefined,
-    minQty: Number.isFinite(minQty) && minQty >= 0 ? minQty : 0,
-    note: d.note ? d.note.toString().trim() : undefined,
-  };
-}
-
-function isItem(x: unknown): x is Item {
-  if (typeof x !== "object" || x === null) return false;
-  const o = x as Record<string, unknown>;
+function validItem(x: any): x is Item {
   return (
-    typeof o.id === "string" &&
-    typeof o.name === "string" &&
-    typeof o.qty === "number" &&
-    typeof o.unit === "string"
+    x && isId(x.id) && isName(x.name) && isArt(x.art) && (PLACES as readonly unknown[]).includes(x.place) &&
+    isInt(x.qty, 1, QTY_MAX) && (x.expiry === null || isYmd(x.expiry)) && isYmd(x.addedOn)
   );
 }
 
-export function loadItems(): Item[] {
-  try {
-    const raw = localStorage.getItem(ITEMS_KEY);
-    if (!raw) return [];
-    const parsed: unknown = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return [];
-    return parsed.filter(isItem).map((it) => normalizeStored(it));
-  } catch {
-    return [];
-  }
+function validLog(x: any): x is LogEntry {
+  return x && isId(x.id) && isName(x.name) && isArt(x.art) && (x.outcome === "used" || x.outcome === "wasted") && isInt(x.qty, 1, QTY_MAX) && isYmd(x.date);
 }
 
-/** 既存データに後方互換の既定値を埋める */
-function normalizeStored(it: Item): Item {
+function validFreq(x: any): x is Record<string, number> {
+  if (!x || typeof x !== "object" || Array.isArray(x)) return false;
+  const e = Object.entries(x);
+  return e.length <= 200 && e.every(([k, v]) => k.length <= NAME_MAX && isInt(v, 0, 9999));
+}
+
+/** 保存内容（または読み込んだファイルの中身）を検査する。形が合わなければ null */
+export function parseState(raw: unknown): State | null {
+  const s: any = raw;
+  if (
+    !s || typeof s !== "object" ||
+    !Array.isArray(s.items) || s.items.length > ITEMS_MAX || !s.items.every(validItem) ||
+    !Array.isArray(s.log) || s.log.length > LOG_MAX || !s.log.every(validLog) ||
+    !validFreq(s.freq) ||
+    new Set(s.items.map((i: Item) => i.id)).size !== s.items.length
+  )
+    return null;
   return {
-    ...it,
-    minQty: typeof it.minQty === "number" && it.minQty >= 0 ? it.minQty : 0,
-    createdAt: it.createdAt ?? new Date().toISOString(),
-    updatedAt: it.updatedAt ?? it.createdAt ?? new Date().toISOString(),
+    items: s.items.map((i: Item) => ({ id: i.id, name: i.name, art: i.art, place: i.place, qty: i.qty, expiry: i.expiry, addedOn: i.addedOn })),
+    log: s.log.map((e: LogEntry) => ({ id: e.id, name: e.name, art: e.art, outcome: e.outcome, qty: e.qty, date: e.date })),
+    freq: { ...s.freq },
   };
 }
 
-export function saveItems(items: Item[]): void {
+/** v0.1（pantry-tracker.items）の在庫を v2 の形に移しかえる。読めない行は捨てる */
+export function migrateOld(raw: unknown, today: Ymd): State | null {
+  if (!Array.isArray(raw)) return null;
+  const items: Item[] = [];
+  for (const o of raw.slice(0, ITEMS_MAX)) {
+    if (!o || typeof o !== "object" || typeof o.name !== "string" || !o.name.trim()) continue;
+    const name = o.name.trim().slice(0, NAME_MAX);
+    const place: Place = o.location === "冷凍" || o.category === "冷凍" ? "freezer" : o.location === "冷蔵" ? "fridge" : "shelf";
+    const qtyN = Number(o.qty);
+    const art: Art = guessPreset(name)?.art ?? "plate";
+    items.push({
+      id: newId(),
+      name,
+      art,
+      place,
+      qty: Number.isFinite(qtyN) ? Math.min(QTY_MAX, Math.max(1, Math.round(qtyN))) : 1,
+      expiry: isYmd(o.expiry) ? o.expiry : null,
+      addedOn: today,
+    });
+  }
+  return { ...emptyState(), items };
+}
+
+export function load(today: Ymd): State {
   try {
-    localStorage.setItem(ITEMS_KEY, JSON.stringify(items));
+    try {
+      localStorage.removeItem(OLD_LLM_KEY);
+    } catch {
+      /* 消せなくても続ける */
+    }
+    const raw = localStorage.getItem(KEY);
+    if (raw !== null) return parseState(JSON.parse(raw)) ?? emptyState();
+    const old = localStorage.getItem(OLD_KEY);
+    if (old !== null) return migrateOld(JSON.parse(old), today) ?? emptyState();
   } catch {
-    // 容量超過等は黙って無視（UIは継続動作）
+    /* 壊れている・読めない */
+  }
+  return emptyState();
+}
+
+/** 保存できたら true。プライベートブラウズなどで保存できなくても、その場では使える */
+export function save(s: State): boolean {
+  try {
+    localStorage.setItem(KEY, JSON.stringify(s));
+    return true;
+  } catch {
+    return false;
   }
 }
 
-/** Draft から新規 Item を生成 */
-export function makeItem(draft: ItemDraft): Item {
-  const now = new Date().toISOString();
-  return { ...draft, id: newId(), createdAt: now, updatedAt: now };
+// ---- 書き出し・読み込み（ファイル）----
+export function exportText(s: State, today: Ymd): string {
+  return JSON.stringify({ kind: FILE_KIND, version: 2, exportedOn: today, ...s }, null, 1);
+}
+
+/** 書き出したファイルの文字を読む。違うファイル・壊れたファイルなら null */
+export function importText(text: string): State | null {
+  if (text.length > 2_000_000) return null;
+  try {
+    const o = JSON.parse(text);
+    if (!o || o.kind !== FILE_KIND || o.version !== 2) return null;
+    return parseState(o);
+  } catch {
+    return null;
+  }
 }

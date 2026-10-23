@@ -2,16 +2,19 @@
 <html lang="ja">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#122c34" />
-    <meta
-      name="description"
-      content="新宿の公共地下通路・屋根付き区間を使い、最短ルートと日差し回避ルートを比較する固定データ版マップ。"
-    />
-    <title>新宿 地下・屋根ルート比較</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>日陰MAP 新宿β — 地下と屋根で日なたを減らす道</title>
+    <meta name="description" content="新宿駅のまわりで、地下通路や屋根のある道を通って日なたを歩く時間を減らす道を、いちばん近い道とくらべます。登録不要・通信なし。" />
+    <meta name="theme-color" content="#f4fafd" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0d1a21" media="(prefers-color-scheme: dark)" />
+    <meta name="referrer" content="no-referrer" />
+    <link rel="icon" href="./favicon.png" type="image/png" />
+    <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+    <link rel="manifest" href="./manifest.webmanifest" />
   </head>
   <body>
     <div id="app"></div>
+    <noscript><p>このアプリは JavaScript を使います。ブラウザの設定で有効にしてください。</p></noscript>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
