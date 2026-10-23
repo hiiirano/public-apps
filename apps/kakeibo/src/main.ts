@@ -1,6 +1,6 @@
 import "./style.css";
 import type { Book, CategoryId, Expense } from "./types";
-import { CATEGORIES, categoryOf, isCategoryId, MAX_AMOUNT, MAX_BUDGET, MEMO_MAX } from "./types";
+import { CATEGORIES, categoryOf, isCategoryId, MAX_AMOUNT, MAX_BUDGET, MAX_EXPENSES, MEMO_MAX } from "./types";
 import { addMonths, dayLabel, defaultDateFor, isDateKey, monthLabel, monthOf, todayKey } from "./dates";
 import { chartGeometry, computePace, type Pace } from "./pace";
 import { addExpense, budgetFor, budgetSource, emptyBook, expensesOfMonth, groupByDay, removeExpense, setBudget, totalsByCategory, updateExpense } from "./book";
@@ -413,7 +413,12 @@ form.addEventListener("submit", (ev) => {
     commit(updateExpense(book, editingId, { amount, cat, date, memo }), `${label} に直しました`);
     stopEditing();
   } else {
-    commit(addExpense(book, { id: newId(), amount, cat, date, memo, at: Date.now() }), `${label} を書きました`);
+    const next = addExpense(book, { id: newId(), amount, cat, date, memo, at: Date.now() });
+    if (!next) {
+      toast(`記録は${formatYen(MAX_EXPENSES)}件までです。書き出して保管したあと、古い記録を消してください。`);
+      return;
+    }
+    commit(next, `${label} を書きました`);
     clearForm();
   }
   const where = monthOf(date) !== month ? `（${monthLabel(monthOf(date))}のページに）` : "";
@@ -504,7 +509,7 @@ $<HTMLInputElement>("#import-file").addEventListener("change", async (ev) => {
   try {
     const inc = importFile(file.name, await file.text(), newId, Date.now());
     const r = mergeIncoming(book, inc);
-    const skipped = [r.same ? `同じ記録 ${r.same}件` : "", inc.bad ? `読めない行 ${inc.bad}件` : "", r.full ? `上限で入らない ${r.full}件` : ""].filter(Boolean).join("・");
+    const skipped = [r.same ? `同じ記録 ${r.same}件` : "", inc.bad ? `読めない行 ${inc.bad}件` : "", r.full ? `上限（${formatYen(MAX_EXPENSES)}件）で入らない ${r.full}件` : ""].filter(Boolean).join("・");
     const budgetsChanged = Object.keys(inc.budgets).length > 0;
     if (r.added === 0 && !budgetsChanged) return toast(`新しい記録はありませんでした${skipped ? `（${skipped}）` : ""}。`);
     commit(r.book, "読み込みました");

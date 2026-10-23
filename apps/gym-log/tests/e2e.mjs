@@ -248,6 +248,26 @@ for (const scheme of ["light", "dark"]) {
   await ctx.close();
 }
 
+// ---- 記録の件数の上限（5,000回）----
+{
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  const page = await ctx.newPage();
+  await fresh(page);
+  await page.click('[data-act="demo"]');
+  await page.evaluate(() => {
+    const st = JSON.parse(localStorage.getItem("gym-log.v2"));
+    const base = st.workouts[0];
+    st.workouts = Array.from({ length: 5001 }, (_, i) => ({ ...base, id: `m${i}` }));
+    localStorage.setItem("gym-log.v2", JSON.stringify(st));
+  });
+  await page.reload();
+  const kept = await page.evaluate(() => JSON.parse(localStorage.getItem("gym-log.v2")).workouts.length);
+  ok("上限を超えた記録も再読み込みで消えない", kept === 5001, kept);
+  await page.click('[data-fk="start-rec"]');
+  ok("上限では始めずに知らせる", (await page.textContent("#toast")).includes("5,000回まで") && (await page.$$(".session")).length === 0);
+  await ctx.close();
+}
+
 // ---- 保存できない環境 ----
 {
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });

@@ -1,11 +1,11 @@
 import type { Book, CategoryId, Expense } from "./types";
-import { CATEGORY_IDS, MAX_AMOUNT, MEMO_MAX } from "./types";
+import { CATEGORY_IDS, MAX_AMOUNT, MAX_EXPENSES, MEMO_MAX } from "./types";
 import { addMonths, dayLabel, daysInMonth, defaultDateFor, isDateKey, isLeapYear, monthLabel, weekdayOf } from "./dates";
 import { chartGeometry, computePace, niceStep, phaseOf } from "./pace";
-import { budgetFor, budgetSource, groupByDay, setBudget, totalsByCategory, emptyBook, removeExpense, updateExpense } from "./book";
+import { addExpense, budgetFor, budgetSource, groupByDay, isFull, setBudget, totalsByCategory, emptyBook, removeExpense, updateExpense } from "./book";
 import { formatYen, parseYen, yen } from "./money";
 import { cleanMemo, importCsv, importFile, importJson, ImportError, mergeIncoming, parseBook, parseCsv, toBackupJson, toCsv } from "./transfer";
-import { migrateV1, parseStored } from "./storage";
+import { KEY, loadFrom, migrateV1, OLD_KEYS, parseStored, type KV } from "./storage";
 
 let passed = 0;
 const failures: string[] = [];
@@ -273,6 +273,49 @@ const nid = () => `n${idn++}`;
     else if (key(viaJson) !== key(ex)) bad = "JSON 往復で違う";
   }
   check("書き出し→読み込みのランダム 300 回", !bad, bad);
+}
+
+// ---- 件数の上限（Codex 指摘 1）----
+{
+  const many: Expense[] = Array.from({ length: MAX_EXPENSES }, (_, i) => ({ id: `m${i}`, date: "2026-10-01", amount: 1, cat: "food" as CategoryId, memo: "", at: i }));
+  const full: Book = { expenses: many, budgets: {} };
+  check("上限に達したら書けない（null を返す）", isFull(full) && addExpense(full, E("2026-10-02", 5)) === null);
+  const one: Book = { expenses: many.slice(1), budgets: {} };
+  check("上限の1件手前までは書ける", !isFull(one) && addExpense(one, E("2026-10-02", 5))!.expenses.length === MAX_EXPENSES);
+  const over = { expenses: [...many, E("2026-10-02", 7), E("2026-10-03", 8)], budgets: {} };
+  const r = parseBook(JSON.parse(JSON.stringify(over)))!;
+  check("保存済みの上限超えは捨てずに読む", r.book.expenses.length === MAX_EXPENSES + 2 && r.dropped === 0);
+  const m = mergeIncoming(one, { expenses: [E("2026-11-01", 1), E("2026-11-02", 2), E("2026-11-03", 3)].map((e) => ({ e, hadId: true })), budgets: {}, bad: 0 });
+  check("読み込みも上限まで・入らない数を返す", m.added === 1 && m.full === 2 && m.book.expenses.length === MAX_EXPENSES);
+}
+
+// ---- 前の版の引き継ぎで保存に失敗しても消さない（Codex 指摘 2）----
+{
+  const fakeKV = (init: Record<string, string>, failSet: boolean) => {
+    const m = new Map(Object.entries(init));
+    const kv: KV = {
+      getItem: (k) => (m.has(k) ? m.get(k)! : null),
+      setItem: (k, v) => {
+        if (failSet) throw new Error("QuotaExceededError");
+        m.set(k, v);
+      },
+      removeItem: (k) => void m.delete(k),
+    };
+    return { kv, m };
+  };
+  const v1 = { [OLD_KEYS.expenses]: JSON.stringify([{ id: "ex_1", date: "2026-10-02", amount: 980, category: "娯楽", memo: "映画" }]), [OLD_KEYS.budgets]: "{}", [OLD_KEYS.llm]: '{"apiKey":"sk"}' };
+  const a = fakeKV(v1, true);
+  const ra = loadFrom(a.kv);
+  check("保存に失敗しても引き継いだ帳面を返す", ra.migrated && ra.book.expenses.length === 1 && ra.book.expenses[0].memo === "[娯楽] 映画");
+  check("保存に失敗したら前の版のデータは残す・API キーは消す", a.m.has(OLD_KEYS.expenses) && !a.m.has(KEY) && !a.m.has(OLD_KEYS.llm));
+  const b = fakeKV(v1, false);
+  const rb = loadFrom(b.kv);
+  check("保存できたら新しいキーへ移し前の版を消す", rb.migrated && b.m.has(KEY) && !b.m.has(OLD_KEYS.expenses) && !b.m.has(OLD_KEYS.budgets));
+  const c = fakeKV({ [KEY]: "{broken" }, true);
+  const rc = loadFrom(c.kv);
+  check("壊れた保存の控えが書けなくても落ちない", rc.broken && rc.book.expenses.length === 0);
+  const throwing: KV = { getItem: () => { throw new Error("blocked"); }, setItem: () => {}, removeItem: () => {} };
+  check("読めない環境は初期状態", loadFrom(throwing).book.expenses.length === 0);
 }
 
 console.log(`${passed} / ${passed + failures.length} 合格`);

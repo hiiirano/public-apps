@@ -1,6 +1,6 @@
 {
   "name": "kakeibo",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "private": true,
   "type": "module",
   "description": "家計簿ノート — 金額と費目をえらぶだけ。月末の見込みで使いすぎを月の途中で先回り。端末内保存・通信なし。",

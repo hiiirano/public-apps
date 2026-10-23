@@ -1,6 +1,6 @@
 // 帳面の集計（純関数）
 import type { Book, CategoryId, Expense } from "./types";
-import { CATEGORY_IDS } from "./types";
+import { CATEGORY_IDS, MAX_EXPENSES } from "./types";
 import { monthOf } from "./dates";
 
 /**
@@ -74,7 +74,12 @@ export function totalsByCategory(expenses: readonly Expense[]): CategoryTotal[] 
 
 export const emptyBook = (): Book => ({ expenses: [], budgets: {} });
 
-export function addExpense(book: Book, e: Expense): Book {
+/** これ以上書けない（件数の上限） */
+export const isFull = (book: Book): boolean => book.expenses.length >= MAX_EXPENSES;
+
+/** 1件足す。上限に達していたら null（呼び出し側で知らせる） */
+export function addExpense(book: Book, e: Expense): Book | null {
+  if (isFull(book)) return null;
   return { ...book, expenses: [...book.expenses, e] };
 }
 

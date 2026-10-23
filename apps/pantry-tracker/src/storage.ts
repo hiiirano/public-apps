@@ -13,18 +13,30 @@ let seq = 0;
 export const newId = (p = "i"): string => `${p}${Date.now().toString(36)}${(seq++).toString(36)}${Math.random().toString(36).slice(2, 6)}`;
 
 const isInt = (v: unknown, min: number, max: number): v is number => typeof v === "number" && Number.isInteger(v) && v >= min && v <= max;
-const isId = (v: unknown): v is string => typeof v === "string" && v.length > 0 && v.length <= 40;
+/** id は英数字・_・- の 1〜64 文字だけ（画面の属性に入れても安全な文字に限る） */
+export const ID_RE = /^[A-Za-z0-9_-]{1,64}$/;
+export const isId = (v: unknown): v is string => typeof v === "string" && ID_RE.test(v);
+/** 読み込んだ id が使えない文字を含む・重なるときは新しく振り直す */
+function fixIds<T extends { id: unknown }>(rows: T[], prefix: string): (T & { id: string })[] {
+  const seen = new Set<string>();
+  return rows.map((r) => {
+    let id = isId(r.id) && !seen.has(r.id) ? r.id : newId(prefix);
+    while (seen.has(id)) id = newId(prefix);
+    seen.add(id);
+    return { ...r, id };
+  });
+}
 const isName = (v: unknown): v is string => typeof v === "string" && v.trim().length > 0 && v.length <= NAME_MAX;
 
 function validItem(x: any): x is Item {
   return (
-    x && isId(x.id) && isName(x.name) && isArt(x.art) && (PLACES as readonly unknown[]).includes(x.place) &&
+    x && typeof x === "object" && isName(x.name) && isArt(x.art) && (PLACES as readonly unknown[]).includes(x.place) &&
     isInt(x.qty, 1, QTY_MAX) && (x.expiry === null || isYmd(x.expiry)) && isYmd(x.addedOn)
   );
 }
 
 function validLog(x: any): x is LogEntry {
-  return x && isId(x.id) && isName(x.name) && isArt(x.art) && (x.outcome === "used" || x.outcome === "wasted") && isInt(x.qty, 1, QTY_MAX) && isYmd(x.date);
+  return x && typeof x === "object" && isName(x.name) && isArt(x.art) && (x.outcome === "used" || x.outcome === "wasted") && isInt(x.qty, 1, QTY_MAX) && isYmd(x.date);
 }
 
 function validFreq(x: any): x is Record<string, number> {
@@ -40,13 +52,12 @@ export function parseState(raw: unknown): State | null {
     !s || typeof s !== "object" ||
     !Array.isArray(s.items) || s.items.length > ITEMS_MAX || !s.items.every(validItem) ||
     !Array.isArray(s.log) || s.log.length > LOG_MAX || !s.log.every(validLog) ||
-    !validFreq(s.freq) ||
-    new Set(s.items.map((i: Item) => i.id)).size !== s.items.length
+    !validFreq(s.freq)
   )
     return null;
   return {
-    items: s.items.map((i: Item) => ({ id: i.id, name: i.name, art: i.art, place: i.place, qty: i.qty, expiry: i.expiry, addedOn: i.addedOn })),
-    log: s.log.map((e: LogEntry) => ({ id: e.id, name: e.name, art: e.art, outcome: e.outcome, qty: e.qty, date: e.date })),
+    items: fixIds(s.items as Item[], "i").map((i) => ({ id: i.id, name: i.name, art: i.art, place: i.place, qty: i.qty, expiry: i.expiry, addedOn: i.addedOn })),
+    log: fixIds(s.log as LogEntry[], "l").map((e) => ({ id: e.id, name: e.name, art: e.art, outcome: e.outcome, qty: e.qty, date: e.date })),
     freq: { ...s.freq },
   };
 }

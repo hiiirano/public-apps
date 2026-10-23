@@ -190,6 +190,25 @@ for (const scheme of ["light", "dark"]) {
   await page.waitForFunction(() => document.querySelector("#data-msg").textContent.includes("読み込めません"));
   ok("違うファイルは読み込まず、中身も変えない", (await page.$$(".tile")).length === 1);
 
+  // 悪意のある id・名前を含むファイルを読み込んでも、HTML が混ざらない
+  const evil = { kind: "pantry-tracker", version: 2, exportedOn: "2026-10-23", freq: {},
+    items: [{ id: '"><img src=x id=pwned onerror="window.__pwned=1">', name: '"><b id=pwn2>x', art: "milk", place: "fridge", qty: 1, expiry: "2026-10-23", addedOn: "2026-10-23" }],
+    log: [{ id: "<svg onload=window.__pwned=3>", name: "<b>悪</b>", art: "egg", outcome: "wasted", qty: 2, date: "2026-10-22" }] };
+  fs.writeFileSync(`${OUT}/evil.json`, JSON.stringify(evil));
+  const [fc3] = await Promise.all([page.waitForEvent("filechooser"), page.click('button:has-text("読み込む")')]);
+  await fc3.setFiles(`${OUT}/evil.json`);
+  await page.waitForFunction(() => document.querySelector("#data-msg").textContent.includes("読み込みました"));
+  await page.waitForTimeout(300);
+  const pw = await page.evaluate(() => ({ flag: window.__pwned ?? null, img: !!document.querySelector("#pwned, #pwn2, .tile img[src='x'], #stats b, #stats svg[onload]"), ids: [...document.querySelectorAll("[data-id]")].map((e) => e.dataset.id) }));
+  ok("悪意のあるファイルでも HTML が混ざらない", pw.flag === null && !pw.img && pw.ids.every((i) => /^[A-Za-z0-9_-]{1,64}$/.test(i)), JSON.stringify(pw));
+  ok("悪意のある名前は文字のまま出る", (await page.$$eval(".tname", (e) => e.map((x) => x.textContent))).some((t) => t === '"><b id=pwn2>x'));
+  await page.click('.st-fridge .tile');
+  ok("振り直した id で開ける", await page.isVisible("#dlg"));
+  await page.keyboard.press("Escape");
+  await page.click('#toast [data-act="undo"]').catch(() => {});
+  await Promise.all([page.waitForEvent("filechooser"), page.click('button:has-text("読み込む")')]).then(([f]) => f.setFiles(file));
+  await page.waitForFunction(() => [...document.querySelectorAll(".tname")].some((e) => e.textContent === "鶏むね肉"));
+
   // よく買う物は「ぜんぶ見る」で32種
   await page.click("#quick-more");
   ok("ぜんぶ見るで32種", (await page.$$(".qbtn")).length === 32);

@@ -5,7 +5,7 @@ import {
   addItem, byPlace, consume, countLevels, daysLeft, defaultExpiry, emptyState, expiryLabel, levelOf, removeItem,
   sortByExpiry, stats, updateItem, type Item, type LogEntry, type State,
 } from "./pantry";
-import { exportText, importText, migrateOld, parseState } from "./storage";
+import { exportText, ID_RE, importText, migrateOld, parseState } from "./storage";
 
 let passed = 0;
 const failures: string[] = [];
@@ -110,7 +110,7 @@ eq("記録せずに消す", [removeItem(s, "m1").items.length, removeItem(s, "m1
 eq("直す", updateItem(s, "m1", { place: "freezer", expiry: null, qty: 3, name: "" }).items[0], { ...s.items[0], place: "freezer", expiry: null, qty: 3 });
 
 // ---- 集計 ----
-const L = (name: string, outcome: LogEntry["outcome"], date: string, qty = 1): LogEntry => ({ id: Math.random().toString(36), name, art: "plate", outcome, qty, date });
+const L = (name: string, outcome: LogEntry["outcome"], date: string, qty = 1): LogEntry => ({ id: Math.random().toString(36).slice(2), name, art: "plate", outcome, qty, date });
 const log = [L("牛乳", "wasted", "2026-10-01"), L("牛乳", "wasted", "2026-10-20"), L("牛乳", "used", "2026-10-21"), L("卵", "used", "2026-10-22", 6), L("パン", "wasted", "2026-09-23"), L("パン", "wasted", "2026-09-24")];
 const st = stats(log, T);
 eq("30日の数", [st.used, st.wasted, st.wasteRate], [7, 3, 30]);
@@ -133,7 +133,15 @@ check("壊れた文字は読まない", importText("{oops") === null && importTe
 check("ない日付は読まない", parseState({ ...full, items: [mk("a", "牛乳", "2026-02-30")] }) === null);
 check("数が範囲外なら読まない", parseState({ ...full, items: [{ ...mk("a", "x", null), qty: 0 }] }) === null);
 check("知らない絵なら読まない", parseState({ ...full, items: [{ ...mk("a", "x", null), art: "<img>" }] }) === null);
-check("同じ id が2つなら読まない", parseState({ ...full, items: [mk("a", "x", null), mk("a", "y", null)] }) === null);
+{
+  const dup = parseState({ ...full, items: [mk("a", "x", null), mk("a", "y", null)] })!;
+  check("同じ id が2つなら後ろを振り直す", dup.items[0].id === "a" && dup.items[1].id !== "a" && ID_RE.test(dup.items[1].id));
+  const evilId = '"><img src=x onerror=alert(1)>';
+  const bad = importText(JSON.stringify({ kind: "pantry-tracker", version: 2, items: [{ ...mk("a", "牛乳", null), id: evilId }, { ...mk("b", "卵", null), id: "x".repeat(65) }, { ...mk("c", "パン", null), id: 5 }], log: [{ ...L("卵", "used", T), id: "<script>" }], freq: {} }))!;
+  check("危ない文字の id は振り直す（在庫）", bad !== null && bad.items.length === 3 && bad.items.every((i) => ID_RE.test(i.id)), JSON.stringify(bad?.items.map((i) => i.id)));
+  check("危ない文字の id は振り直す（記録）", bad.log.length === 1 && ID_RE.test(bad.log[0].id));
+  check("id の文字種", ID_RE.test("i_abc-123") && !ID_RE.test('a"b') && !ID_RE.test("a b") && !ID_RE.test("") && !ID_RE.test("あ"));
+}
 check("余計な項目は落とす", !("evil" in (parseState({ ...full, items: [{ ...mk("a", "x", null), evil: 1 }] })!.items[0] as object)));
 const mig = migrateOld([{ name: "牛乳", qty: 1.6, location: "冷蔵", expiry: "2026-10-30" }, { name: "アイス", qty: 0, location: "その他", category: "冷凍" }, { name: "" }, null, { name: "米", expiry: "2026-13-01" }], T)!;
 eq("古い形式から移す", mig.items.map((i) => [i.name, i.place, i.qty, i.expiry, i.art]), [["牛乳", "fridge", 2, "2026-10-30", "milk"], ["アイス", "freezer", 1, null, "icecream"], ["米", "shelf", 1, null, "rice"]]);
@@ -235,7 +243,7 @@ for (let n = 0; n < 3000; n++) {
   target[keys[ri(0, keys.length - 1)]] = junk[ri(0, junk.length - 1)];
   try {
     const r = importText(JSON.stringify(base));
-    if (r !== null && parseState(r) === null) fuzzBad++;
+    if (r !== null && (parseState(r) === null || !r.items.every((i) => ID_RE.test(i.id)) || !r.log.every((l) => ID_RE.test(l.id)))) fuzzBad++;
   } catch {
     fuzzBad++;
   }

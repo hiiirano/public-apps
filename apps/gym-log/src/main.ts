@@ -752,6 +752,10 @@ setInterval(tick, 1000);
 
 // ---- 操作 ----
 function startWorkout(ids: string[]): void {
+  if (state.workouts.length >= LIMITS.workouts) {
+    toast(`記録は${fmtNum(LIMITS.workouts)}回までです。設定から書き出して、古い記録を消してください`);
+    return;
+  }
   const now = new Date();
   const items = ids.filter((id) => exById(id)).slice(0, LIMITS.items).map((exId) => ({ exId, sets: [] }));
   state.workouts.push({ id: newId(), date: dateStr(now), startedAt: now.getTime(), endedAt: null, items });

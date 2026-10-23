@@ -25,7 +25,7 @@ import {
   tdee,
 } from "./macro";
 import { FOODS } from "./foods";
-import { exportText, freshState, importText, KEY, migrateOld, parseState, todayStr, validEntry } from "./storage";
+import { exportText, freshState, importText, KEY, loadFrom, migrateOld, parseState, todayStr, validEntry } from "./storage";
 
 let passed = 0;
 function t(name: string, fn: () => void): void {
@@ -265,6 +265,51 @@ t("前の版からの引き継ぎ: 体の情報と記録。範囲外は捨てる
   assert.equal(migrateOld("{", "[")!.draft.sex, null);
   const young = migrateOld(JSON.stringify({ age: 12 }), null)!;
   assert.equal(young.draft.age, null);
+});
+// 偽の保存先（setItem を失敗させられる）
+function fakeStore(init: Record<string, string>, failSet = false) {
+  const m = new Map(Object.entries(init));
+  return {
+    map: m,
+    getItem: (k: string) => (m.has(k) ? m.get(k)! : null),
+    setItem: (k: string, v: string) => {
+      if (failSet) throw new Error("QuotaExceeded");
+      m.set(k, v);
+    },
+    removeItem: (k: string) => void m.delete(k),
+  };
+}
+const OLD = {
+  "macro.profile": JSON.stringify({ sex: "male", age: 30, heightCm: 170, weightKg: 65, activity: "moderate", goal: "maintain" }),
+  "macro.log": JSON.stringify([{ id: "a", name: "鶏むね", kcal: 220, protein: 46, fat: 3, carbs: 0, date: "2026-07-01", createdAt: 5 }]),
+  "macro.llm": JSON.stringify({ apiKey: "sk-secret" }),
+};
+t("引き継ぎ: 新しい形で保存できたら前の版を消す（API キーも消す）", () => {
+  const st = fakeStore({ ...OLD });
+  const s = loadFrom(st);
+  assert.equal(s.draft.heightCm, 170);
+  assert.equal(s.log.length, 1);
+  assert.ok(st.map.has(KEY));
+  assert.deepEqual([...st.map.keys()], [KEY]);
+});
+t("引き継ぎ: 保存に失敗したら前の版の体の情報と記録は残す（API キーだけ消す）・画面は引き継いだ内容で動く", () => {
+  const st = fakeStore({ ...OLD }, true);
+  const s = loadFrom(st);
+  assert.equal(s.draft.heightCm, 170);
+  assert.equal(s.log.length, 1);
+  assert.equal(st.map.get("macro.profile"), OLD["macro.profile"]);
+  assert.equal(st.map.get("macro.log"), OLD["macro.log"]);
+  assert.equal(st.map.has("macro.llm"), false);
+  assert.equal(st.map.has(KEY), false);
+  // 次回（保存できる環境）でもう一度引き継げる
+  const again = fakeStore(Object.fromEntries(st.map));
+  assert.equal(loadFrom(again).log.length, 1);
+  assert.deepEqual([...again.map.keys()], [KEY]);
+});
+t("引き継ぎ: 前の版がなければ初期状態で、何も書かない", () => {
+  const st = fakeStore({});
+  assert.deepEqual(loadFrom(st), freshState());
+  assert.equal(st.map.size, 0);
 });
 t("todayStr: YYYY-MM-DD", () => {
   assert.equal(todayStr(new Date(2026, 0, 5)), "2026-01-05");

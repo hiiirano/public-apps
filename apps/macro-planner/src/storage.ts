@@ -126,23 +126,60 @@ export function migrateOld(profileRaw: string | null, logRaw: string | null): St
   return st;
 }
 
-export function load(): State {
+/** 読み書きに使う保存先（テストでは偽物を渡す） */
+export type Store = Pick<Storage, "getItem" | "setItem" | "removeItem">;
+
+/**
+ * 保存内容を読む。新しい形がなければ前の版から引き継ぐ。
+ * 前の版の体の情報と記録は、新しい形で保存できたときだけ消す（保存に失敗しても次回また引き継げる）。
+ * API キーが入っていた macro.llm は、保存の成否にかかわらず消す。
+ */
+export function loadFrom(store: Store): State {
   try {
-    const raw = localStorage.getItem(KEY);
+    const raw = store.getItem(KEY);
     if (raw !== null) return parseState(raw);
-    const migrated = migrateOld(localStorage.getItem(OLD_KEYS.profile), localStorage.getItem(OLD_KEYS.log));
-    for (const k of Object.values(OLD_KEYS)) localStorage.removeItem(k);
-    return migrated ?? freshState();
+    const migrated = migrateOld(store.getItem(OLD_KEYS.profile), store.getItem(OLD_KEYS.log));
+    try {
+      store.removeItem(OLD_KEYS.llm);
+    } catch {
+      /* 消せなくても続ける */
+    }
+    if (!migrated) return freshState();
+    if (saveTo(store, migrated)) {
+      try {
+        store.removeItem(OLD_KEYS.profile);
+        store.removeItem(OLD_KEYS.log);
+      } catch {
+        /* 消せなくても新しい形が優先されるので害はない */
+      }
+    }
+    return migrated; // 保存できなくても、引き継いだ内容で動かす
   } catch {
     return freshState();
+  }
+}
+
+export function load(): State {
+  try {
+    return loadFrom(localStorage);
+  } catch {
+    return freshState();
+  }
+}
+
+function saveTo(store: Store, s: State): boolean {
+  try {
+    store.setItem(KEY, JSON.stringify(s));
+    return true;
+  } catch {
+    return false;
   }
 }
 
 /** 保存できたら true */
 export function save(s: State): boolean {
   try {
-    localStorage.setItem(KEY, JSON.stringify(s));
-    return true;
+    return saveTo(localStorage, s);
   } catch {
     return false;
   }

@@ -281,6 +281,32 @@ for (const scheme of ["light", "dark"]) {
   await page.waitForFunction(() => document.querySelector("#toast").textContent.includes("読み込めません"), null, { timeout: 3000 }).catch(() => {});
   ok("読めないファイルは知らせる", (await page.textContent("#toast")).includes("読み込めません"));
 
+  // 引用符・タグ入りの id を読み込んでも、HTML に入らない
+  const evilId = 'x" onmouseover="window.__y=1" data-z="<b>';
+  fs.writeFileSync(`${OUT}/evil.json`, JSON.stringify({ version: 2, newPerDay: 20, days: [], decks: [{ id: evilId, name: "<i>あやしい</i>", art: "own", createdAt: "2026-10-01T00:00:00.000Z" }], cards: [{ id: "<img src=x onerror=window.__y=2>", deckId: evilId, front: "q", back: "a", repetitions: 0, interval: 0, easeFactor: 2.5, reviews: 0, lapses: 0, createdAt: "2026-10-01T00:00:00.000Z" }] }));
+  await page.setInputFiles("#import-file", `${OUT}/evil.json`);
+  await page.getByRole("button", { name: "今のデータに足す" }).click();
+  const hrefs = await page.$$eval(".deck-link", (els) => els.map((e) => e.getAttribute("href")));
+  ok("読み込んだ id は振り直して安全な文字だけ", hrefs.every((h) => /^#\/deck\/[\w-]+$/.test(h)) && (await page.$$('[onmouseover], [data-z]')).length === 0, hrefs.join(" "));
+  await page.getByRole("link", { name: /あやしい/ }).click();
+  await page.waitForSelector(".card-row");
+  ok("振り直した単語帳を開ける・注入されない", (await page.textContent("h1")) === "<i>あやしい</i>" && (await page.evaluate(() => window.__y)) === undefined);
+
+  // 単語帳の上限（200冊）
+  await page.evaluate(() => {
+    const decks = Array.from({ length: 200 }, (_, i) => ({ id: `d${i}`, name: `帳${i}`, art: "own", createdAt: "2026-10-01T00:00:00.000Z" }));
+    localStorage.setItem("flashcards.v2", JSON.stringify({ version: 2, decks, cards: [], days: [], newPerDay: 20 }));
+  });
+  await page.goto(URL + "#/");
+  await page.reload();
+  await page.getByLabel("新しい単語帳を作る").fill("201冊目");
+  await page.getByRole("button", { name: "作る" }).click();
+  ok("200冊で作れないと知らせる", (await page.textContent("#new-deck-msg")).includes("200冊まで") && (await page.$$(".deck-tile")).length === 200);
+  await page.getByRole("button", { name: "中学英単語 20を入れる" }).click();
+  ok("見本も上限で止めて知らせる", (await page.textContent("#toast")).includes("200冊まで") && (await page.$$(".deck-tile")).length === 200);
+  await page.reload();
+  ok("再読み込みで1冊も消えない", (await page.$$(".deck-tile")).length === 200 && !(await page.isVisible("#notice")));
+
   // 壊れた保存内容
   await page.evaluate(() => localStorage.setItem("flashcards.v2", "{こわれた"));
   await page.reload();

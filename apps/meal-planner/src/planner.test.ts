@@ -5,7 +5,7 @@ import { addTerms, norm, recipeMatches, resolveTerm, splitTerms } from "./foods"
 import { arrangeGenres, filterRecipes, fitCounts, generateWeeklyPlan, genreCounts, isSoupyMain, mulberry32, PREFERRED_DAYS } from "./generator";
 import { buildPlan } from "./plan";
 import { buildShoppingList, formatQuantity, roundQty, servingsFor } from "./shopping";
-import { freshState, migrateOld, parseState } from "./storage";
+import { freshState, KEY, load, migrateOld, parseState } from "./storage";
 import { MAIN_RECIPES, RECIPES, SIDE_RECIPES, SOUP_RECIPES, isSoup } from "./data/recipes";
 import { INGREDIENTS } from "./data/ingredients";
 
@@ -225,6 +225,20 @@ check("並びは日数どおり", (() => { const s = arrangeGenres(genreCounts("
   check("曜日の範囲外の入れ替えは捨てる", Object.keys(parseState(JSON.stringify({ ...good, swaps: { 9: 1, 2: 1 } })).swaps).join() === "2");
   const old = migrateOld(JSON.stringify({ adults: 4, children: 1, genres: ["和"], excludeAllergens: ["卵", "そば", "x"], ngKeywords: ["牛肉"], pantry: ["キャベツ"], withSide: true, quickOnly: true, seed: 3 }));
   check("前の版からアレルギーを引き継ぐ", !!old && same(old.input.excludeAllergens, ["卵", "そば"]));
+  // 前の版からの引き継ぎ: 新しい形で保存できないときは古いキーを消さない（アレルギー設定を失わない）
+  const oldRaw = JSON.stringify({ adults: 3, children: 0, genres: [], excludeAllergens: ["卵", "えび"], ngKeywords: [], pantry: [], withSide: true, quickOnly: false, seed: 1 });
+  const mem = (failSet: boolean) => {
+    const m = new Map<string, string>([["meal-planner.input", oldRaw]]);
+    return { m, store: { getItem: (k: string) => m.get(k) ?? null, setItem: (k: string, v: string) => { if (failSet) throw new Error("QuotaExceeded"); m.set(k, v); }, removeItem: (k: string) => void m.delete(k) } };
+  };
+  const failing = mem(true);
+  const st1 = load(1, failing.store);
+  check("保存に失敗しても引き継いだアレルギーで動く", same(st1.input.excludeAllergens, ["卵", "えび"]) && st1.input.adults === 3);
+  check("保存に失敗したら古いキーを消さない", failing.m.get("meal-planner.input") === oldRaw);
+  check("次に開いたときも引き継げる", same(load(1, failing.store).input.excludeAllergens, ["卵", "えび"]));
+  const working = mem(false);
+  const st2 = load(1, working.store);
+  check("保存できたら新しい形に移し、古いキーを消す", same(st2.input.excludeAllergens, ["卵", "えび"]) && !working.m.has("meal-planner.input") && parseState(working.m.get(KEY) ?? null).input.excludeAllergens.length === 2);
   check("前の版のジャンル1つは「多め」に", old?.input.genrePref === "和" && old.input.dislikes[0] === "牛肉" && old.input.quickOnly);
 }
 

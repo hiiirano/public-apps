@@ -40,6 +40,7 @@ function cleanBudgets(raw: unknown): Record<string, number> {
 /**
  * 保存された帳面を検査して読む。
  * 全体の形が違えば null（呼び出し側で初期状態にする）。1件ずつの不正はその件だけ捨て、数を返す。
+ * 件数の上限はここでは当てない（保存済みの記録を黙って捨てないため。上限は書く・読み込むときに当てる）。
  */
 export function parseBook(raw: unknown): { book: Book; dropped: number } | null {
   if (!raw || typeof raw !== "object") return null;
@@ -49,7 +50,7 @@ export function parseBook(raw: unknown): { book: Book; dropped: number } | null 
   const expenses: Expense[] = [];
   let dropped = 0;
   for (const e of r.expenses) {
-    if (isExpense(e) && !seen.has(e.id) && expenses.length < MAX_EXPENSES) {
+    if (isExpense(e) && !seen.has(e.id)) {
       seen.add(e.id);
       expenses.push({ id: e.id, date: e.date, amount: e.amount, cat: e.cat, memo: e.memo, at: e.at });
     } else dropped++;

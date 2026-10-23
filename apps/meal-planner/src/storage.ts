@@ -120,22 +120,35 @@ export function migrateOld(raw: string | null, seed = 1): State | null {
   }
 }
 
-export function load(seed = 1): State {
+type StorageLike = Pick<Storage, "getItem" | "setItem" | "removeItem">;
+
+/**
+ * 読み込む。前の版の保存があれば引き継ぎ、新しい形で保存できたときだけ古いキーを消す。
+ * 保存できなかったときは古いキーを残し（次回も引き継げるように）、引き継いだ内容で動かす。
+ */
+export function load(seed = 1, store?: StorageLike): State {
   try {
-    const raw = localStorage.getItem(KEY);
+    const st = store ?? globalThis.localStorage;
+    const raw = st.getItem(KEY);
     if (raw) return parseState(raw, seed);
-    const old = migrateOld(localStorage.getItem("meal-planner.input"), seed);
-    for (const k of OLD_KEYS) localStorage.removeItem(k);
-    return old ?? freshState(seed);
+    const old = migrateOld(st.getItem("meal-planner.input"), seed);
+    const next = old ?? freshState(seed);
+    if (old && !save(next, st)) return next;
+    try {
+      for (const k of OLD_KEYS) st.removeItem(k);
+    } catch {
+      /* 消せなくても動作に影響しない */
+    }
+    return next;
   } catch {
     return freshState(seed);
   }
 }
 
 /** 保存できたら true。保存できない環境でも献立は作れる */
-export function save(s: State): boolean {
+export function save(s: State, store?: StorageLike): boolean {
   try {
-    localStorage.setItem(KEY, JSON.stringify({ v: 3, ...s }));
+    (store ?? globalThis.localStorage).setItem(KEY, JSON.stringify({ v: 3, ...s }));
     return true;
   } catch {
     return false;

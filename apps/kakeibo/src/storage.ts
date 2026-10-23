@@ -57,24 +57,59 @@ export interface Loaded {
   broken: boolean;
 }
 
+/** localStorage と同じ形の入れ物（テストで差し替えられるように） */
+export type KV = Pick<Storage, "getItem" | "setItem" | "removeItem">;
+
+function tryWrite(fn: () => void): boolean {
+  try {
+    fn();
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * 帳面を読む。読むのに失敗したときだけ初期状態にする。
+ * 前の版から引き継いだ帳面は、新しいキーへの保存に失敗しても（容量不足など）そのまま返し、
+ * 前の版のデータは消さずに残す（次に開いたとき、もう一度引き継げる）。
+ */
+export function loadFrom(kv: KV): Loaded {
+  let raw: string | null;
+  let oldExpenses: string | null = null;
+  let oldBudgets: string | null = null;
+  try {
+    raw = kv.getItem(KEY);
+    if (raw === null) {
+      oldExpenses = kv.getItem(OLD_KEYS.expenses);
+      oldBudgets = kv.getItem(OLD_KEYS.budgets);
+    }
+  } catch {
+    return { book: emptyBook(), dropped: 0, migrated: false, broken: false };
+  }
+  // 前の版の AI 連携のキー（API キー）は、ここで消す
+  tryWrite(() => kv.removeItem(OLD_KEYS.llm));
+  if (raw === null) {
+    const old = migrateV1(oldExpenses, oldBudgets);
+    if (old) {
+      const saved = tryWrite(() => kv.setItem(KEY, JSON.stringify(old)));
+      if (saved) {
+        tryWrite(() => kv.removeItem(OLD_KEYS.expenses));
+        tryWrite(() => kv.removeItem(OLD_KEYS.budgets));
+      }
+      return { book: old, dropped: 0, migrated: true, broken: false };
+    }
+  }
+  const r = parseStored(raw);
+  if (r.broken && raw !== null) tryWrite(() => kv.setItem(BROKEN_KEY, raw as string));
+  return { ...r, migrated: false };
+}
+
 export function load(): Loaded {
   try {
-    const raw = localStorage.getItem(KEY);
-    if (raw === null) {
-      const old = migrateV1(localStorage.getItem(OLD_KEYS.expenses), localStorage.getItem(OLD_KEYS.budgets));
-      // 前の版の AI 連携のキー（API キー）は、ここで消す
-      localStorage.removeItem(OLD_KEYS.llm);
-      if (old) {
-        localStorage.setItem(KEY, JSON.stringify(old));
-        localStorage.removeItem(OLD_KEYS.expenses);
-        localStorage.removeItem(OLD_KEYS.budgets);
-        return { book: old, dropped: 0, migrated: true, broken: false };
-      }
-    }
-    const r = parseStored(raw);
-    if (r.broken && raw !== null) localStorage.setItem(BROKEN_KEY, raw);
-    return { ...r, migrated: false };
+    return loadFrom(localStorage);
   } catch {
+    // localStorage そのものに触れない環境
     return { book: emptyBook(), dropped: 0, migrated: false, broken: false };
   }
 }

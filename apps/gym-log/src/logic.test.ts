@@ -169,6 +169,15 @@ const bad4 = JSON.parse(serialize(st));
 bad4.workouts[0].items.push({ exId: "unknown", sets: [{ w: 1, r: 1 }] });
 check("知らない種目の記録は捨てる", parseState(JSON.stringify(bad4)).workouts[0].items.every((i) => i.exId !== "unknown"));
 
+// 件数の上限を超えた保存でも、記録を消さない（Codex 指摘 B11）
+const many = { ...freshState(), workouts: Array.from({ length: LIMITS.workouts + 1 }, (_, i) => ({ ...W("2026-10-01", [["squat", [s(null, 10)]]]), id: `m${i}` })) };
+const manyBack = parseState(serialize(many));
+check("上限を超えた記録も読み込める", manyBack.workouts.length === LIMITS.workouts + 1, String(manyBack.workouts.length));
+const manyEx = { ...freshState() };
+for (let i = 0; manyEx.exercises.length <= LIMITS.exercises; i++) manyEx.exercises.push({ ...PRESETS[0], id: `e${i}`, name: `種目${i}`, custom: true });
+check("上限を超えた種目も読み込める", parseState(serialize(manyEx)).exercises.length === manyEx.exercises.length);
+check("上限を超えたバックアップも読める", parseBackup(makeBackup(many, "2026-10-23T00:00:00Z"))?.workouts.length === LIMITS.workouts + 1);
+
 // ---- 前の版からの移行 ----
 const v1ex = JSON.stringify([
   { id: "chest-press", name: "チェストプレス", kind: "machine", group: "upper", metric: "reps" },

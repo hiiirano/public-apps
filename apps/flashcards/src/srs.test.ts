@@ -1,6 +1,6 @@
 // 暗記カード — 純関数の単体テストとランダム（性質）テスト。`npm test`（tsx）で動く
 import { strict as assert } from "node:assert";
-import { type Card, type Grade, GRADES, INITIAL_EASE, MAX_EASE, MAX_INTERVAL, MIN_EASE, type SrsState } from "./types";
+import { type Card, type Grade, GRADES, INITIAL_EASE, MAX_DECKS, MAX_EASE, MAX_INTERVAL, MIN_EASE, type SrsState } from "./types";
 import {
   addDays,
   addStudyDay,
@@ -21,7 +21,7 @@ import {
   toYmd,
 } from "./srs";
 import { dedupe, parsePairs, toTsv } from "./parse";
-import { emptyData, exportJson, makeCard, makeDeck, mergeData, migrateV1, parseData, validCard } from "./storage";
+import { emptyData, exportJson, makeCard, makeDeck, mergeData, migrateV1, parseData, SAFE_ID, validCard, validDeck } from "./storage";
 import { SAMPLES } from "./samples";
 
 let passed = 0;
@@ -346,6 +346,41 @@ t("壊れたカード・単語帳のないカード・同じ id は除く", () =
   const r = parseData(JSON.stringify({ ...d, cards: [...d.cards, ...bad] }))!;
   assert.equal(r.data.cards.length, 2);
   assert.equal(r.dropped, bad.length);
+});
+t("使えない文字の id（引用符・タグ）は振り直し、カードもついていく", () => {
+  const d = sampleData();
+  const evil = `x" onmouseover="alert(1)`;
+  const evilCard = `<img src=x onerror=alert(1)>`;
+  const raw = JSON.stringify({ ...d, decks: [{ ...d.decks[0], id: evil }], cards: [{ ...d.cards[0], id: evilCard, deckId: evil }, { ...d.cards[1], deckId: evil }] });
+  const r = parseData(raw)!;
+  assert.equal(r.data.decks.length, 1);
+  assert.equal(r.data.cards.length, 2);
+  for (const x of [...r.data.decks.map((x) => x.id), ...r.data.cards.map((x) => x.id), ...r.data.cards.map((x) => x.deckId)]) assert.match(x, SAFE_ID);
+  assert.ok(r.data.cards.every((c) => c.deckId === r.data.decks[0].id));
+  assert.ok(r.data.cards.every(validCard) && r.data.decks.every(validDeck));
+  assert.ok(!validDeck({ ...d.decks[0], id: evil }));
+});
+t("上限: 201冊目からは黙って捨てず over に数える（カードも）", () => {
+  const decks = Array.from({ length: MAX_DECKS + 5 }, (_, i) => ({ ...makeDeck(`d${i}`), id: `d${i}` }));
+  const cards = decks.map((dk, i) => ({ ...makeCard(dk.id, { front: "a", back: "b" }), id: `c${i}` }));
+  const r = parseData(JSON.stringify({ ...emptyData(), decks, cards }))!;
+  assert.equal(r.data.decks.length, MAX_DECKS);
+  assert.equal(r.over, 10);
+  assert.equal(r.dropped, 0);
+});
+t("上限: 足すときは上限までにし、こえた数を返す", () => {
+  const cur = { ...emptyData(), decks: Array.from({ length: MAX_DECKS - 1 }, (_, i) => ({ ...makeDeck("x"), id: `a${i}` })) };
+  const incDecks = Array.from({ length: 3 }, (_, i) => ({ ...makeDeck("y"), id: `b${i}` }));
+  const inc = { ...emptyData(), decks: incDecks, cards: incDecks.map((dk, i) => ({ ...makeCard(dk.id, { front: "q", back: "a" }), id: `bc${i}` })) };
+  const m = mergeData(cur, inc);
+  assert.equal(m.data.decks.length, MAX_DECKS);
+  assert.equal(m.decks, 1);
+  assert.equal(m.cards, 1);
+  assert.equal(m.over, 4);
+  // 保存して読み直しても1冊も消えない
+  const back = parseData(JSON.stringify(m.data))!;
+  assert.equal(back.data.decks.length, MAX_DECKS);
+  assert.equal(back.over + back.dropped, 0);
 });
 t("余分な項目は捨てる・知らない絵は除く", () => {
   const d = sampleData();

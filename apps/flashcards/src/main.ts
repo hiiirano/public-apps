@@ -1,5 +1,5 @@
 import "./style.css";
-import { type Card, type Data, type Deck, type Grade, GRADE_LABEL, GRADES, MAX_CARDS, NAME_MAX, NEW_PER_DAY_CHOICES, TEXT_MAX } from "./types";
+import { type Card, type Data, type Deck, type Grade, GRADE_LABEL, GRADES, MAX_CARDS, MAX_DECKS, NAME_MAX, NEW_PER_DAY_CHOICES, TEXT_MAX } from "./types";
 import {
   addStudyDay,
   answerSession,
@@ -37,6 +37,7 @@ let data: Data = loaded.data;
 let canSave = save(data);
 let undo: { data: Data; label: string } | null = null;
 let importPending: Data | null = null;
+let importOver = 0; // ファイルの中で上限を超えていた分
 let editingId: string | null = null;
 let pasteText = "";
 let showAll = false;
@@ -179,7 +180,7 @@ function renderHome(): void {
     .map(
       ({ d, s }) => `
       <li class="deck-tile">
-        <a class="deck-link" href="#/deck/${d.id}">
+        <a class="deck-link" href="#/deck/${esc(d.id)}">
           <span class="hole" aria-hidden="true"></span>
           ${art(d)}
           <span class="deck-name">${esc(d.name)}</span>
@@ -188,7 +189,7 @@ function renderHome(): void {
         </a>
         ${
           s.today > 0
-            ? `<a class="btn primary tile-go" href="#/study/${d.id}">${icon("cards")}<span>めくる <b>${s.today}</b>枚</span></a>`
+            ? `<a class="btn primary tile-go" href="#/study/${esc(d.id)}">${icon("cards")}<span>めくる <b>${s.today}</b>枚</span></a>`
             : `<p class="tile-done">${s.total === 0 ? "カードがありません" : "今日はおわり"}</p>`
         }
       </li>`,
@@ -207,8 +208,8 @@ function renderHome(): void {
             <span class="sample-text"><span class="sample-name">${esc(s.name)}</span><span class="hint">${esc(s.note)}・${s.cards.length}枚</span></span>
             ${
               has
-                ? `<a class="btn ghost" href="#/deck/${has.id}">開く</a>`
-                : `<button type="button" class="btn ${empty ? "primary" : "ghost"}" data-sample="${s.id}" aria-label="${esc(s.name)}を入れる">${icon("plus")}<span>入れる</span></button>`
+                ? `<a class="btn ghost" href="#/deck/${esc(has.id)}">開く</a>`
+                : `<button type="button" class="btn ${empty ? "primary" : "ghost"}" data-sample="${esc(s.id)}" aria-label="${esc(s.name)}を入れる">${icon("plus")}<span>入れる</span></button>`
             }
           </li>`;
         }).join("")}
@@ -247,6 +248,7 @@ function renderHome(): void {
             <input id="new-deck-name" name="name" type="text" maxlength="${NAME_MAX}" placeholder="例: 英検3級の単語" autocomplete="off" />
             <button type="submit" class="btn primary">${icon("plus")}<span>作る</span></button>
           </div>
+          <p class="msg" id="new-deck-msg" role="alert"></p>
         </form>
       </section>
 
@@ -275,6 +277,7 @@ function importBox(): string {
   const p = importPending;
   return `<div class="import-confirm" role="group" aria-labelledby="import-msg">
     <p id="import-msg">単語帳 <b>${p.decks.length}</b>冊・カード <b>${p.cards.length}</b>枚が入っています。どうしますか？</p>
+    ${importOver ? `<p class="msg">${esc(overMsg(importOver))}</p>` : ""}
     <div class="btn-row">
       <button type="button" class="btn primary" data-act="import-add" data-autofocus>今のデータに足す</button>
       <button type="button" class="btn ghost" data-act="import-replace">今のデータと入れかえる</button>
@@ -298,7 +301,7 @@ function renderDeck(deck: Deck): void {
   const goHtml = s.total === 0
     ? `<p class="today-msg">まだカードがありません。<br />下の「まとめて入れる」に貼り付けてください。</p>`
     : s.today > 0
-      ? `<a class="btn primary big" href="#/study/${deck.id}">${icon("cards")}<span>めくる（${s.today}枚）</span></a>
+      ? `<a class="btn primary big" href="#/study/${esc(deck.id)}">${icon("cards")}<span>めくる（${s.today}枚）</span></a>
          <p class="hint">復習 ${s.due}枚・新しいカード ${s.today - s.due}枚</p>`
       : `<div class="today-done"><img src="./art/done-today.webp" alt="" width="64" height="64" /><p class="today-msg">今日の分は終わりました。${
           nextDue ? `<br />次は${esc(dueLabel(nextDue, today))} ${nextCount}枚です。` : ""
@@ -374,8 +377,8 @@ function dueLabel(due: string, today: Date): string {
 
 function cardRow(c: Card, today: Date): string {
   if (editingId === c.id)
-    return `<li class="card-row editing" data-id="${c.id}">
-      <form class="edit-form" data-id="${c.id}" novalidate>
+    return `<li class="card-row editing" data-id="${esc(c.id)}">
+      <form class="edit-form" data-id="${esc(c.id)}" novalidate>
         <label for="edit-front">表</label>
         <textarea id="edit-front" rows="2" maxlength="${TEXT_MAX}" data-autofocus>${esc(c.front)}</textarea>
         <label for="edit-back">裏</label>
@@ -388,7 +391,7 @@ function cardRow(c: Card, today: Date): string {
       </form>
     </li>`;
   const status = isFresh(c) ? "まだ" : c.due! <= toYmd(today) ? "今日" : `次は${dueLabel(c.due!, today)}`;
-  return `<li class="card-row" data-id="${c.id}">
+  return `<li class="card-row" data-id="${esc(c.id)}">
     <span class="mini-card"><span class="mc-front">${multiline(c.front)}</span><span class="mc-back">${multiline(c.back)}</span></span>
     <span class="row-side">
       <span class="tag ${isFresh(c) ? "tag-new" : ""}">${esc(status)}</span>
@@ -462,7 +465,7 @@ function renderStudy(deck: Deck): void {
   main.innerHTML = `
     <div class="study">
       <div class="study-top">
-        <a class="back" href="#/deck/${deck.id}">${icon("x")}<span>やめる</span></a>
+        <a class="back" href="#/deck/${esc(deck.id)}">${icon("x")}<span>やめる</span></a>
         <p class="study-deck">${esc(deck.name)}</p>
         ${st.last ? `<button type="button" class="btn ghost small-btn" data-act="study-undo">${icon("arrow-back-up")}<span>ひとつ戻す</span></button>` : `<span class="spacer"></span>`}
       </div>
@@ -517,7 +520,7 @@ function doneHtml(deck: Deck, s: Session): string {
       ${days > 0 ? `<p class="streak"><img src="./art/streak.webp" alt="" width="40" height="40" /><span><b>${days}</b>日つづけています</span></p>` : ""}
       <div class="btn-row center">
         <a class="btn primary" href="#/" data-autofocus>単語帳の一覧へ</a>
-        <a class="btn ghost" href="#/deck/${deck.id}">この単語帳を見る</a>
+        <a class="btn ghost" href="#/deck/${esc(deck.id)}">この単語帳を見る</a>
       </div>
     </div>`;
 }
@@ -529,7 +532,7 @@ function nothingHtml(deck: Deck): string {
       <h1 class="hand" tabindex="-1"><span class="nw">今日めくるカードは</span><span class="nw">ありません</span></h1>
       <p class="done-sub">また明日、忘れかけたころに出します。</p>
       <div class="btn-row center">
-        <a class="btn primary" href="#/deck/${deck.id}" data-autofocus>この単語帳を見る</a>
+        <a class="btn primary" href="#/deck/${esc(deck.id)}" data-autofocus>この単語帳を見る</a>
         <a class="btn ghost" href="#/">単語帳の一覧へ</a>
       </div>
     </div>`;
@@ -603,16 +606,19 @@ function undoAnswer(): void {
 }
 
 // ---- 操作 ----
+const DECK_LIMIT_MSG = `単語帳は ${MAX_DECKS}冊までです。使わない単語帳を消してから作ってください。`;
+const overMsg = (n: number) => (n > 0 ? `上限（単語帳 ${MAX_DECKS}冊・カード ${MAX_CARDS.toLocaleString()}枚）をこえる ${n}件は入りません。` : "");
 function addSample(id: string): void {
   const s = SAMPLES.find((x) => x.id === id);
   if (!s) return;
+  if (data.decks.length >= MAX_DECKS) return toast(DECK_LIMIT_MSG);
   if (data.cards.length + s.cards.length > MAX_CARDS) return toast(`カードは全部で ${MAX_CARDS.toLocaleString()}枚までです。`);
   const deck = makeDeck(s.name, s.art, s.id);
   data = { ...data, decks: [...data.decks, deck], cards: [...data.cards, ...s.cards.map((p, i) => makeCard(deck.id, p, i))] };
   commit();
   render();
   toast(`「${s.name}」を入れました。`);
-  main.querySelector<HTMLElement>(`a[href="#/study/${deck.id}"]`)?.focus();
+  main.querySelector<HTMLElement>(`a[href="#/study/${CSS.escape(deck.id)}"]`)?.focus();
 }
 
 function download(name: string, text: string): void {
@@ -672,7 +678,7 @@ main.addEventListener("click", async (e) => {
     importPending = null;
     commit();
     render();
-    return toast(`単語帳 ${m.decks}冊・カード ${m.cards}枚を足しました。${m.skipped ? `（同じもの ${m.skipped}枚は、とばしました）` : ""}`, true);
+    return toast(`単語帳 ${m.decks}冊・カード ${m.cards}枚を足しました。${m.skipped ? `（同じもの ${m.skipped}枚は、とばしました）` : ""}${overMsg(m.over)}`, true);
   }
   if (act === "import-replace" && importPending) {
     remember("入れかえ");
@@ -721,7 +727,7 @@ main.addEventListener("click", async (e) => {
   if (act === "edit-cancel") {
     editingId = null;
     render();
-    return $<HTMLElement>(`.card-row[data-id="${id}"] [data-act="edit"]`, main)?.focus();
+    return $<HTMLElement>(`.card-row[data-id="${CSS.escape(id ?? "")}"] [data-act="edit"]`, main)?.focus();
   }
   if (act === "delete-card" && id) {
     const c = data.cards.find((x) => x.id === id)!;
@@ -764,6 +770,7 @@ main.addEventListener("change", async (e) => {
     const r = parseData(await f.text());
     if (!r || (!r.data.decks.length && !r.data.cards.length)) return toast("このファイルは読み込めません。このアプリで書き出したファイルを選んでください。");
     importPending = r.data;
+    importOver = r.over;
     render();
     $<HTMLElement>('[data-act="import-add"]', main)?.focus();
   }
@@ -775,6 +782,10 @@ main.addEventListener("submit", (e) => {
   const r = route();
   if (f.id === "new-deck") {
     const input = $<HTMLInputElement>("#new-deck-name", f)!;
+    if (data.decks.length >= MAX_DECKS) {
+      $("#new-deck-msg", f)!.textContent = DECK_LIMIT_MSG;
+      return input.focus();
+    }
     const deck = makeDeck(input.value);
     data = { ...data, decks: [...data.decks, deck] };
     commit();
@@ -822,7 +833,7 @@ main.addEventListener("submit", (e) => {
     editingId = null;
     commit();
     render();
-    $<HTMLElement>(`.card-row[data-id="${id}"] [data-act="edit"]`, main)?.focus();
+    $<HTMLElement>(`.card-row[data-id="${CSS.escape(id)}"] [data-act="edit"]`, main)?.focus();
     return toast("カードを直しました。");
   }
 });

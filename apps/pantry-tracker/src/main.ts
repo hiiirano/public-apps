@@ -227,12 +227,12 @@ function renderUrgent(): void {
   box.innerHTML = `<ul class="urgent-list">${list
     .map(
       (it) => `<li class="urow lv-${levelOf(daysLeft(it.expiry, today))}">
-        <button type="button" class="urow-main" data-act="edit" data-id="${it.id}" data-k="u-edit-${it.id}">
+        <button type="button" class="urow-main" data-act="edit" data-id="${esc(it.id)}" data-k="u-edit-${esc(it.id)}">
           ${art(it.art, "art")}<span class="urow-text"><span class="urow-name">${esc(it.name)}${it.qty > 1 ? `<span class="qty-inline"> ×${it.qty}</span>` : ""}</span><span class="urow-place">${PLACE_LABEL[it.place]}</span></span>${pill(it)}
         </button>
         <div class="urow-btns">
-          <button type="button" class="btn small used" data-act="used" data-id="${it.id}" data-k="u-used-${it.id}">${icon("check")}<span class="sr-only">${esc(it.name)}を${it.qty > 1 ? "1つ" : ""}</span>使った</button>
-          <button type="button" class="btn small wasted" data-act="wasted" data-id="${it.id}" data-k="u-wasted-${it.id}">${icon("trash")}<span class="sr-only">${esc(it.name)}を${it.qty > 1 ? "1つ" : ""}</span>捨てた</button>
+          <button type="button" class="btn small used" data-act="used" data-id="${esc(it.id)}" data-k="u-used-${esc(it.id)}">${icon("check")}<span class="sr-only">${esc(it.name)}を${it.qty > 1 ? "1つ" : ""}</span>使った</button>
+          <button type="button" class="btn small wasted" data-act="wasted" data-id="${esc(it.id)}" data-k="u-wasted-${esc(it.id)}">${icon("trash")}<span class="sr-only">${esc(it.name)}を${it.qty > 1 ? "1つ" : ""}</span>捨てた</button>
         </div>
       </li>`,
     )
@@ -276,7 +276,7 @@ function renderScene(): void {
           items.length
             ? `<ul class="tiles">${items
                 .map(
-                  (it) => `<li><button type="button" class="tile lv-${levelOf(daysLeft(it.expiry, today))}" data-act="edit" data-id="${it.id}" data-k="t-${it.id}">
+                  (it) => `<li><button type="button" class="tile lv-${levelOf(daysLeft(it.expiry, today))}" data-act="edit" data-id="${esc(it.id)}" data-k="t-${esc(it.id)}">
                     ${it.qty > 1 ? `<span class="tqty">×${it.qty}</span>` : ""}
                     ${art(it.art, "art")}<span class="tname">${esc(it.name)}</span>${pill(it)}${it.expiry ? `<span class="sr-only">（${formatShort(it.expiry)}）</span>` : ""}</button></li>`,
                 )
@@ -327,7 +327,7 @@ let toastTimer = 0;
 function toast(msg: string, opts: { undo?: boolean; editId?: string } = {}): void {
   const t = $("#toast");
   t.innerHTML = `<span class="toast-msg">${esc(msg)}</span>${
-    opts.editId ? `<button type="button" class="btn small" data-act="edit" data-id="${opts.editId}">${icon("pencil")}直す</button>` : ""
+    opts.editId ? `<button type="button" class="btn small" data-act="edit" data-id="${esc(opts.editId)}">${icon("pencil")}直す</button>` : ""
   }${opts.undo ? `<button type="button" class="btn small" data-act="undo">${icon("arrow-back-up")}元に戻す</button>` : ""}`;
   t.hidden = false;
   clearTimeout(toastTimer);
@@ -438,7 +438,7 @@ form.addEventListener("submit", (e) => {
     const id = dlgId;
     closeDialog();
     commit(updateItem(state, id, data));
-    document.querySelector<HTMLElement>(`[data-k="t-${id}"]`)?.focus();
+    document.querySelector<HTMLElement>(`[data-k="t-${CSS.escape(id)}"]`)?.focus();
     toast(`${name}を直しました`, { undo: true });
   } else {
     const id = newId();
@@ -450,7 +450,7 @@ form.addEventListener("submit", (e) => {
     snapshot("入れる");
     closeDialog();
     commit(next);
-    document.querySelector<HTMLElement>(`[data-k="t-${id}"]`)?.focus();
+    document.querySelector<HTMLElement>(`[data-k="t-${CSS.escape(id)}"]`)?.focus();
     toast(`${name}を${PLACE_LABEL[data.place]}に入れました`, { undo: true });
   }
 });
@@ -469,7 +469,7 @@ dlg.addEventListener("click", (e) => {
     updateExpMsg();
     return;
   }
-  if (act === "dlg-close") closeDialog(dlgId ? `[data-k="t-${dlgId}"]` : undefined);
+  if (act === "dlg-close") closeDialog(dlgId ? `[data-k="t-${CSS.escape(dlgId)}"]` : undefined);
   else if (act === "qty-inc" || act === "qty-dec") fQty.value = String(clampQty(readQty() + (act === "qty-inc" ? 1 : -1)));
   else if ((act === "dlg-used" || act === "dlg-wasted") && dlgId) {
     const id = dlgId;

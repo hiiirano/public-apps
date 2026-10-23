@@ -102,17 +102,16 @@ function validSettings(s: any): s is Settings {
 
 const unique = (ids: string[]) => new Set(ids).size === ids.length;
 
-/** 形と範囲を検査する。合わなければ null */
+/** 形と範囲を検査する。合わなければ null。
+ * 件数の上限（記録 5,000 回・種目 200）は追加するときだけ検査し、ここでは理由にしない（超えていても記録を消さない） */
 export function checkState(s: any): State | null {
   if (
     !s ||
     s.v !== 2 ||
     !Array.isArray(s.exercises) ||
-    s.exercises.length > LIMITS.exercises ||
     !s.exercises.every(validExercise) ||
     !unique(s.exercises.map((e: Exercise) => e.id)) ||
     !Array.isArray(s.workouts) ||
-    s.workouts.length > LIMITS.workouts ||
     !s.workouts.every(validWorkout) ||
     !unique(s.workouts.map((w: Workout) => w.id)) ||
     !validSettings(s.settings)
