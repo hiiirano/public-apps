@@ -1,6 +1,6 @@
 {
   "name": "warikan",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "private": true,
   "type": "module",
   "description": "飲み会・食事のその場の割り勘。傾斜・固定額・端数に対応。",

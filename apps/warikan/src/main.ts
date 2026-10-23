@@ -113,8 +113,7 @@ app.innerHTML = `
       <button type="button" class="ghost-btn danger" data-act="reset">メンバーも消す</button>
     </div>
     <p id="save-note" class="hint"></p>
-    <p class="credit">入力した内容はこの端末の中だけに保存され、どこにも送信されません。<br />
-      イラスト: 作者がChatGPTで作成 ／ アイコン: <a href="https://tabler.io/icons" rel="noopener">Tabler Icons</a>（MIT）<br />
+    <p class="credit">入力した内容は、このスマホ（ブラウザ）の中にだけ残ります。キャッシュと同じで、外には送りません。<br />
       <a href="../">ほかのアプリ</a></p>
   </footer>
 
