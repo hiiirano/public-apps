@@ -41,7 +41,7 @@ async function runAxe(page, label) {
 }
 
 const weekText = (page) => page.textContent("#week-body");
-const mains = (page) => page.$$eval(".dish-main .d-name", (els) => els.map((e) => e.textContent.trim()));
+const mains = (page, meal = "晩") => page.$$eval(`.meal-${meal} .dish-main .d-name`, (els) => els.map((e) => e.textContent.trim()));
 
 async function setupScenario(page) {
   await page.click('button.food[data-dislike="牛肉"]');
@@ -51,6 +51,7 @@ async function setupScenario(page) {
   await page.fill("#pantry-in", "リンゴ");
   await page.click('button[data-add="pantry"]');
   await page.click('label.genre-opt:has(input[value="和"])');
+  await page.click('label.meal-opt:has(input[value="朝昼晩"])');
 }
 
 // ---- 4幅 × ライト/ダーク の画面検査 ----
@@ -70,8 +71,9 @@ for (const scheme of ["light", "dark"]) {
     await page.screenshot({ path: `${OUT}/${tag}-1-initial.png`, fullPage: true });
     await setupScenario(page);
     await page.click('[data-act="fold"]');
-    await page.click('details.meal[data-day="2"] > summary');
-    await page.click('details.meal[data-day="2"] details.ing > summary');
+    await page.click('details.meal[data-day="2"][data-meal="晩"] > summary');
+    await page.click('details.meal[data-day="2"][data-meal="晩"] details.ing > summary');
+    await page.click('details.meal[data-day="3"][data-meal="朝"] > summary');
     await page.click('details.seasoning > summary');
     await audit(page, `${tag} 入力後`);
     await page.screenshot({ path: `${OUT}/${tag}-2-filled.png`, fullPage: true });
@@ -124,7 +126,7 @@ for (const scheme of ["light", "dark"]) {
   await page.click('button[data-add="pantry"]');
   const pantryText = await page.textContent("#pantry-list");
   ok("キャベツは何曜日で使うか出る", /キャベツ.*曜日で使います/.test(pantryText), pantryText);
-  ok("リンゴは使わないと出る", /リンゴこの献立の料理では使いません/.test(pantryText), pantryText);
+  ok("晩だけのときリンゴは「朝食・昼食を作ると使えます」", /リンゴ朝食・昼食を作ると使えます/.test(pantryText), pantryText);
   ok("大根も使う", /大根.*曜日で使います/.test(pantryText), pantryText);
   ok("料理に「残り物：キャベツ」", (await page.$$eval(".uses", (els) => els.map((e) => e.textContent))).some((t) => t.includes("キャベツ")));
   ok("買い物リストに「家にある」", (await page.textContent("#shop-body")).includes("家にある"));
@@ -156,11 +158,37 @@ for (const scheme of ["light", "dark"]) {
   // 畳む・開く（利用者の提案5）
   await page.click('[data-act="fold"]');
   ok("すべて閉じる", (await page.$$eval("details.meal", (els) => els.filter((e) => e.open).length)) === 0);
-  ok("閉じても料理名が見える", (await page.textContent('details.meal[data-day="1"] > summary')).includes("ほか"));
-  await page.click('details.meal[data-day="3"] > summary');
+  ok("閉じても料理名が見える", (await page.textContent('details.meal[data-day="1"][data-meal="晩"] > summary')).includes("ほか"));
+  await page.click('details.meal[data-day="3"][data-meal="晩"] > summary');
   ok("1日だけ開く", (await page.$$eval("details.meal", (els) => els.filter((e) => e.open).map((e) => e.dataset.day))).join() === "3");
   await page.click('[data-act="fold"]');
   ok("すべて開く", (await page.$$eval("details.meal", (els) => els.filter((e) => e.open).length)) === 7);
+
+  // 朝・昼・晩（2026-10-24 追加）
+  // 卵を外していると朝の候補が少ないので、この確認の間だけ外す
+  await page.click('label.chip:has(input[value="卵"])');
+  const dinnerBefore = await mains(page);
+  await page.click('label.meal-opt:has(input[value="朝昼晩"])');
+  ok("3食で毎日 朝・昼・晩", (await page.$$eval(".day", (els) => els.map((e) => [...e.querySelectorAll("details.meal")].map((x) => x.dataset.meal).join("")))).every((x) => x === "朝昼晩"));
+  ok("朝昼を足しても夕食は同じ", (await mains(page)).join() === dinnerBefore.join());
+  ok("朝は主食＋おかず", (await page.$$eval(".meal-朝", (els) => els.map((e) => e.querySelectorAll(".dish").length))).every((n) => n === 2));
+  ok("昼は1〜2品", (await page.$$eval(".meal-昼", (els) => els.map((e) => e.querySelectorAll(".dish").length))).every((n) => n === 1 || n === 2));
+  ok("3食でリンゴを使う", /リンゴ.*曜日で使います/.test(await page.textContent("#pantry-list")), await page.textContent("#pantry-list"));
+  ok("買い物リストは3食分", (await page.textContent(".shop-meta")).includes("朝食・昼食・夕食"));
+  const bBefore = await mains(page, "朝");
+  const lBefore = await mains(page, "昼");
+  await page.click('[data-swap="3朝"]');
+  const bAfter = await mains(page, "朝");
+  ok("朝食を変える: 水曜の朝だけ変わる", bAfter[2] !== bBefore[2] && bAfter.filter((m, i) => m !== bBefore[i]).length === 1 && (await mains(page, "昼")).join() === lBefore.join(), `${bBefore[2]}→${bAfter[2]}`);
+  ok("朝食を変えたお知らせ", (await page.textContent("#toast")).includes("水曜日の朝食"), await page.textContent("#toast"));
+  await page.click('[data-act="fold"]');
+  ok("3食ともすべて閉じる", (await page.$$eval("details.meal", (els) => els.filter((e) => e.open).length)) === 0 && (await page.$$("details.meal")).length === 21);
+  await page.click('[data-act="fold"]');
+  await page.click('label.meal-opt:has(input[value="朝晩"])');
+  ok("朝と晩", (await page.$$(".meal-昼")).length === 0 && (await page.$$(".meal-朝")).length === 7);
+  await page.click('label.meal-opt:has(input[value="晩"])');
+  ok("晩だけに戻す", (await page.$$("details.meal")).length === 7);
+  await page.click('label.chip:has(input[value="卵"])');
 
   // この日を変える
   const before = await mains(page);
@@ -187,13 +215,17 @@ for (const scheme of ["light", "dark"]) {
   ok("買い物リストのコピー", clip.startsWith("買い物リスト（") && clip.includes("【野菜】") && clip.includes("✓"), clip.slice(0, 80));
   await page.click('[data-act="copy-menu"]');
   const menu = await page.evaluate(() => navigator.clipboard.readText());
-  ok("献立のコピー", menu.startsWith("今週の夕食\n月　") && menu.split("\n").length === 8, menu.slice(0, 80));
+  ok("献立のコピー", menu.startsWith("今週の献立\n月　") && menu.split("\n").length === 8, menu.slice(0, 80));
+  await page.click('label.meal-opt:has(input[value="朝昼晩"])');
+  await page.click('[data-act="copy-menu"]');
+  const menu3 = await page.evaluate(() => navigator.clipboard.readText());
+  ok("3食の献立のコピー", menu3.includes("月曜日\n　朝: ") && menu3.includes("　昼: ") && menu3.includes("　晩: "), menu3.slice(0, 120));
 
   // 再読み込みで復元
   const keep = await mains(page);
   await page.reload();
   ok("再読み込みで条件が戻る", (await page.getAttribute('button.food[data-dislike="牛肉"]', "aria-pressed")) === "true" && (await page.textContent("#adults-v")) === "10人" && (await page.isChecked('input[name="allergen"][value="卵"]')));
-  ok("再読み込みで同じ献立", (await mains(page)).join() === keep.join());
+  ok("再読み込みで同じ献立（3食のまま）", (await mains(page)).join() === keep.join() && (await page.$$(".meal-朝")).length === 7);
   ok("再読み込みでチェックが戻る", (await page.textContent("#shop-count")).startsWith("1/"));
 
   // キーボードだけで操作
@@ -245,7 +277,7 @@ for (const scheme of ["light", "dark"]) {
     await page.locator(".day >> nth=4").scrollIntoViewIfNeeded();
     await page.waitForTimeout(500);
     const imgs = await page.$$eval(".day:nth-child(5) img", (els) => els.length > 0 && els.every((e) => e.complete && e.naturalWidth > 0));
-    const cachedArt = await page.evaluate(async () => (await (await caches.open("meal-planner-v3")).keys()).filter((r) => r.url.endsWith(".webp")).length);
+    const cachedArt = await page.evaluate(async () => (await (await caches.open("meal-planner-v4")).keys()).filter((r) => r.url.endsWith(".webp")).length);
     report.cachedArt = cachedArt;
     offlineOk = (await page.$$(".day")).length === 7 && imgs && cachedArt >= 40;
   } catch (e) { report.offlineError = String(e); }

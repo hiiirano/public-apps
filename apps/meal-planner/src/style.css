@@ -281,3 +281,20 @@ legend.f-title + * { clear: both; }
   .s-art { width: 28px; height: 28px; }
   .stepper { grid-template-columns: 1fr 48px 52px 48px; padding-left: 12px; }
 }
+
+/* ---- 朝・昼・晩 ---- */
+.meal-sets { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.meal-opt { flex-direction: column; justify-content: center; gap: 2px; min-height: 76px; text-align: center; }
+.m-arts { display: flex; gap: 2px; }
+.m-art { width: 32px; height: 32px; }
+.mt-art { width: 28px; height: 28px; flex: none; }
+.meal + .meal > summary { border-top: 0; }
+.meal-朝 > summary { background: var(--ch-bg); color: var(--ch-text); }
+.meal-昼 > summary { background: var(--yo-bg); color: var(--yo-text); }
+.dish-mid .d-art { width: 80px; height: 80px; flex: none; filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.1)); }
+.dish-mid .d-name { font-size: 1.12rem; }
+.meal-tools { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 4px 8px; margin-top: 10px; }
+.meal-tools .ing { margin-top: 0; flex: 1 1 200px; }
+.meal-tools .swap { margin-left: auto; }
+.meal-tools .ing[open] { flex-basis: 100%; }
+.meal-tools:has(.ing[open]) .swap { order: -1; }

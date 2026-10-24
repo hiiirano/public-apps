@@ -3,6 +3,24 @@
 import type { Recipe } from "./types";
 
 const RULES: [RegExp, string][] = [
+  // 朝食・昼食
+  [/ピザトースト/, "pizza"],
+  [/ホットケーキ|フレンチトースト/, "pancakes"],
+  [/サンド/, "sandwich"],
+  [/ホットドッグ/, "hot-dog"],
+  [/トースト/, "bread"],
+  [/タコライス/, "taco"],
+  [/おにぎり/, "rice-ball"],
+  [/茶漬け/, "teacup-without-handle"],
+  [/がゆ|雑炊|豆乳スープ/, "bowl-with-spoon"],
+  [/納豆/, "beans"],
+  [/バナナ/, "banana"],
+  [/りんご/, "red-apple"],
+  [/スクランブル|ゆで卵|目玉焼き/, "cooking"],
+  [/ウインナー/, "bacon"],
+  [/お好み焼き|リゾット|マーボー春雨/, "shallow-pan-of-food"],
+  [/しらす丼|ルーロー飯|ライス|ごはん/, "cooked-rice"],
+  [/そうめん|ざるそば|ちゃんぽん|ジャージャー麺|カレーうどん/, "steaming-bowl"],
   [/カレー/, "curry-rice"],
   [/焼きそば/, "takeout-box"],
   [/ラーメン|担々麺|うどん|そば|冷やし中華/, "steaming-bowl"],
@@ -81,6 +99,12 @@ export const FOOD_ART: Record<string, string> = {
   コーン: "ear-of-corn",
   牛乳: "glass-of-milk",
   チーズ: "cheese-wedge",
+  りんご: "red-apple",
+  バナナ: "banana",
+  パン: "bread",
 };
+
+/** 作る食事の絵 */
+export const MEAL_ART: Record<"朝" | "昼" | "晩", string> = { 朝: "sunrise", 昼: "sun", 晩: "crescent-moon" };
 
 export const artSrc = (name: string): string => `./art/${name}.webp`;

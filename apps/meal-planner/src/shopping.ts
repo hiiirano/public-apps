@@ -67,9 +67,7 @@ export function buildShoppingList(
   };
 
   for (const d of days) {
-    addRecipe(d.main);
-    if (d.side) addRecipe(d.side);
-    if (d.soup) addRecipe(d.soup);
+    for (const r of [d.breakfast?.main, d.breakfast?.side, d.lunch?.main, d.lunch?.side, d.main, d.side, d.soup]) if (r) addRecipe(r);
   }
 
   const items = [...map.values()].map((it) => ({

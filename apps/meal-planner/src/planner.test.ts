@@ -1,12 +1,12 @@
 // 献立の判定・組み立て・保存の単体テストとランダム（性質）テスト。npm test で実行。
 import type { Allergen, DayPlan, GenrePref, PlannerInput, Recipe } from "./types";
-import { ALL_ALLERGENS, ALL_GENRES, GENRE_PREFS } from "./types";
+import { ALL_ALLERGENS, ALL_GENRES, GENRE_PREFS, MEAL_SETS, mealsOf } from "./types";
 import { addTerms, norm, recipeMatches, resolveTerm, splitTerms } from "./foods";
-import { arrangeGenres, filterRecipes, fitCounts, generateWeeklyPlan, genreCounts, isSoupyMain, mulberry32, PREFERRED_DAYS } from "./generator";
+import { dayRecipes, arrangeGenres, filterRecipes, fitCounts, generateWeeklyPlan, genreCounts, isSoupyMain, mulberry32, PREFERRED_DAYS } from "./generator";
 import { buildPlan } from "./plan";
 import { buildShoppingList, formatQuantity, roundQty, servingsFor } from "./shopping";
 import { freshState, KEY, load, migrateOld, parseState } from "./storage";
-import { MAIN_RECIPES, RECIPES, SIDE_RECIPES, SOUP_RECIPES, isSoup } from "./data/recipes";
+import { BREAKFAST_RECIPES, LUNCH_RECIPES, MAIN_RECIPES, RECIPES, SIDE_RECIPES, SOUP_RECIPES, isSoup } from "./data/recipes";
 import { INGREDIENTS } from "./data/ingredients";
 
 let passed = 0;
@@ -16,7 +16,7 @@ function check(name: string, cond: boolean, detail = "") {
   else failures.push(`${name}${detail ? ` — ${detail}` : ""}`);
 }
 const base = (o: Partial<PlannerInput> = {}): PlannerInput => ({ ...freshState().input, ...o });
-const dishes = (d: DayPlan): Recipe[] => [d.main, d.side, d.soup].filter((r): r is Recipe => !!r);
+const dishes = (d: DayPlan): Recipe[] => dayRecipes(d).map((x) => x.recipe);
 const uses = (r: Recipe, names: string[]) => r.ingredients.some((i) => names.includes(i.name));
 const same = (a: string[], b: string[]) => a.length === b.length && a.every((x) => b.includes(x));
 
@@ -34,7 +34,9 @@ check("鶏肉 → 鶏もも・むね・ひき", same(ing("チキン"), ["鶏も�
 check("魚に えび は入らない", !ing("魚").includes("えび"));
 check("海鮮に えび・いか・あさり", ["えび", "いか", "あさり", "鮭"].every((n) => ing("海鮮").includes(n)));
 check("きのこ → 4種", same(ing("キノコ"), ["しめじ", "えのき", "しいたけ", "エリンギ"]));
-check("リンゴ は料理データに無い", ing("リンゴ").length === 0 && !resolveTerm("リンゴ").known);
+check("リンゴ → りんご（朝のおかずで使う）", same(ing("リンゴ"), ["りんご"]) && same(ing("林檎"), ["りんご"]));
+check("メロン は料理データに無い", ing("メロン").length === 0 && !resolveTerm("メロン").known);
+check("ネギ・のり・ジャムの言い換え", same(ing("海苔"), ["焼きのり"]) && same(ing("じゃこ"), ["しらす"]) && same(ing("パン"), ["食パン", "ロールパン"]));
 check("もも肉 は部分一致で鶏もも肉", same(ing("もも肉"), ["鶏もも肉"]));
 check("1文字の未知語は部分一致しない", ing("な").length === 0);
 check("ねぎの注意書きに玉ねぎ", (resolveTerm("ねぎ").note ?? "").includes("玉ねぎ"));
@@ -58,11 +60,14 @@ check("苦手なし・アレルギーなしなら全品", filterRecipes(RECIPES,
 
 // ---- 冷蔵庫の残り（不具合2）----
 {
-  const p = generateWeeklyPlan(base({ pantry: ["キャベツ", "リンゴ", "ネギ"] }));
+  const p = generateWeeklyPlan(base({ pantry: ["キャベツ", "リンゴ", "ネギ", "メロン"] }));
   const by = (t: string) => p.pantry.find((x) => x.term === t)!;
   check("キャベツを使う", by("キャベツ").used.length >= 1, JSON.stringify(by("キャベツ")));
   check("ネギ（長ねぎ）を使う", by("ネギ").used.length >= 1, JSON.stringify(by("ネギ")));
-  check("リンゴは使えないと分かる", by("リンゴ").unknown && by("リンゴ").used.length === 0);
+  check("晩だけのときリンゴは「朝食にすれば使える」", by("リンゴ").blocked && by("リンゴ").otherMeals && !by("リンゴ").used.length);
+  check("メロンは使えないと分かる", by("メロン").unknown && by("メロン").used.length === 0);
+  const withB = generateWeeklyPlan(base({ mealSet: "朝晩", pantry: ["リンゴ", "キャベツ"] }));
+  check("朝食を作るとリンゴを朝に使う", withB.pantry[0].used.some((u) => u.meal === "朝"), JSON.stringify(withB.pantry[0]));
   check("使った料理に本当に入っている", p.pantry.every((u) => u.used.every((x) => RECIPES.find((r) => r.name === x.recipe)!.ingredients.some((i) => resolveTerm(u.term).ingredients.includes(i.name)))));
   const blocked = generateWeeklyPlan(base({ pantry: ["くるみ"], excludeAllergens: ["くるみ"] }));
   check("アレルギーで使えない残り物は blocked", blocked.pantry[0].blocked && !blocked.pantry[0].used.length);
@@ -73,7 +78,7 @@ check("苦手なし・アレルギーなしなら全品", filterRecipes(RECIPES,
   for (const n of Object.keys(INGREDIENTS)) {
     if (!RECIPES.some((r) => uses(r, [n]))) continue;
     for (const seed of [1, 2, 3]) {
-      const p = generateWeeklyPlan(base({ pantry: [n], seed }));
+      const p = generateWeeklyPlan(base({ pantry: [n], seed, mealSet: seed === 1 ? "晩" : "朝昼晩" }));
       if (!p.pantry[0].used.length && !p.pantry[0].blocked) miss += `${n}(seed${seed}) `;
     }
   }
@@ -122,6 +127,42 @@ check("並びは日数どおり", (() => { const s = arrangeGenres(genreCounts("
   })());
 }
 
+// ---- 朝食・昼食（2026-10-24 追加）----
+{
+  const dinnerOnly = generateWeeklyPlan(base({ seed: 4 }));
+  const all = generateWeeklyPlan(base({ seed: 4, mealSet: "朝昼晩" }));
+  check("晩だけなら朝昼なし", dinnerOnly.days.every((d) => !d.breakfast && !d.lunch));
+  check("朝昼を足しても夕食は同じ", JSON.stringify(dinnerOnly.days.map((d) => [d.main.id, d.side?.id, d.soup?.id])) === JSON.stringify(all.days.map((d) => [d.main.id, d.side?.id, d.soup?.id])));
+  check("朝は主食＋1品", all.days.every((d) => d.breakfast!.main.role === "breakfast" && !!d.breakfast!.side));
+  check("昼は1品（＋汁物）", all.days.every((d) => d.lunch!.main.role === "lunch" && (isSoupyMain(d.lunch!.main) ? !d.lunch!.side : !!d.lunch!.side && isSoup(d.lunch!.side))));
+  check("朝の汁物は夕食の汁物と重ならない", all.days.every((d) => d.breakfast!.side!.id !== d.soup?.id));
+  check("汁物なしなら昼は1品", generateWeeklyPlan(base({ mealSet: "朝昼晩", withSoup: false })).days.every((d) => !d.lunch!.side));
+  for (const pref of ["和", "洋", "中"] as const) {
+    let bad = "";
+    for (let seed = 0; seed < 100; seed++) {
+      const p = generateWeeklyPlan(base({ seed, genrePref: pref, mealSet: "朝昼晩" }));
+      const nb = p.days.filter((d) => d.breakfast!.main.genre === pref).length;
+      const nl = p.days.filter((d) => d.lunch!.main.genre === pref).length;
+      if (nb !== 4 || nl !== 4) bad += `${seed}:${nb}/${nl} `;
+      if (ALL_GENRES.some((g) => !p.days.some((d) => d.lunch!.main.genre === g))) bad += `${seed}:昼に無いジャンル `;
+    }
+    check(`朝・昼もジャンル「${pref}」を4日（100通り）`, bad === "", bad.slice(0, 200));
+  }
+  const s3 = generateWeeklyPlan(base({ seed: 4, mealSet: "朝昼晩" }), { "3朝": 1 });
+  check("朝食を変える: 水曜の朝だけ変わる", s3.days[2].breakfast!.main.id !== all.days[2].breakfast!.main.id && s3.days.every((d, i) => i === 2 || d.breakfast!.main.id === all.days[i].breakfast!.main.id) && s3.days.every((d, i) => d.main.id === all.days[i].main.id && d.lunch!.main.id === all.days[i].lunch!.main.id));
+  const s4 = generateWeeklyPlan(base({ seed: 4, mealSet: "朝昼晩" }), { "5昼": 2 });
+  check("昼食を変える: 金曜の昼だけ変わる・週で重ならない", s4.days[4].lunch!.main.id !== all.days[4].lunch!.main.id && s4.days[4].lunch!.main.id !== generateWeeklyPlan(base({ seed: 4, mealSet: "朝昼晩" }), { "5昼": 1 }).days[4].lunch!.main.id && new Set(s4.days.map((d) => d.lunch!.main.id)).size === 7);
+  const sd = generateWeeklyPlan(base({ seed: 4, mealSet: "朝昼晩" }), { "3": 1 });
+  check("夕食を変えても朝・昼はそのまま", sd.days[2].main.id !== all.days[2].main.id && sd.days.every((d, i) => d.breakfast!.main.id === all.days[i].breakfast!.main.id && d.lunch!.main.id === all.days[i].lunch!.main.id));
+  const sb = generateWeeklyPlan(base({ seed: 4, mealSet: "朝昼晩" }), { "2朝": 3, "6昼": 1, "4": 2 });
+  check("いくつ変えても、同じ日に同じ料理は出ない", sb.days.every((d) => new Set(dishes(d).map((r) => r.id)).size === dishes(d).length));
+  const shop = buildPlan(base({ mealSet: "朝昼晩", seed: 4 })).shopping;
+  const needed = new Set(all.days.flatMap((d) => dishes(d).flatMap((r) => r.ingredients.map((i) => i.name))));
+  check("買い物リストは朝・昼・晩すべてから", [...needed].every((n) => shop.some((i) => i.name === n)) && shop.every((i) => needed.has(i.name)));
+  check("卵アレルギーで朝の卵料理が出ない", generateWeeklyPlan(base({ mealSet: "朝昼晩", excludeAllergens: ["卵"] })).days.every((d) => dishes(d).every((r) => !r.allergens.includes("卵"))));
+  check("パン苦手で朝にトーストが出ない", generateWeeklyPlan(base({ mealSet: "朝晩", dislikes: ["パン"] })).days.every((d) => !d.breakfast!.main.ingredients.some((i) => i.name === "食パン" || i.name === "ロールパン")));
+}
+
 // ---- 決定性・この日を変える ----
 {
   const a = generateWeeklyPlan(base({ seed: 9 }));
@@ -134,7 +175,10 @@ check("並びは日数どおり", (() => { const s = arrangeGenres(genreCounts("
   check("この日を変える: 同じジャンル", s.days[2].main.genre === a.days[2].genre);
   check("この日を変える: 週で主菜が重ならない", new Set(s.days.map((d) => d.main.id)).size === 7);
   const s2 = generateWeeklyPlan(base({ seed: 9 }), { 3: 2 });
-  check("2回押すとさらに変わる", s2.days[2].main.id !== s.days[2].main.id);
+  check("2回押すとさらに変わる（元にも戻らない）", s2.days[2].main.id !== s.days[2].main.id && s2.days[2].main.id !== a.days[2].main.id);
+  const seen = new Set<string>();
+  for (let k = 0; k < 6; k++) seen.add(generateWeeklyPlan(base({ seed: 9 }), { 3: k }).days[2].main.id);
+  check("6回押すと6通り", seen.size === 6, `${seen.size}`);
 }
 
 // ---- ランダム（性質）テスト: アレルギー・苦手・時短は必ず守る ----
@@ -155,11 +199,12 @@ check("並びは日数どおり", (() => { const s = arrangeGenres(genreCounts("
       pantry: pantryWords.filter(() => rnd() < 0.2),
       withSide: rnd() < 0.8,
       withSoup: rnd() < 0.8,
+      mealSet: pick(MEAL_SETS),
       quickOnly: rnd() < 0.3,
       adults: 1 + Math.floor(rnd() * 10),
       children: Math.floor(rnd() * 11),
     });
-    const swaps = rnd() < 0.3 ? { [1 + Math.floor(rnd() * 7)]: 1 + Math.floor(rnd() * 3) } : {};
+    const swaps = rnd() < 0.4 ? { [`${1 + Math.floor(rnd() * 7)}${pick(["", "朝", "昼"])}`]: 1 + Math.floor(rnd() * 3) } : {};
     const p = buildPlan(input, swaps);
     runs++;
     const resolved = dislikes.map(resolveTerm);
@@ -180,6 +225,20 @@ check("並びは日数どおり", (() => { const s = arrangeGenres(genreCounts("
     if (pool.length >= 7 && new Set(p.days.map((d) => d.main.id)).size !== 7) bad += `主菜重複(${pool.length}) `;
     if (input.withSide && filterRecipes(SIDE_RECIPES, input).length >= 7 && p.days.some((d) => !d.side)) bad += `副菜なし `;
     if (!input.withSoup && p.days.some((d) => d.soup)) bad += `汁物を付けた `;
+    // 朝食・昼食: 選んだ食事だけ、選んだら毎日（候補があれば）
+    const ms = mealsOf(input.mealSet);
+    const bPool = filterRecipes(BREAKFAST_RECIPES, input), lPool = filterRecipes(LUNCH_RECIPES, input);
+    if (!ms.includes("朝") && p.days.some((d) => d.breakfast)) bad += `朝を作った `;
+    if (!ms.includes("昼") && p.days.some((d) => d.lunch)) bad += `昼を作った `;
+    if (ms.includes("朝") && bPool.length && p.days.some((d) => !d.breakfast || d.breakfast.main.role !== "breakfast")) bad += `朝なし `;
+    if (ms.includes("昼") && lPool.length && p.days.some((d) => !d.lunch || d.lunch.main.role !== "lunch")) bad += `昼なし `;
+    if (ms.includes("朝") && bPool.length >= 7 && new Set(p.days.map((d) => d.breakfast?.main.id)).size !== 7) bad += `朝の主食重複 `;
+    if (ms.includes("昼") && lPool.length >= 7 && new Set(p.days.map((d) => d.lunch?.main.id)).size !== 7) bad += `昼重複 `;
+    if (p.days.some((d) => d.lunch?.side && (!input.withSoup || !isSoup(d.lunch.side)))) bad += `昼の汁物 `;
+    for (const d of p.days) {
+      const ids = dishes(d).map((r) => r.id);
+      if (new Set(ids).size !== ids.length) bad += `同じ日に同じ料理(${d.day}) `;
+    }
     if (input.withSoup && filterRecipes(SOUP_RECIPES, input).length && p.days.some((d) => !d.soup && !isSoupyMain(d.main))) bad += `汁物なし `;
     // 買い物リスト: 量は正、同じ材料・単位は1行
     if (p.shopping.some((s) => !(s.qty > 0))) bad += `量0 `;
@@ -222,7 +281,12 @@ check("並びは日数どおり", (() => { const s = arrangeGenres(genreCounts("
   check("人数が範囲外なら初期状態", parseState(JSON.stringify({ ...good, input: { ...good.input, adults: 99 } })).input.adults === 2);
   check("知らないアレルゲンなら初期状態", parseState(JSON.stringify({ ...good, input: { ...good.input, excludeAllergens: ["ごま"] } })).input.excludeAllergens.length === 0);
   check("版が違えば初期状態", parseState(JSON.stringify({ ...good, v: 2 })).input.adults === 2);
-  check("曜日の範囲外の入れ替えは捨てる", Object.keys(parseState(JSON.stringify({ ...good, swaps: { 9: 1, 2: 1 } })).swaps).join() === "2");
+  check("曜日の範囲外の入れ替えは捨てる", Object.keys(parseState(JSON.stringify({ ...good, swaps: { 9: 1, 2: 1, "3朝": 2, "9昼": 1, "3夜": 1 } })).swaps).sort().join() === "2,3朝");
+  const noMeal = { ...good, input: { ...good.input } } as any;
+  delete noMeal.input.mealSet;
+  const nm = parseState(JSON.stringify(noMeal));
+  check("作る食事の無い保存（前の版）も読み、アレルギーを保つ", nm.input.mealSet === "晩" && nm.input.excludeAllergens[0] === "卵" && nm.input.adults === 3);
+  check("知らない作る食事なら初期状態", parseState(JSON.stringify({ ...good, input: { ...good.input, mealSet: "夜" } })).input.adults === 2);
   const old = migrateOld(JSON.stringify({ adults: 4, children: 1, genres: ["和"], excludeAllergens: ["卵", "そば", "x"], ngKeywords: ["牛肉"], pantry: ["キャベツ"], withSide: true, quickOnly: true, seed: 3 }));
   check("前の版からアレルギーを引き継ぐ", !!old && same(old.input.excludeAllergens, ["卵", "そば"]));
   // 前の版からの引き継ぎ: 新しい形で保存できないときは古いキーを消さない（アレルギー設定を失わない）
@@ -247,4 +311,4 @@ if (failures.length) {
   console.error(`\n${failures.length} failed, ${passed} passed`);
   process.exit(1);
 }
-console.log(`${passed} checks passed（ランダム 3000 通り・ジャンル 800 通り・残り物 ${Object.keys(INGREDIENTS).length} 材料）`);
+console.log(`${passed} checks passed（朝・昼を含むランダム 3000 通り・ジャンル 800 通り・残り物 ${Object.keys(INGREDIENTS).length} 材料）`);

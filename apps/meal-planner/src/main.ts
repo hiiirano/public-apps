@@ -1,9 +1,9 @@
 import "./style.css";
-import type { Allergen, DayPlan, Genre, GenrePref, PlannerInput, Recipe, WeeklyPlan } from "./types";
-import { ALL_ALLERGENS, GENRE_PREFS } from "./types";
+import type { Allergen, DayPlan, Genre, GenrePref, LightMeal, Meal, MealSet, PlannerInput, Recipe, WeeklyPlan } from "./types";
+import { ALL_ALLERGENS, GENRE_PREFS, MEAL_SETS, mealsOf } from "./types";
 import { buildPlan } from "./plan";
 import { formatQuantity, groupByCategory, itemKey, servingsFor } from "./shopping";
-import { artSrc, FOOD_ART, recipeArt } from "./art";
+import { artSrc, FOOD_ART, MEAL_ART, recipeArt } from "./art";
 import { icon } from "./icons";
 import { load, save, type State } from "./storage";
 import { addTerms, norm, resolveTerm, splitTerms } from "./foods";
@@ -17,6 +17,8 @@ const $ = <T extends HTMLElement = HTMLElement>(sel: string) => document.querySe
 const DOW = ["月", "火", "水", "木", "金", "土", "日"];
 const DISLIKE_PRESETS = ["牛肉", "豚肉", "鶏肉", "魚", "えび", "かに", "いか", "貝", "ねぎ", "玉ねぎ", "きのこ", "なす", "ピーマン", "トマト", "にんじん", "辛いもの"];
 const PANTRY_PRESETS = ["キャベツ", "玉ねぎ", "にんじん", "じゃがいも", "ねぎ", "なす", "ピーマン", "トマト", "きのこ", "卵", "鶏肉", "豚肉"];
+const MEAL_NAME: Record<Meal, string> = { 朝: "朝食", 昼: "昼食", 晩: "夕食" };
+const MEAL_SET_LABEL: Record<MealSet, string> = { 晩: "晩ごはんだけ", 朝晩: "朝と晩", 昼晩: "昼と晩", 朝昼晩: "朝・昼・晩" };
 const GENRE_ART: Record<GenrePref, string> = { おまかせ: "bento-box", 和: "rice-ball", 洋: "spaghetti", 中: "dumpling" };
 
 let state: State = load(1);
@@ -38,7 +40,7 @@ function shell(): string {
     <div class="top-text">
       <p class="brand">登録なし・無料</p>
       <h1>週間献立プランナー</h1>
-      <p class="lead">家族に合わせて、<b>7日分の夕食</b>（主菜・副菜・汁物）と<b>買い物リスト</b>を作ります。和・洋・中 149品から。</p>
+      <p class="lead">家族に合わせて、<b>7日分の献立</b>と<b>買い物リスト</b>を作ります。晩ごはん（主菜・副菜・汁物）に、朝・昼も足せます。和・洋・中 ${RECIPES.length}品から。</p>
     </div>
     <div class="top-art" aria-hidden="true">
       ${img("curry-rice", "ta ta1", 160)}${img("sushi", "ta ta2", 160)}${img("dumpling", "ta ta3", 160)}${img("spaghetti", "ta ta4", 160)}${img("pot-of-food", "ta ta5", 160)}
@@ -58,6 +60,18 @@ function shell(): string {
         </div>
         <p class="note">子どもは大人の半分の量で計算します。</p>
       </div>
+
+      <fieldset class="field">
+        <legend class="f-title">作る食事</legend>
+        <div class="meal-sets">
+          ${MEAL_SETS.map(
+            (m) => `<label class="genre-opt meal-opt">
+              <input type="radio" name="mealSet" value="${m}" ${i.mealSet === m ? "checked" : ""} />
+              <span class="m-arts">${mealsOf(m).map((x) => img(MEAL_ART[x], "m-art", 36)).join("")}</span><span>${MEAL_SET_LABEL[m]}</span></label>`,
+          ).join("")}
+        </div>
+        <p class="note">朝は主食＋おかず1品、昼は1品（＋汁物）、晩は主菜・副菜・汁物。</p>
+      </fieldset>
 
       <fieldset class="field">
         <legend class="f-title">好きなジャンル</legend>
@@ -104,9 +118,9 @@ function shell(): string {
       </fieldset>
 
       <fieldset class="field">
-        <legend class="f-title">夕食の品数と時間</legend>
-        <label class="switch"><input type="checkbox" id="withSide" ${i.withSide ? "checked" : ""} /><span class="sw" aria-hidden="true"></span>副菜をつける</label>
-        <label class="switch"><input type="checkbox" id="withSoup" ${i.withSoup ? "checked" : ""} /><span class="sw" aria-hidden="true"></span>汁物をつける</label>
+        <legend class="f-title">品数と時間</legend>
+        <label class="switch"><input type="checkbox" id="withSide" ${i.withSide ? "checked" : ""} /><span class="sw" aria-hidden="true"></span>副菜をつける（晩）</label>
+        <label class="switch"><input type="checkbox" id="withSoup" ${i.withSoup ? "checked" : ""} /><span class="sw" aria-hidden="true"></span>汁物をつける（昼・晩）</label>
         <label class="switch"><input type="checkbox" id="quickOnly" ${i.quickOnly ? "checked" : ""} /><span class="sw" aria-hidden="true"></span>${QUICK_MIN}分以内の料理だけ</label>
       </fieldset>
     </section>
@@ -114,7 +128,7 @@ function shell(): string {
     <div class="results">
       <section class="week-sec" aria-labelledby="week-h">
         <div class="sec-head">
-          <h2 id="week-h" tabindex="-1">${img("spiral-calendar", "h-art", 48)}今週の夕食</h2>
+          <h2 id="week-h" tabindex="-1">${img("spiral-calendar", "h-art", 48)}今週の献立</h2>
           <div class="tools">
             <button type="button" class="btn primary" data-act="reroll">${icon("refresh")}別の組み合わせ</button>
             <button type="button" class="btn" data-act="fold" aria-pressed="false">${icon("chevron-down")}<span>すべて閉じる</span></button>
@@ -187,9 +201,11 @@ function pantryLine(t: string): string {
   const p = plan.pantry.find((x) => x.term === t);
   if (!p) return "";
   if (p.unknown) return `<span class="bad">この献立の料理では使いません</span>`;
+  if (p.blocked && p.otherMeals) return `<span class="bad">朝食・昼食を作ると使えます（上の「作る食事」）</span>`;
   if (p.blocked) return `<span class="bad">使う料理がほかの条件で外れています</span>`;
   if (!p.used.length) return `<span class="bad">今週は使えませんでした。「別の組み合わせ」で変わることがあります</span>`;
-  const days = [...new Set(p.used.map((u) => DOW[u.day - 1]))].join("・");
+  const many = mealsOf(state.input.mealSet).length > 1;
+  const days = [...new Set(p.used.map((u) => DOW[u.day - 1] + (many ? `(${u.meal})` : "")))].join("・");
   return `<b>${days}</b>曜日で使います（${esc([...new Set(p.used.map((u) => u.recipe))].slice(0, 3).join("、"))}）`;
 }
 
@@ -207,13 +223,14 @@ function renderTerms(kind: "dislike" | "pantry"): void {
 }
 
 /* ---------- 献立 ---------- */
-function dishHtml(r: Recipe, course: string, big: boolean): string {
+function dishHtml(r: Recipe, course: string, size: "big" | "mid" | "small"): string {
+  const big = size !== "small";
   const uses = state.input.pantry.filter((t) => {
     const res = resolveTerm(t);
     return res.ingredients.length && r.ingredients.some((i) => res.ingredients.includes(i.name));
   });
-  return `<div class="dish ${big ? "dish-main" : "dish-sub"}">
-    ${img(recipeArt(r), big ? "d-art big" : "d-art", big ? 128 : 64)}
+  return `<div class="dish ${big ? `dish-main dish-${size}` : "dish-sub"}">
+    ${img(recipeArt(r), "d-art", big ? 128 : 64)}
     <div class="d-text">
       <span class="course">${course}・${r.timeMin}分</span>
       <span class="d-name">${esc(r.name)}</span>
@@ -229,10 +246,9 @@ function dishQty(q: number, unit: string): number {
   return Math.round(q * 10) / 10;
 }
 
-function ingredientsHtml(d: DayPlan): string {
+function ingredientsHtml(recipes: Recipe[]): string {
   const servings = servingsFor(state.input);
-  return [d.main, d.side, d.soup]
-    .filter((r): r is Recipe => !!r)
+  return recipes
     .map(
       (r) => `<div class="ing-dish"><b>${esc(r.name)}</b>
       <p>${r.ingredients.map((i) => `${esc(i.name)} ${formatQuantity(dishQty((i.qty * servings) / r.servingsBase, i.unit), i.unit)}`).join("、")}</p>
@@ -241,27 +257,49 @@ function ingredientsHtml(d: DayPlan): string {
     .join("");
 }
 
-function dayHtml(d: DayPlan, open: boolean): string {
-  const dishes = [d.main, d.side, d.soup].filter((r): r is Recipe => !!r);
-  return `<article class="day g-${d.main.genre}" aria-labelledby="d${d.day}-h">
-    <div class="day-top">
-      <h3 id="d${d.day}-h" class="day-h"><span class="dow" aria-hidden="true">${DOW[d.day - 1]}</span>${DOW[d.day - 1]}曜日</h3>
-      <span class="gbadge">${genreName(d.main.genre)}</span>
-      <button type="button" class="btn small swap" data-swap="${d.day}">${icon("arrows-shuffle")}<span class="sr-only">${DOW[d.day - 1]}曜日の夕食を </span><span class="sw-long">この日を</span>変える</button>
-    </div>
-    <details class="meal" data-day="${d.day}" ${open ? "open" : ""}>
+function mealHtml(d: DayPlan, meal: Meal, dishes: { r: Recipe; course: string }[], open: boolean): string {
+  const key = meal === "晩" ? `${d.day}` : `${d.day}${meal}`;
+  const [first, ...rest] = dishes;
+  return `<details class="meal meal-${meal}" data-day="${d.day}" data-meal="${meal}" ${open ? "open" : ""}>
       <summary>
-        <span class="meal-name">夕食</span>
-        <span class="thumbs" aria-hidden="true">${dishes.map((r) => img(recipeArt(r), "t-art", 36)).join("")}</span>
-        <span class="meal-sum">${esc(d.main.name)}${dishes.length > 1 ? ` ほか${dishes.length - 1}品` : ""}</span>
+        ${img(MEAL_ART[meal], "mt-art", 28)}<span class="meal-name">${MEAL_NAME[meal]}</span>
+        <span class="thumbs" aria-hidden="true">${dishes.map((x) => img(recipeArt(x.r), "t-art", 36)).join("")}</span>
+        <span class="meal-sum">${esc(first.r.name)}${rest.length ? ` ほか${rest.length}品` : ""}</span>
         <span class="chev">${icon("chevron-down")}</span>
       </summary>
       <div class="meal-body">
-        ${dishHtml(d.main, "主菜", true)}
-        ${d.side || d.soup ? `<div class="subs">${d.side ? dishHtml(d.side, "副菜", false) : ""}${d.soup ? dishHtml(d.soup, "汁物", false) : ""}</div>` : ""}
-        <details class="ing"><summary>材料（${servingsFor(state.input)}人前）とアレルギー</summary>${ingredientsHtml(d)}</details>
+        ${dishHtml(first.r, first.course, meal === "晩" ? "big" : "mid")}
+        ${rest.length ? `<div class="subs">${rest.map((x) => dishHtml(x.r, x.course, "small")).join("")}</div>` : ""}
+        <div class="meal-tools">
+          <details class="ing"><summary>材料（${servingsFor(state.input)}人前）とアレルギー</summary>${ingredientsHtml(dishes.map((x) => x.r))}</details>
+          <button type="button" class="btn small swap" data-swap="${key}">${icon("arrows-shuffle")}<span class="sr-only">${DOW[d.day - 1]}曜日の</span>${MEAL_NAME[meal]}を変える</button>
+        </div>
       </div>
-    </details>
+    </details>`;
+}
+
+function lightDishes(m: LightMeal | undefined, meal: "朝" | "昼"): { r: Recipe; course: string }[] {
+  if (!m) return [];
+  const out = [{ r: m.main, course: meal === "朝" ? "主食" : "1品" }];
+  if (m.side) out.push({ r: m.side, course: /汁|スープ/.test(m.side.name) ? "汁物" : "おかず" });
+  return out;
+}
+
+function dayHtml(d: DayPlan, open: boolean): string {
+  const meals = mealsOf(state.input.mealSet);
+  const parts: string[] = [];
+  if (meals.includes("朝") && d.breakfast) parts.push(mealHtml(d, "朝", lightDishes(d.breakfast, "朝"), open));
+  if (meals.includes("昼") && d.lunch) parts.push(mealHtml(d, "昼", lightDishes(d.lunch, "昼"), open));
+  const dinner = [{ r: d.main, course: "主菜" }];
+  if (d.side) dinner.push({ r: d.side, course: "副菜" });
+  if (d.soup) dinner.push({ r: d.soup, course: "汁物" });
+  parts.push(mealHtml(d, "晩", dinner, open));
+  return `<article class="day g-${d.main.genre}" aria-labelledby="d${d.day}-h">
+    <div class="day-top">
+      <h3 id="d${d.day}-h" class="day-h"><span class="dow" aria-hidden="true">${DOW[d.day - 1]}</span>${DOW[d.day - 1]}曜日</h3>
+      <span class="gbadge">晩は${genreName(d.main.genre)}</span>
+    </div>
+    ${parts.join("")}
   </article>`;
 }
 
@@ -285,7 +323,7 @@ function renderWeek(): void {
         ${plan.days.map((d) => `<span class="cell g-${d.main.genre}"><span>${DOW[d.day - 1]}</span>${img(recipeArt(d.main), "s-art", 40)}</span>`).join("")}
       </div>
       <p class="ov-text">${counts.map(([g, n]) => `<span class="gdot g-${g}"></span>${genreName(g)} ${n}日`).join("　")}
-      ／ 主菜が${QUICK_MIN}分以内の日 ${quick}日${state.input.pantry.length ? ` ／ 残り物 ${used}/${state.input.pantry.length}品を使用` : ""}</p>
+      ／ ${mealsOf(state.input.mealSet).map((m) => MEAL_NAME[m]).join("・")} ${plan.days.length * mealsOf(state.input.mealSet).length}食 ／ 夕食の主菜が${QUICK_MIN}分以内の日 ${quick}日${state.input.pantry.length ? ` ／ 残り物 ${used}/${state.input.pantry.length}品を使用` : ""}</p>
       ${plan.notes.length ? `<p class="note">${plan.notes.map(esc).join(" ")}</p>` : ""}
     </div>
     <div class="days">${plan.days.map((d) => dayHtml(d, !folded)).join("")}</div>`;
@@ -295,11 +333,20 @@ function renderWeek(): void {
 /* ---------- 買い物リスト ---------- */
 function shoppingText(): string {
   const groups = groupByCategory(plan.shopping);
-  return `買い物リスト（${servingsFor(state.input)}人前・7日分）\n` +
+  return `買い物リスト（${servingsFor(state.input)}人前・7日分・${mealsOf(state.input.mealSet).map((m) => MEAL_NAME[m]).join("・")}）\n` +
     groups.map((g) => `【${g.category}】\n${g.items.map((it) => `${state.checked.includes(itemKey(it)) ? "✓" : "・"}${it.name} ${formatQuantity(it.qty, it.unit)}`).join("\n")}`).join("\n");
 }
 function menuText(): string {
-  return "今週の夕食\n" + plan.days.map((d) => `${DOW[d.day - 1]}　${[d.main, d.side, d.soup].filter((r): r is Recipe => !!r).map((r) => r.name).join("／")}`).join("\n");
+  const meals = mealsOf(state.input.mealSet);
+  const names = (rs: (Recipe | undefined)[]) => rs.filter((r): r is Recipe => !!r).map((r) => r.name).join("／");
+  return "今週の献立\n" + plan.days.map((d) => {
+    if (meals.length === 1) return `${DOW[d.day - 1]}　${names([d.main, d.side, d.soup])}`;
+    const lines = [`${DOW[d.day - 1]}曜日`];
+    if (meals.includes("朝") && d.breakfast) lines.push(`　朝: ${names([d.breakfast.main, d.breakfast.side])}`);
+    if (meals.includes("昼") && d.lunch) lines.push(`　昼: ${names([d.lunch.main, d.lunch.side])}`);
+    lines.push(`　晩: ${names([d.main, d.side, d.soup])}`);
+    return lines.join("\n");
+  }).join("\n");
 }
 
 function renderShop(): void {
@@ -319,7 +366,7 @@ function renderShop(): void {
       <span class="qty">${formatQuantity(it.qty, it.unit)}</span></label></li>`;
   };
   body.innerHTML = `
-    <p class="shop-meta">大人${state.input.adults}人・子ども${state.input.children}人（${servingsFor(state.input)}人前）・7日分　<b id="shop-count">${done}/${plan.shopping.length}</b> 買った</p>
+    <p class="shop-meta">大人${state.input.adults}人・子ども${state.input.children}人（${servingsFor(state.input)}人前）・7日分（${mealsOf(state.input.mealSet).map((m) => MEAL_NAME[m]).join("・")}）　<b id="shop-count">${done}/${plan.shopping.length}</b> 買った</p>
     <div class="tools">
       <button type="button" class="btn primary" data-act="copy-shop">${icon("copy")}買い物リストをコピー</button>
       <button type="button" class="btn" data-act="copy-menu">${icon("copy")}献立をコピー</button>
@@ -405,13 +452,16 @@ app.addEventListener("click", async (e) => {
     toggleTerm(kind, (d.removeDislike ?? d.removePantry)!);
     $(`#${kind}-in`).focus();
   } else if (d.swap) {
-    const day = Number(d.swap);
-    state.swaps = { ...state.swaps, [day]: Math.min(50, (state.swaps[day] ?? 0) + 1) };
-    const before = plan.days[day - 1]?.main.id;
+    const key = d.swap;
+    const day = parseInt(key, 10);
+    const meal: Meal = key.endsWith("朝") ? "朝" : key.endsWith("昼") ? "昼" : "晩";
+    const mainOf = (p: WeeklyPlan) => { const x = p.days[day - 1]; return meal === "朝" ? x?.breakfast?.main : meal === "昼" ? x?.lunch?.main : x?.main; };
+    state.swaps = { ...state.swaps, [key]: Math.min(50, (state.swaps[key] ?? 0) + 1) };
+    const before = mainOf(plan)?.id;
     regenerate({ keepSwaps: true });
-    const after = plan.days[day - 1]?.main.id;
-    toast(before === after ? "ほかに合う料理がありませんでした" : `${DOW[day - 1]}曜日を「${plan.days[day - 1].main.name}」にしました`);
-    $<HTMLButtonElement>(`[data-swap="${day}"]`)?.focus();
+    const after = mainOf(plan);
+    toast(!after || before === after.id ? "ほかに合う料理がありませんでした" : `${DOW[day - 1]}曜日の${MEAL_NAME[meal]}を「${after.name}」にしました`);
+    $<HTMLButtonElement>(`[data-swap="${key}"]`)?.focus();
   } else if (d.act === "reroll") {
     state.input = { ...state.input, seed: (state.input.seed + 1) % 1_000_000 };
     regenerate({ announce: "別の組み合わせにしました" });
@@ -443,6 +493,7 @@ app.addEventListener("click", async (e) => {
 app.addEventListener("change", (e) => {
   const el = e.target as HTMLInputElement;
   if (el.name === "genre") setInput("genrePref", el.value as GenrePref);
+  else if (el.name === "mealSet") setInput("mealSet", el.value as MealSet);
   else if (el.name === "allergen") {
     const list = [...document.querySelectorAll<HTMLInputElement>('input[name="allergen"]:checked')].map((x) => x.value as Allergen);
     setInput("excludeAllergens", list);
@@ -498,7 +549,7 @@ if (import.meta.env.PROD && "serviceWorker" in navigator) {
       .then(() => navigator.serviceWorker.ready)
       .then((reg) => {
         // 初回に読み込んだファイルと料理の絵も、次からオフラインで開けるよう控えておいてもらう
-        const names = new Set([...RECIPES.map(recipeArt), ...Object.values(FOOD_ART), ...Object.values(GENRE_ART), "basket", "spiral-calendar", "shopping-cart", "curry-rice", "sushi", "dumpling", "spaghetti", "pot-of-food"]);
+        const names = new Set([...RECIPES.map(recipeArt), ...Object.values(FOOD_ART), ...Object.values(GENRE_ART), ...Object.values(MEAL_ART), "basket", "spiral-calendar", "shopping-cart", "curry-rice", "sushi", "dumpling", "spaghetti", "pot-of-food"]);
         const arts = [...names].map((n) => new URL(artSrc(n), location.href).href);
         const urls = [
           location.href.split("#")[0],

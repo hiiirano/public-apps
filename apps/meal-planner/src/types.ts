@@ -49,14 +49,22 @@ export interface Ingredient {
 export interface Recipe {
   id: string;
   name: string;
-  role: "main" | "side";
+  /** main=夕食の主菜 / side=副菜・汁物 / breakfast=朝の主食 / bside=朝のおかず / lunch=昼の1品 */
+  role: "main" | "side" | "breakfast" | "bside" | "lunch";
   genre: Genre;
-  mainType?: MainType; // role === "main" のみ
+  mainType?: MainType; // main と lunch
   timeMin: number;
   allergens: Allergen[];
   servingsBase: number; // ingredients が何人前か
   ingredients: Ingredient[];
 }
+
+/** 食事 */
+export type Meal = "朝" | "昼" | "晩";
+/** 作る食事の組み合わせ */
+export type MealSet = "晩" | "朝晩" | "昼晩" | "朝昼晩";
+export const MEAL_SETS: MealSet[] = ["晩", "朝晩", "昼晩", "朝昼晩"];
+export const mealsOf = (m: MealSet): Meal[] => (["朝", "昼", "晩"] as Meal[]).filter((x) => m.includes(x));
 
 /** ジャンルの好み。「和」などを選ぶと、その日を多め（7日のうち4日）にする */
 export type GenrePref = "おまかせ" | Genre;
@@ -66,6 +74,7 @@ export interface PlannerInput {
   adults: number; // 1..10
   children: number; // 0..10（0.5人前で計算）
   genrePref: GenrePref;
+  mealSet: MealSet; // 作る食事（初期値は晩だけ）
   excludeAllergens: Allergen[]; // 除外アレルゲン（必ず守る）
   dislikes: string[]; // 苦手な食材（分類名または自由入力の言葉）
   pantry: string[]; // 冷蔵庫の残り（使う料理を優先）
@@ -75,12 +84,21 @@ export interface PlannerInput {
   seed: number; // 組み合わせの番号（同じなら同じ献立）
 }
 
-export interface DayPlan {
-  day: number; // 1..7（月〜日）
-  genre: Genre; // その日に割り当てたジャンル
+/** 朝食・昼食（主食・1品と、もう1品） */
+export interface LightMeal {
+  genre: Genre;
   main: Recipe;
   side?: Recipe;
+}
+
+export interface DayPlan {
+  day: number; // 1..7（月〜日）
+  genre: Genre; // 夕食に割り当てたジャンル
+  main: Recipe; // 夕食の主菜
+  side?: Recipe;
   soup?: Recipe;
+  breakfast?: LightMeal;
+  lunch?: LightMeal;
 }
 
 export interface ShoppingItem {
@@ -95,9 +113,11 @@ export interface PantryUse {
   /** 料理データの材料に無い言葉（例: リンゴ） */
   unknown: boolean;
   /** 使った料理（曜日と料理名） */
-  used: { day: number; recipe: string }[];
+  used: { day: number; meal: Meal; recipe: string }[];
   /** 使う料理はあるが、アレルギー・苦手・時短の条件で外れた */
   blocked: boolean;
+  /** 選んでいない食事（朝・昼）にすれば使える */
+  otherMeals: boolean;
 }
 
 export interface WeeklyPlan {

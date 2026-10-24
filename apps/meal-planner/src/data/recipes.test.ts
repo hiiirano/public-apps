@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { RECIPES, SOUP_RECIPES, SIDE_RECIPES } from './recipes';
+import { RECIPES, SOUP_RECIPES, SIDE_RECIPES, BREAKFAST_RECIPES, BSIDE_RECIPES, LUNCH_RECIPES } from './recipes';
 import { INGREDIENTS } from './ingredients';
 import { ALL_ALLERGENS, ALL_GENRES } from '../types';
 import type { Allergen } from '../types';
@@ -18,6 +18,8 @@ const rules: [RegExp, Allergen[]][] = [
   [/牛乳|バター|チーズ|生クリーム|ルウ|パン粉/, ['乳']],
   [/小麦粉|パン粉|スパゲッティ|マカロニ|うどん|中華麺|そば|餃子の皮|シュウマイの皮|春巻きの皮|醤油|めんつゆ|ポン酢|ルウ|オイスター|甜麺醤|豆板醤/, ['小麦']],
   [/豆腐|厚揚げ|油揚げ|納豆|大豆|枝豆|醤油|味噌|めんつゆ|ポン酢|マヨネーズ/, ['大豆']],
+  [/食パン|ロールパン|ホットケーキミックス/, ['卵','乳','小麦','大豆']],
+  [/ヨーグルト/, ['乳']], [/豆乳/, ['大豆']], [/しらす|焼きのり/, ['えび','かに']], [/そうめん/, ['小麦']],
   [/えび/, ['えび']], [/かに/, ['かに']], [/そば/, ['そば']], [/くるみ/, ['くるみ']], [/落花生/, ['落花生']],
   [/ハム|ベーコン|ウインナー/, ['卵','乳','小麦','大豆']],
   [/かにかま/, ['卵','小麦','えび','かに','大豆']],
@@ -25,7 +27,9 @@ const rules: [RegExp, Allergen[]][] = [
 ];
 for (const r of RECIPES) {
   assert.ok(r.timeMin > 0 && r.servingsBase > 0 && r.ingredients.length >= 2, r.name);
-  assert.ok(r.role !== 'main' || r.mainType, r.name);
+  assert.ok(!['main', 'lunch'].includes(r.role) || r.mainType, r.name);
+  assert.ok(r.role === 'main' || r.role === 'lunch' || r.timeMin <= 25, r.name + ' 平日に作れる手間');
+  if (['breakfast', 'bside', 'lunch'].includes(r.role)) assert.ok(r.timeMin <= 30, r.name + ' 朝昼は30分以内');
   assert.ok(r.allergens.every(a => ALL_ALLERGENS.includes(a)), r.name);
   assert.ok(existsSync(`public/art/${recipeArt(r)}.webp`), r.name+' illustration');
   const names = r.ingredients.map(i => i.name);
@@ -43,5 +47,12 @@ for (const r of RECIPES) {
 for (const g of ALL_GENRES) {
   assert.ok(SOUP_RECIPES.filter(r => r.genre === g).length >= 4, g + ' 汁物');
   assert.ok(SIDE_RECIPES.filter(r => r.genre === g).length >= 12, g + ' 副菜');
+}
+assert.ok(BREAKFAST_RECIPES.length + BSIDE_RECIPES.length >= 30, '朝30品以上');
+assert.ok(LUNCH_RECIPES.length >= 30, '昼30品以上');
+for (const g of ALL_GENRES) {
+  assert.ok(BREAKFAST_RECIPES.filter(r => r.genre === g).length >= 4, g + ' 朝の主食');
+  assert.ok(BSIDE_RECIPES.filter(r => r.genre === g).length >= 4, g + ' 朝のおかず');
+  assert.ok(LUNCH_RECIPES.filter(r => r.genre === g).length >= 10, g + ' 昼');
 }
 console.log(`PASS: ${RECIPES.length}品・ジャンル最低数・重複・材料・アレルゲン・イラスト`);

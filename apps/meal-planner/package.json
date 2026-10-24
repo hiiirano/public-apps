@@ -1,9 +1,9 @@
 {
   "name": "meal-planner",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "private": true,
   "type": "module",
-  "description": "家族の人数・アレルギー・苦手なもの・冷蔵庫の残りから、7日分の夕食（主菜・副菜・汁物）と買い物リストを作る。",
+  "description": "家族の人数・アレルギー・苦手なもの・冷蔵庫の残りから、7日分の献立（夕食、朝食・昼食も選べる）と買い物リストを作る。",
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",

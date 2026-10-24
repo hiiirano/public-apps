@@ -1,6 +1,6 @@
 # 素材の出典
 
-## 料理・食材の絵（public/art/*.webp、48 点）
+## 料理・食材の絵（public/art/*.webp、61 点）
 - Microsoft Fluent Emoji の 3D 版（PNG 256px）を WebP に変換したもの。
 - 取得元: https://github.com/microsoft/fluentui-emoji （assets/<名前>/3D/<名前>_3d.png）
 - ライセンス: MIT。Copyright (c) Microsoft Corporation. 全文は下に記載。
@@ -9,16 +9,20 @@
 | ファイル | 元の名前 |
 |---|---|
 | bacon.webp | Bacon |
+| banana.webp | Banana |
 | basket.webp | Basket |
+| beans.webp | Beans |
 | bell-pepper.webp | Bell pepper |
 | bento-box.webp | Bento box |
 | bowl-with-spoon.webp | Bowl with spoon |
+| bread.webp | Bread |
 | broccoli.webp | Broccoli |
 | carrot.webp | Carrot |
 | cheese-wedge.webp | Cheese wedge |
 | cooked-rice.webp | Cooked rice |
 | cooking.webp | Cooking |
 | crab.webp | Crab |
+| crescent-moon.webp | Crescent moon |
 | cucumber.webp | Cucumber |
 | curry-rice.webp | Curry rice |
 | cut-of-meat.webp | Cut of meat |
@@ -32,19 +36,24 @@
 | glass-of-milk.webp | Glass of milk |
 | green-salad.webp | Green salad |
 | herb.webp | Herb |
+| hot-dog.webp | Hot dog |
 | hot-pepper.webp | Hot pepper |
 | leafy-green.webp | Leafy green |
 | mushroom.webp | Mushroom |
 | oden.webp | Oden |
 | onion.webp | Onion |
 | oyster.webp | Oyster |
+| pancakes.webp | Pancakes |
 | pea-pod.webp | Pea pod |
 | peanuts.webp | Peanuts |
+| pizza.webp | Pizza |
 | pot-of-food.webp | Pot of food |
 | potato.webp | Potato |
 | poultry-leg.webp | Poultry leg |
+| red-apple.webp | Red apple |
 | rice-ball.webp | Rice ball |
 | roasted-sweet-potato.webp | Roasted sweet potato |
+| sandwich.webp | Sandwich |
 | shallow-pan-of-food.webp | Shallow pan of food |
 | shopping-cart.webp | Shopping cart |
 | shrimp.webp | Shrimp |
@@ -53,8 +62,12 @@
 | squid.webp | Squid |
 | steaming-bowl.webp | Steaming bowl |
 | stuffed-flatbread.webp | Stuffed flatbread |
+| sun.webp | Sun |
+| sunrise.webp | Sunrise |
 | sushi.webp | Sushi |
+| taco.webp | Taco |
 | takeout-box.webp | Takeout box |
+| teacup-without-handle.webp | Teacup without handle |
 | tomato.webp | Tomato |
 
 ## 操作アイコン: Tabler Icons（outline。src/icons.ts にインラインで収録）

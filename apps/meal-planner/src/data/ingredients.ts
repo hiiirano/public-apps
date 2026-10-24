@@ -729,5 +729,65 @@ export const INGREDIENTS: Record<string, { unit: string; category: ShoppingCateg
     "unit": "ml",
     "category": "調味料",
     "allergens": []
+  },
+  "食パン": {
+    "unit": "枚",
+    "category": "主食",
+    "allergens": ["卵", "乳", "小麦", "大豆"]
+  },
+  "ロールパン": {
+    "unit": "個",
+    "category": "主食",
+    "allergens": ["卵", "乳", "小麦", "大豆"]
+  },
+  "ホットケーキミックス": {
+    "unit": "g",
+    "category": "主食",
+    "allergens": ["卵", "乳", "小麦", "大豆"]
+  },
+  "そうめん": {
+    "unit": "g",
+    "category": "主食",
+    "allergens": ["小麦"]
+  },
+  "ヨーグルト": {
+    "unit": "g",
+    "category": "乳・卵",
+    "allergens": ["乳"]
+  },
+  "豆乳": {
+    "unit": "ml",
+    "category": "乳・卵",
+    "allergens": ["大豆"]
+  },
+  "しらす": {
+    "unit": "g",
+    "category": "肉・魚",
+    "allergens": ["えび", "かに"]
+  },
+  "焼きのり": {
+    "unit": "枚",
+    "category": "その他",
+    "allergens": ["えび", "かに"]
+  },
+  "梅干し": {
+    "unit": "個",
+    "category": "その他",
+    "allergens": []
+  },
+  "いちごジャム": {
+    "unit": "g",
+    "category": "調味料",
+    "allergens": []
+  },
+  "バナナ": {
+    "unit": "本",
+    "category": "野菜",
+    "allergens": []
+  },
+  "りんご": {
+    "unit": "個",
+    "category": "野菜",
+    "allergens": []
   }
 };

@@ -7622,6 +7622,3017 @@ export const RECIPES: Recipe[] = [
         "category": "調味料"
       }
     ]
+  },
+  {
+    "id": "和-bf-001",
+    "name": "納豆ごはん",
+    "role": "breakfast",
+    "genre": "和",
+    "timeMin": 5,
+    "allergens": [
+      "小麦",
+      "大豆"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "ご飯",
+        "qty": 300.0,
+        "unit": "g",
+        "category": "主食"
+      },
+      {
+        "name": "納豆",
+        "qty": 2.0,
+        "unit": "g",
+        "category": "その他"
+      },
+      {
+        "name": "長ねぎ",
+        "qty": 10.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "醤油",
+        "qty": 5.0,
+        "unit": "ml",
+        "category": "調味料"
+      }
+    ]
+  },
+  {
+    "id": "和-bf-002",
+    "name": "鮭おにぎり",
+    "role": "breakfast",
+    "genre": "和",
+    "timeMin": 10,
+    "allergens": [
+      "えび",
+      "かに"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "ご飯",
+        "qty": 300.0,
+        "unit": "g",
+        "category": "主食"
+      },
+      {
+        "name": "鮭",
+        "qty": 60.0,
+        "unit": "g",
+        "category": "肉・魚"
+      },
+      {
+        "name": "焼きのり",
+        "qty": 2.0,
+        "unit": "枚",
+        "category": "その他"
+      },
+      {
+        "name": "塩",
+        "qty": 1.0,
+        "unit": "g",
+        "category": "調味料"
+      }
+    ]
+  },
+  {
+    "id": "和-bf-003",
+    "name": "梅おにぎり",
+    "role": "breakfast",
+    "genre": "和",
+    "timeMin": 10,
+    "allergens": [
+      "えび",
+      "かに"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "ご飯",
+        "qty": 300.0,
+        "unit": "g",
+        "category": "主食"
+      },
+      {
+        "name": "梅干し",
+        "qty": 2.0,
+        "unit": "個",
+        "category": "その他"
+      },
+      {
+        "name": "焼きのり",
+        "qty": 2.0,
+        "unit": "枚",
+        "category": "その他"
+      },
+      {
+        "name": "塩",
+        "qty": 1.0,
+        "unit": "g",
+        "category": "調味料"
+      }
+    ]
+  },
+  {
+    "id": "和-bf-004",
+    "name": "しらすごはん",
+    "role": "breakfast",
+    "genre": "和",
+    "timeMin": 5,
+    "allergens": [
+      "小麦",
+      "えび",
+      "かに",
+      "大豆"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "ご飯",
+        "qty": 300.0,
+        "unit": "g",
+        "category": "主食"
+      },
+      {
+        "name": "しらす",
+        "qty": 20.0,
+        "unit": "g",
+        "category": "肉・魚"
+      },
+      {
+        "name": "すりごま",
+        "qty": 4.0,
+        "unit": "g",
+        "category": "調味料"
+      },
+      {
+        "name": "醤油",
+        "qty": 5.0,
+        "unit": "ml",
+        "category": "調味料"
+      }
+    ]
+  },
+  {
+    "id": "和-bf-005",
+    "name": "鮭茶漬け",
+    "role": "breakfast",
+    "genre": "和",
+    "timeMin": 10,
+    "allergens": [
+      "えび",
+      "かに"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "ご飯",
+        "qty": 300.0,
+        "unit": "g",
+        "category": "主食"
+      },
+      {
+        "name": "鮭",
+        "qty": 60.0,
+        "unit": "g",
+        "category": "肉・魚"
+      },
+      {
+        "name": "焼きのり",
+        "qty": 1.0,
+        "unit": "枚",
+        "category": "その他"
+      },
+      {
+        "name": "塩",
+        "qty": 1.0,
+        "unit": "g",
+        "category": "調味料"
+      },
+      {
+        "name": "水",
+        "qty": 300.0,
+        "unit": "ml",
+        "category": "調味料"
+      }
+    ]
+  },
+  {
+    "id": "和-bf-006",
+    "name": "卵雑炊",
+    "role": "breakfast",
+    "genre": "和",
+    "timeMin": 10,
+    "allergens": [
+      "卵",
+      "小麦",
+      "大豆"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "ご飯",
+        "qty": 250.0,
+        "unit": "g",
+        "category": "主食"
+      },
+      {
+        "name": "卵",
+        "qty": 2.0,
+        "unit": "個",
+        "category": "乳・卵"
+      },
+      {
+        "name": "長ねぎ",
+        "qty": 15.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "醤油",
+        "qty": 10.0,
+        "unit": "ml",
+        "category": "調味料"
+      },
+      {
+        "name": "かつお節",
+        "qty": 4.0,
+        "unit": "g",
+        "category": "その他"
+      },
+      {
+        "name": "水",
+        "qty": 400.0,
+        "unit": "ml",
+        "category": "調味料"
+      }
+    ]
+  },
+  {
+    "id": "和-bf-007",
+    "name": "ツナマヨおにぎり",
+    "role": "breakfast",
+    "genre": "和",
+    "timeMin": 10,
+    "allergens": [
+      "卵",
+      "えび",
+      "かに",
+      "大豆"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "ご飯",
+        "qty": 300.0,
+        "unit": "g",
+        "category": "主食"
+      },
+      {
+        "name": "ツナ水煮",
+        "qty": 70.0,
+        "unit": "g",
+        "category": "その他"
+      },
+      {
+        "name": "マヨネーズ",
+        "qty": 15.0,
+        "unit": "g",
+        "category": "調味料"
+      },
+      {
+        "name": "焼きのり",
+        "qty": 2.0,
+        "unit": "枚",
+        "category": "その他"
+      }
+    ]
+  },
+  {
+    "id": "洋-bf-008",
+    "name": "バタートースト",
+    "role": "breakfast",
+    "genre": "洋",
+    "timeMin": 5,
+    "allergens": [
+      "卵",
+      "乳",
+      "小麦",
+      "大豆"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "食パン",
+        "qty": 2.0,
+        "unit": "枚",
+        "category": "主食"
+      },
+      {
+        "name": "バター",
+        "qty": 10.0,
+        "unit": "g",
+        "category": "乳・卵"
+      }
+    ]
+  },
+  {
+    "id": "洋-bf-009",
+    "name": "ジャムトースト",
+    "role": "breakfast",
+    "genre": "洋",
+    "timeMin": 5,
+    "allergens": [
+      "卵",
+      "乳",
+      "小麦",
+      "大豆"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "食パン",
+        "qty": 2.0,
+        "unit": "枚",
+        "category": "主食"
+      },
+      {
+        "name": "いちごジャム",
+        "qty": 30.0,
+        "unit": "g",
+        "category": "調味料"
+      },
+      {
+        "name": "バター",
+        "qty": 6.0,
+        "unit": "g",
+        "category": "乳・卵"
+      }
+    ]
+  },
+  {
+    "id": "洋-bf-010",
+    "name": "ピザトースト",
+    "role": "breakfast",
+    "genre": "洋",
+    "timeMin": 10,
+    "allergens": [
+      "卵",
+      "乳",
+      "小麦",
+      "大豆"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "食パン",
+        "qty": 2.0,
+        "unit": "枚",
+        "category": "主食"
+      },
+      {
+        "name": "ケチャップ",
+        "qty": 20.0,
+        "unit": "g",
+        "category": "調味料"
+      },
+      {
+        "name": "ピーマン",
+        "qty": 30.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "ハム",
+        "qty": 30.0,
+        "unit": "g",
+        "category": "肉・魚"
+      },
+      {
+        "name": "チーズ",
+        "qty": 40.0,
+        "unit": "g",
+        "category": "乳・卵"
+      }
+    ]
+  },
+  {
+    "id": "洋-bf-011",
+    "name": "ハムチーズトースト",
+    "role": "breakfast",
+    "genre": "洋",
+    "timeMin": 8,
+    "allergens": [
+      "卵",
+      "乳",
+      "小麦",
+      "大豆"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "食パン",
+        "qty": 2.0,
+        "unit": "枚",
+        "category": "主食"
+      },
+      {
+        "name": "ハム",
+        "qty": 30.0,
+        "unit": "g",
+        "category": "肉・魚"
+      },
+      {
+        "name": "チーズ",
+        "qty": 40.0,
+        "unit": "g",
+        "category": "乳・卵"
+      }
+    ]
+  },
+  {
+    "id": "洋-bf-012",
+    "name": "フレンチトースト",
+    "role": "breakfast",
+    "genre": "洋",
+    "timeMin": 15,
+    "allergens": [
+      "卵",
+      "乳",
+      "小麦",
+      "大豆"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "食パン",
+        "qty": 2.0,
+        "unit": "枚",
+        "category": "主食"
+      },
+      {
+        "name": "卵",
+        "qty": 1.0,
+        "unit": "個",
+        "category": "乳・卵"
+      },
+      {
+        "name": "牛乳",
+        "qty": 100.0,
+        "unit": "ml",
+        "category": "乳・卵"
+      },
+      {
+        "name": "砂糖",
+        "qty": 10.0,
+        "unit": "g",
+        "category": "調味料"
+      },
+      {
+        "name": "バター",
+        "qty": 10.0,
+        "unit": "g",
+        "category": "乳・卵"
+      }
+    ]
+  },
+  {
+    "id": "洋-bf-013",
+    "name": "ホットケーキ",
+    "role": "breakfast",
+    "genre": "洋",
+    "timeMin": 20,
+    "allergens": [
+      "卵",
+      "乳",
+      "小麦",
+      "大豆"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "ホットケーキミックス",
+        "qty": 150.0,
+        "unit": "g",
+        "category": "主食"
+      },
+      {
+        "name": "卵",
+        "qty": 1.0,
+        "unit": "個",
+        "category": "乳・卵"
+      },
+      {
+        "name": "牛乳",
+        "qty": 100.0,
+        "unit": "ml",
+        "category": "乳・卵"
+      },
+      {
+        "name": "なたね油",
+        "qty": 5.0,
+        "unit": "ml",
+        "category": "調味料"
+      }
+    ]
+  },
+  {
+    "id": "洋-bf-014",
+    "name": "ロールパンサンド",
+    "role": "breakfast",
+    "genre": "洋",
+    "timeMin": 10,
+    "allergens": [
+      "卵",
+      "乳",
+      "小麦",
+      "大豆"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "ロールパン",
+        "qty": 4.0,
+        "unit": "個",
+        "category": "主食"
+      },
+      {
+        "name": "ハム",
+        "qty": 40.0,
+        "unit": "g",
+        "category": "肉・魚"
+      },
+      {
+        "name": "レタス",
+        "qty": 30.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "マヨネーズ",
+        "qty": 10.0,
+        "unit": "g",
+        "category": "調味料"
+      }
+    ]
+  },
+  {
+    "id": "洋-bf-015",
+    "name": "ツナコーントースト",
+    "role": "breakfast",
+    "genre": "洋",
+    "timeMin": 10,
+    "allergens": [
+      "卵",
+      "乳",
+      "小麦",
+      "大豆"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "食パン",
+        "qty": 2.0,
+        "unit": "枚",
+        "category": "主食"
+      },
+      {
+        "name": "ツナ水煮",
+        "qty": 70.0,
+        "unit": "g",
+        "category": "その他"
+      },
+      {
+        "name": "コーン",
+        "qty": 40.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "マヨネーズ",
+        "qty": 15.0,
+        "unit": "g",
+        "category": "調味料"
+      },
+      {
+        "name": "チーズ",
+        "qty": 30.0,
+        "unit": "g",
+        "category": "乳・卵"
+      }
+    ]
+  },
+  {
+    "id": "中-bf-016",
+    "name": "中華がゆ",
+    "role": "breakfast",
+    "genre": "中",
+    "timeMin": 15,
+    "allergens": [
+      "乳",
+      "小麦",
+      "大豆"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "ご飯",
+        "qty": 250.0,
+        "unit": "g",
+        "category": "主食"
+      },
+      {
+        "name": "長ねぎ",
+        "qty": 15.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "しょうが",
+        "qty": 5.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "鶏ガラスープの素",
+        "qty": 5.0,
+        "unit": "g",
+        "category": "調味料"
+      },
+      {
+        "name": "ごま油",
+        "qty": 5.0,
+        "unit": "ml",
+        "category": "調味料"
+      },
+      {
+        "name": "水",
+        "qty": 500.0,
+        "unit": "ml",
+        "category": "調味料"
+      },
+      {
+        "name": "塩",
+        "qty": 1.0,
+        "unit": "g",
+        "category": "調味料"
+      }
+    ]
+  },
+  {
+    "id": "中-bf-017",
+    "name": "鶏がゆ",
+    "role": "breakfast",
+    "genre": "中",
+    "timeMin": 20,
+    "allergens": [
+      "乳",
+      "小麦",
+      "大豆"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "ご飯",
+        "qty": 250.0,
+        "unit": "g",
+        "category": "主食"
+      },
+      {
+        "name": "鶏むね肉",
+        "qty": 80.0,
+        "unit": "g",
+        "category": "肉・魚"
+      },
+      {
+        "name": "しょうが",
+        "qty": 5.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "鶏ガラスープの素",
+        "qty": 5.0,
+        "unit": "g",
+        "category": "調味料"
+      },
+      {
+        "name": "水",
+        "qty": 500.0,
+        "unit": "ml",
+        "category": "調味料"
+      },
+      {
+        "name": "塩",
+        "qty": 1.0,
+        "unit": "g",
+        "category": "調味料"
+      }
+    ]
+  },
+  {
+    "id": "中-bf-018",
+    "name": "ごま油塩おにぎり",
+    "role": "breakfast",
+    "genre": "中",
+    "timeMin": 10,
+    "allergens": [
+      "えび",
+      "かに"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "ご飯",
+        "qty": 300.0,
+        "unit": "g",
+        "category": "主食"
+      },
+      {
+        "name": "ごま油",
+        "qty": 5.0,
+        "unit": "ml",
+        "category": "調味料"
+      },
+      {
+        "name": "塩",
+        "qty": 2.0,
+        "unit": "g",
+        "category": "調味料"
+      },
+      {
+        "name": "焼きのり",
+        "qty": 2.0,
+        "unit": "枚",
+        "category": "その他"
+      },
+      {
+        "name": "すりごま",
+        "qty": 4.0,
+        "unit": "g",
+        "category": "調味料"
+      }
+    ]
+  },
+  {
+    "id": "中-bf-019",
+    "name": "しらすと小松菜のチャーハン",
+    "role": "breakfast",
+    "genre": "中",
+    "timeMin": 10,
+    "allergens": [
+      "小麦",
+      "えび",
+      "かに",
+      "大豆"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "ご飯",
+        "qty": 300.0,
+        "unit": "g",
+        "category": "主食"
+      },
+      {
+        "name": "しらす",
+        "qty": 20.0,
+        "unit": "g",
+        "category": "肉・魚"
+      },
+      {
+        "name": "小松菜",
+        "qty": 60.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "ごま油",
+        "qty": 10.0,
+        "unit": "ml",
+        "category": "調味料"
+      },
+      {
+        "name": "醤油",
+        "qty": 5.0,
+        "unit": "ml",
+        "category": "調味料"
+      }
+    ]
+  },
+  {
+    "id": "和-bs-001",
+    "name": "甘い卵焼き",
+    "role": "bside",
+    "genre": "和",
+    "timeMin": 10,
+    "allergens": [
+      "卵"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "卵",
+        "qty": 3.0,
+        "unit": "個",
+        "category": "乳・卵"
+      },
+      {
+        "name": "砂糖",
+        "qty": 8.0,
+        "unit": "g",
+        "category": "調味料"
+      },
+      {
+        "name": "塩",
+        "qty": 1.0,
+        "unit": "g",
+        "category": "調味料"
+      },
+      {
+        "name": "なたね油",
+        "qty": 5.0,
+        "unit": "ml",
+        "category": "調味料"
+      }
+    ]
+  },
+  {
+    "id": "和-bs-002",
+    "name": "納豆",
+    "role": "bside",
+    "genre": "和",
+    "timeMin": 3,
+    "allergens": [
+      "小麦",
+      "大豆"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "納豆",
+        "qty": 2.0,
+        "unit": "g",
+        "category": "その他"
+      },
+      {
+        "name": "長ねぎ",
+        "qty": 10.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "醤油",
+        "qty": 5.0,
+        "unit": "ml",
+        "category": "調味料"
+      }
+    ]
+  },
+  {
+    "id": "和-bs-003",
+    "name": "しらすおろし",
+    "role": "bside",
+    "genre": "和",
+    "timeMin": 5,
+    "allergens": [
+      "小麦",
+      "えび",
+      "かに",
+      "大豆"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "大根",
+        "qty": 120.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "しらす",
+        "qty": 15.0,
+        "unit": "g",
+        "category": "肉・魚"
+      },
+      {
+        "name": "ポン酢",
+        "qty": 15.0,
+        "unit": "ml",
+        "category": "調味料"
+      }
+    ]
+  },
+  {
+    "id": "和-bs-004",
+    "name": "きゅうりの浅漬け",
+    "role": "bside",
+    "genre": "和",
+    "timeMin": 5,
+    "allergens": [],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "きゅうり",
+        "qty": 100.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "塩",
+        "qty": 2.0,
+        "unit": "g",
+        "category": "調味料"
+      }
+    ]
+  },
+  {
+    "id": "和-bs-005",
+    "name": "ほうれん草のごま和え",
+    "role": "bside",
+    "genre": "和",
+    "timeMin": 10,
+    "allergens": [
+      "小麦",
+      "大豆"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "ほうれん草",
+        "qty": 120.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "すりごま",
+        "qty": 8.0,
+        "unit": "g",
+        "category": "調味料"
+      },
+      {
+        "name": "醤油",
+        "qty": 8.0,
+        "unit": "ml",
+        "category": "調味料"
+      },
+      {
+        "name": "砂糖",
+        "qty": 4.0,
+        "unit": "g",
+        "category": "調味料"
+      }
+    ]
+  },
+  {
+    "id": "和-bs-006",
+    "name": "トマトのおかかのせ",
+    "role": "bside",
+    "genre": "和",
+    "timeMin": 3,
+    "allergens": [
+      "小麦",
+      "大豆"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "トマト",
+        "qty": 150.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "かつお節",
+        "qty": 3.0,
+        "unit": "g",
+        "category": "その他"
+      },
+      {
+        "name": "醤油",
+        "qty": 5.0,
+        "unit": "ml",
+        "category": "調味料"
+      }
+    ]
+  },
+  {
+    "id": "洋-bs-007",
+    "name": "目玉焼き",
+    "role": "bside",
+    "genre": "洋",
+    "timeMin": 5,
+    "allergens": [
+      "卵"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "卵",
+        "qty": 2.0,
+        "unit": "個",
+        "category": "乳・卵"
+      },
+      {
+        "name": "なたね油",
+        "qty": 3.0,
+        "unit": "ml",
+        "category": "調味料"
+      },
+      {
+        "name": "塩",
+        "qty": 1.0,
+        "unit": "g",
+        "category": "調味料"
+      },
+      {
+        "name": "こしょう",
+        "qty": 0.2,
+        "unit": "g",
+        "category": "調味料"
+      }
+    ]
+  },
+  {
+    "id": "洋-bs-008",
+    "name": "スクランブルエッグ",
+    "role": "bside",
+    "genre": "洋",
+    "timeMin": 5,
+    "allergens": [
+      "卵",
+      "乳"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "卵",
+        "qty": 3.0,
+        "unit": "個",
+        "category": "乳・卵"
+      },
+      {
+        "name": "牛乳",
+        "qty": 30.0,
+        "unit": "ml",
+        "category": "乳・卵"
+      },
+      {
+        "name": "バター",
+        "qty": 8.0,
+        "unit": "g",
+        "category": "乳・卵"
+      },
+      {
+        "name": "塩",
+        "qty": 1.0,
+        "unit": "g",
+        "category": "調味料"
+      }
+    ]
+  },
+  {
+    "id": "洋-bs-009",
+    "name": "ゆで卵",
+    "role": "bside",
+    "genre": "洋",
+    "timeMin": 12,
+    "allergens": [
+      "卵"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "卵",
+        "qty": 2.0,
+        "unit": "個",
+        "category": "乳・卵"
+      },
+      {
+        "name": "塩",
+        "qty": 1.0,
+        "unit": "g",
+        "category": "調味料"
+      }
+    ]
+  },
+  {
+    "id": "洋-bs-010",
+    "name": "ウインナーソテー",
+    "role": "bside",
+    "genre": "洋",
+    "timeMin": 5,
+    "allergens": [
+      "卵",
+      "乳",
+      "小麦",
+      "大豆"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "ウインナー",
+        "qty": 80.0,
+        "unit": "g",
+        "category": "肉・魚"
+      },
+      {
+        "name": "なたね油",
+        "qty": 3.0,
+        "unit": "ml",
+        "category": "調味料"
+      }
+    ]
+  },
+  {
+    "id": "洋-bs-011",
+    "name": "バナナヨーグルト",
+    "role": "bside",
+    "genre": "洋",
+    "timeMin": 3,
+    "allergens": [
+      "乳"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "ヨーグルト",
+        "qty": 200.0,
+        "unit": "g",
+        "category": "乳・卵"
+      },
+      {
+        "name": "バナナ",
+        "qty": 1.0,
+        "unit": "本",
+        "category": "野菜"
+      }
+    ]
+  },
+  {
+    "id": "洋-bs-012",
+    "name": "りんごヨーグルト",
+    "role": "bside",
+    "genre": "洋",
+    "timeMin": 5,
+    "allergens": [
+      "乳"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "ヨーグルト",
+        "qty": 200.0,
+        "unit": "g",
+        "category": "乳・卵"
+      },
+      {
+        "name": "りんご",
+        "qty": 0.5,
+        "unit": "個",
+        "category": "野菜"
+      }
+    ]
+  },
+  {
+    "id": "洋-bs-013",
+    "name": "バナナとりんご",
+    "role": "bside",
+    "genre": "洋",
+    "timeMin": 3,
+    "allergens": [],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "バナナ",
+        "qty": 1.0,
+        "unit": "本",
+        "category": "野菜"
+      },
+      {
+        "name": "りんご",
+        "qty": 0.5,
+        "unit": "個",
+        "category": "野菜"
+      }
+    ]
+  },
+  {
+    "id": "洋-bs-014",
+    "name": "ミニサラダ",
+    "role": "bside",
+    "genre": "洋",
+    "timeMin": 5,
+    "allergens": [],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "レタス",
+        "qty": 60.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "トマト",
+        "qty": 80.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "オリーブオイル",
+        "qty": 5.0,
+        "unit": "ml",
+        "category": "調味料"
+      },
+      {
+        "name": "塩",
+        "qty": 1.0,
+        "unit": "g",
+        "category": "調味料"
+      }
+    ]
+  },
+  {
+    "id": "中-bs-015",
+    "name": "豆乳スープ",
+    "role": "bside",
+    "genre": "中",
+    "timeMin": 5,
+    "allergens": [
+      "小麦",
+      "大豆"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "豆乳",
+        "qty": 300.0,
+        "unit": "ml",
+        "category": "乳・卵"
+      },
+      {
+        "name": "米酢",
+        "qty": 5.0,
+        "unit": "ml",
+        "category": "調味料"
+      },
+      {
+        "name": "醤油",
+        "qty": 5.0,
+        "unit": "ml",
+        "category": "調味料"
+      },
+      {
+        "name": "ごま油",
+        "qty": 3.0,
+        "unit": "ml",
+        "category": "調味料"
+      },
+      {
+        "name": "長ねぎ",
+        "qty": 10.0,
+        "unit": "g",
+        "category": "野菜"
+      }
+    ]
+  },
+  {
+    "id": "中-bs-016",
+    "name": "中華風卵焼き",
+    "role": "bside",
+    "genre": "中",
+    "timeMin": 10,
+    "allergens": [
+      "卵",
+      "乳",
+      "小麦",
+      "大豆"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "卵",
+        "qty": 3.0,
+        "unit": "個",
+        "category": "乳・卵"
+      },
+      {
+        "name": "長ねぎ",
+        "qty": 15.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "鶏ガラスープの素",
+        "qty": 2.0,
+        "unit": "g",
+        "category": "調味料"
+      },
+      {
+        "name": "ごま油",
+        "qty": 5.0,
+        "unit": "ml",
+        "category": "調味料"
+      }
+    ]
+  },
+  {
+    "id": "中-bs-017",
+    "name": "チンゲン菜のスープ",
+    "role": "bside",
+    "genre": "中",
+    "timeMin": 10,
+    "allergens": [
+      "乳",
+      "小麦",
+      "大豆"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "チンゲン菜",
+        "qty": 80.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "鶏ガラスープの素",
+        "qty": 5.0,
+        "unit": "g",
+        "category": "調味料"
+      },
+      {
+        "name": "ごま油",
+        "qty": 3.0,
+        "unit": "ml",
+        "category": "調味料"
+      },
+      {
+        "name": "水",
+        "qty": 400.0,
+        "unit": "ml",
+        "category": "調味料"
+      }
+    ]
+  },
+  {
+    "id": "中-bs-018",
+    "name": "もやしのナムル",
+    "role": "bside",
+    "genre": "中",
+    "timeMin": 5,
+    "allergens": [],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "もやし",
+        "qty": 150.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "ごま油",
+        "qty": 8.0,
+        "unit": "ml",
+        "category": "調味料"
+      },
+      {
+        "name": "すりごま",
+        "qty": 4.0,
+        "unit": "g",
+        "category": "調味料"
+      },
+      {
+        "name": "塩",
+        "qty": 1.0,
+        "unit": "g",
+        "category": "調味料"
+      }
+    ]
+  },
+  {
+    "id": "和-lunch-001",
+    "name": "きつねうどん",
+    "role": "lunch",
+    "genre": "和",
+    "timeMin": 15,
+    "allergens": [
+      "小麦",
+      "大豆"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "うどん",
+        "qty": 400.0,
+        "unit": "g",
+        "category": "主食"
+      },
+      {
+        "name": "油揚げ",
+        "qty": 40.0,
+        "unit": "g",
+        "category": "その他"
+      },
+      {
+        "name": "長ねぎ",
+        "qty": 15.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "めんつゆ",
+        "qty": 60.0,
+        "unit": "ml",
+        "category": "調味料"
+      },
+      {
+        "name": "水",
+        "qty": 600.0,
+        "unit": "ml",
+        "category": "調味料"
+      }
+    ],
+    "mainType": "麺"
+  },
+  {
+    "id": "和-lunch-002",
+    "name": "ざるそば",
+    "role": "lunch",
+    "genre": "和",
+    "timeMin": 10,
+    "allergens": [
+      "小麦",
+      "そば",
+      "えび",
+      "かに",
+      "大豆"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "そば",
+        "qty": 200.0,
+        "unit": "g",
+        "category": "主食"
+      },
+      {
+        "name": "焼きのり",
+        "qty": 1.0,
+        "unit": "枚",
+        "category": "その他"
+      },
+      {
+        "name": "長ねぎ",
+        "qty": 15.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "めんつゆ",
+        "qty": 60.0,
+        "unit": "ml",
+        "category": "調味料"
+      },
+      {
+        "name": "水",
+        "qty": 120.0,
+        "unit": "ml",
+        "category": "調味料"
+      }
+    ],
+    "mainType": "麺"
+  },
+  {
+    "id": "和-lunch-003",
+    "name": "冷やしそうめん",
+    "role": "lunch",
+    "genre": "和",
+    "timeMin": 10,
+    "allergens": [
+      "卵",
+      "乳",
+      "小麦",
+      "大豆"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "そうめん",
+        "qty": 200.0,
+        "unit": "g",
+        "category": "主食"
+      },
+      {
+        "name": "きゅうり",
+        "qty": 60.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "ハム",
+        "qty": 30.0,
+        "unit": "g",
+        "category": "肉・魚"
+      },
+      {
+        "name": "めんつゆ",
+        "qty": 60.0,
+        "unit": "ml",
+        "category": "調味料"
+      },
+      {
+        "name": "水",
+        "qty": 120.0,
+        "unit": "ml",
+        "category": "調味料"
+      }
+    ],
+    "mainType": "麺"
+  },
+  {
+    "id": "和-lunch-004",
+    "name": "お好み焼き",
+    "role": "lunch",
+    "genre": "和",
+    "timeMin": 20,
+    "allergens": [
+      "卵",
+      "乳",
+      "小麦",
+      "大豆"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "小麦粉",
+        "qty": 100.0,
+        "unit": "g",
+        "category": "主食"
+      },
+      {
+        "name": "キャベツ",
+        "qty": 200.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "卵",
+        "qty": 2.0,
+        "unit": "個",
+        "category": "乳・卵"
+      },
+      {
+        "name": "豚バラ肉",
+        "qty": 100.0,
+        "unit": "g",
+        "category": "肉・魚"
+      },
+      {
+        "name": "ウスターソース",
+        "qty": 30.0,
+        "unit": "g",
+        "category": "調味料"
+      },
+      {
+        "name": "マヨネーズ",
+        "qty": 15.0,
+        "unit": "g",
+        "category": "調味料"
+      },
+      {
+        "name": "かつお節",
+        "qty": 3.0,
+        "unit": "g",
+        "category": "その他"
+      },
+      {
+        "name": "水",
+        "qty": 100.0,
+        "unit": "ml",
+        "category": "調味料"
+      }
+    ],
+    "mainType": "肉"
+  },
+  {
+    "id": "和-lunch-005",
+    "name": "しらす丼",
+    "role": "lunch",
+    "genre": "和",
+    "timeMin": 5,
+    "allergens": [
+      "小麦",
+      "えび",
+      "かに",
+      "大豆"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "ご飯",
+        "qty": 400.0,
+        "unit": "g",
+        "category": "主食"
+      },
+      {
+        "name": "しらす",
+        "qty": 60.0,
+        "unit": "g",
+        "category": "肉・魚"
+      },
+      {
+        "name": "焼きのり",
+        "qty": 1.0,
+        "unit": "枚",
+        "category": "その他"
+      },
+      {
+        "name": "長ねぎ",
+        "qty": 10.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "醤油",
+        "qty": 10.0,
+        "unit": "ml",
+        "category": "調味料"
+      }
+    ],
+    "mainType": "魚"
+  },
+  {
+    "id": "和-lunch-006",
+    "name": "カレーうどん",
+    "role": "lunch",
+    "genre": "和",
+    "timeMin": 20,
+    "allergens": [
+      "乳",
+      "小麦",
+      "大豆"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "うどん",
+        "qty": 400.0,
+        "unit": "g",
+        "category": "主食"
+      },
+      {
+        "name": "豚こま切れ肉",
+        "qty": 120.0,
+        "unit": "g",
+        "category": "肉・魚"
+      },
+      {
+        "name": "玉ねぎ",
+        "qty": 100.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "カレールウ",
+        "qty": 40.0,
+        "unit": "g",
+        "category": "調味料"
+      },
+      {
+        "name": "めんつゆ",
+        "qty": 30.0,
+        "unit": "ml",
+        "category": "調味料"
+      },
+      {
+        "name": "水",
+        "qty": 600.0,
+        "unit": "ml",
+        "category": "調味料"
+      }
+    ],
+    "mainType": "麺"
+  },
+  {
+    "id": "和-lunch-007",
+    "name": "鶏ごぼうごはん",
+    "role": "lunch",
+    "genre": "和",
+    "timeMin": 20,
+    "allergens": [
+      "小麦",
+      "大豆"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "ご飯",
+        "qty": 400.0,
+        "unit": "g",
+        "category": "主食"
+      },
+      {
+        "name": "鶏ひき肉",
+        "qty": 100.0,
+        "unit": "g",
+        "category": "肉・魚"
+      },
+      {
+        "name": "ごぼう",
+        "qty": 60.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "醤油",
+        "qty": 15.0,
+        "unit": "ml",
+        "category": "調味料"
+      },
+      {
+        "name": "みりん",
+        "qty": 15.0,
+        "unit": "ml",
+        "category": "調味料"
+      },
+      {
+        "name": "なたね油",
+        "qty": 5.0,
+        "unit": "ml",
+        "category": "調味料"
+      }
+    ],
+    "mainType": "肉"
+  },
+  {
+    "id": "和-lunch-008",
+    "name": "和風ツナおろしパスタ",
+    "role": "lunch",
+    "genre": "和",
+    "timeMin": 15,
+    "allergens": [
+      "小麦",
+      "大豆"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "スパゲッティ",
+        "qty": 200.0,
+        "unit": "g",
+        "category": "主食"
+      },
+      {
+        "name": "ツナ水煮",
+        "qty": 70.0,
+        "unit": "g",
+        "category": "その他"
+      },
+      {
+        "name": "大根",
+        "qty": 150.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "ポン酢",
+        "qty": 30.0,
+        "unit": "ml",
+        "category": "調味料"
+      },
+      {
+        "name": "オリーブオイル",
+        "qty": 10.0,
+        "unit": "ml",
+        "category": "調味料"
+      }
+    ],
+    "mainType": "麺"
+  },
+  {
+    "id": "和-lunch-009",
+    "name": "親子うどん",
+    "role": "lunch",
+    "genre": "和",
+    "timeMin": 20,
+    "allergens": [
+      "卵",
+      "小麦",
+      "大豆"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "うどん",
+        "qty": 400.0,
+        "unit": "g",
+        "category": "主食"
+      },
+      {
+        "name": "鶏もも肉",
+        "qty": 120.0,
+        "unit": "g",
+        "category": "肉・魚"
+      },
+      {
+        "name": "卵",
+        "qty": 2.0,
+        "unit": "個",
+        "category": "乳・卵"
+      },
+      {
+        "name": "長ねぎ",
+        "qty": 20.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "めんつゆ",
+        "qty": 60.0,
+        "unit": "ml",
+        "category": "調味料"
+      },
+      {
+        "name": "水",
+        "qty": 600.0,
+        "unit": "ml",
+        "category": "調味料"
+      }
+    ],
+    "mainType": "麺"
+  },
+  {
+    "id": "和-lunch-010",
+    "name": "豆腐あんかけ丼",
+    "role": "lunch",
+    "genre": "和",
+    "timeMin": 15,
+    "allergens": [
+      "小麦",
+      "大豆"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "ご飯",
+        "qty": 400.0,
+        "unit": "g",
+        "category": "主食"
+      },
+      {
+        "name": "絹豆腐",
+        "qty": 200.0,
+        "unit": "g",
+        "category": "その他"
+      },
+      {
+        "name": "長ねぎ",
+        "qty": 15.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "かつお節",
+        "qty": 3.0,
+        "unit": "g",
+        "category": "その他"
+      },
+      {
+        "name": "醤油",
+        "qty": 15.0,
+        "unit": "ml",
+        "category": "調味料"
+      },
+      {
+        "name": "片栗粉",
+        "qty": 8.0,
+        "unit": "g",
+        "category": "主食"
+      },
+      {
+        "name": "水",
+        "qty": 150.0,
+        "unit": "ml",
+        "category": "調味料"
+      }
+    ],
+    "mainType": "豆腐"
+  },
+  {
+    "id": "洋-lunch-011",
+    "name": "ホットサンド",
+    "role": "lunch",
+    "genre": "洋",
+    "timeMin": 10,
+    "allergens": [
+      "卵",
+      "乳",
+      "小麦",
+      "大豆"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "食パン",
+        "qty": 4.0,
+        "unit": "枚",
+        "category": "主食"
+      },
+      {
+        "name": "ハム",
+        "qty": 40.0,
+        "unit": "g",
+        "category": "肉・魚"
+      },
+      {
+        "name": "チーズ",
+        "qty": 40.0,
+        "unit": "g",
+        "category": "乳・卵"
+      },
+      {
+        "name": "バター",
+        "qty": 10.0,
+        "unit": "g",
+        "category": "乳・卵"
+      }
+    ],
+    "mainType": "肉"
+  },
+  {
+    "id": "洋-lunch-012",
+    "name": "たまごサンド",
+    "role": "lunch",
+    "genre": "洋",
+    "timeMin": 15,
+    "allergens": [
+      "卵",
+      "乳",
+      "小麦",
+      "大豆"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "食パン",
+        "qty": 4.0,
+        "unit": "枚",
+        "category": "主食"
+      },
+      {
+        "name": "卵",
+        "qty": 3.0,
+        "unit": "個",
+        "category": "乳・卵"
+      },
+      {
+        "name": "マヨネーズ",
+        "qty": 30.0,
+        "unit": "g",
+        "category": "調味料"
+      },
+      {
+        "name": "塩",
+        "qty": 1.0,
+        "unit": "g",
+        "category": "調味料"
+      }
+    ],
+    "mainType": "卵"
+  },
+  {
+    "id": "洋-lunch-013",
+    "name": "BLTサンド",
+    "role": "lunch",
+    "genre": "洋",
+    "timeMin": 10,
+    "allergens": [
+      "卵",
+      "乳",
+      "小麦",
+      "大豆"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "食パン",
+        "qty": 4.0,
+        "unit": "枚",
+        "category": "主食"
+      },
+      {
+        "name": "ベーコン",
+        "qty": 60.0,
+        "unit": "g",
+        "category": "肉・魚"
+      },
+      {
+        "name": "レタス",
+        "qty": 60.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "トマト",
+        "qty": 100.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "マヨネーズ",
+        "qty": 15.0,
+        "unit": "g",
+        "category": "調味料"
+      }
+    ],
+    "mainType": "肉"
+  },
+  {
+    "id": "洋-lunch-014",
+    "name": "ホットドッグ",
+    "role": "lunch",
+    "genre": "洋",
+    "timeMin": 10,
+    "allergens": [
+      "卵",
+      "乳",
+      "小麦",
+      "大豆"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "ロールパン",
+        "qty": 4.0,
+        "unit": "個",
+        "category": "主食"
+      },
+      {
+        "name": "ウインナー",
+        "qty": 120.0,
+        "unit": "g",
+        "category": "肉・魚"
+      },
+      {
+        "name": "キャベツ",
+        "qty": 80.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "ケチャップ",
+        "qty": 20.0,
+        "unit": "g",
+        "category": "調味料"
+      },
+      {
+        "name": "なたね油",
+        "qty": 3.0,
+        "unit": "ml",
+        "category": "調味料"
+      }
+    ],
+    "mainType": "肉"
+  },
+  {
+    "id": "洋-lunch-015",
+    "name": "しめじとベーコンのパスタ",
+    "role": "lunch",
+    "genre": "洋",
+    "timeMin": 15,
+    "allergens": [
+      "卵",
+      "乳",
+      "小麦",
+      "大豆"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "スパゲッティ",
+        "qty": 200.0,
+        "unit": "g",
+        "category": "主食"
+      },
+      {
+        "name": "ベーコン",
+        "qty": 60.0,
+        "unit": "g",
+        "category": "肉・魚"
+      },
+      {
+        "name": "しめじ",
+        "qty": 100.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "にんにく",
+        "qty": 5.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "オリーブオイル",
+        "qty": 15.0,
+        "unit": "ml",
+        "category": "調味料"
+      },
+      {
+        "name": "醤油",
+        "qty": 10.0,
+        "unit": "ml",
+        "category": "調味料"
+      }
+    ],
+    "mainType": "麺"
+  },
+  {
+    "id": "洋-lunch-016",
+    "name": "トマトリゾット",
+    "role": "lunch",
+    "genre": "洋",
+    "timeMin": 20,
+    "allergens": [
+      "乳",
+      "小麦",
+      "大豆"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "ご飯",
+        "qty": 300.0,
+        "unit": "g",
+        "category": "主食"
+      },
+      {
+        "name": "トマト缶",
+        "qty": 200.0,
+        "unit": "g",
+        "category": "その他"
+      },
+      {
+        "name": "玉ねぎ",
+        "qty": 60.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "コンソメ",
+        "qty": 5.0,
+        "unit": "g",
+        "category": "調味料"
+      },
+      {
+        "name": "チーズ",
+        "qty": 30.0,
+        "unit": "g",
+        "category": "乳・卵"
+      },
+      {
+        "name": "水",
+        "qty": 200.0,
+        "unit": "ml",
+        "category": "調味料"
+      }
+    ],
+    "mainType": "卵"
+  },
+  {
+    "id": "洋-lunch-017",
+    "name": "ケチャップライス",
+    "role": "lunch",
+    "genre": "洋",
+    "timeMin": 15,
+    "allergens": [
+      "乳"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "ご飯",
+        "qty": 400.0,
+        "unit": "g",
+        "category": "主食"
+      },
+      {
+        "name": "鶏もも肉",
+        "qty": 100.0,
+        "unit": "g",
+        "category": "肉・魚"
+      },
+      {
+        "name": "玉ねぎ",
+        "qty": 60.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "ケチャップ",
+        "qty": 50.0,
+        "unit": "g",
+        "category": "調味料"
+      },
+      {
+        "name": "バター",
+        "qty": 10.0,
+        "unit": "g",
+        "category": "乳・卵"
+      }
+    ],
+    "mainType": "肉"
+  },
+  {
+    "id": "洋-lunch-018",
+    "name": "ほうれん草とベーコンのパスタ",
+    "role": "lunch",
+    "genre": "洋",
+    "timeMin": 15,
+    "allergens": [
+      "卵",
+      "乳",
+      "小麦",
+      "大豆"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "スパゲッティ",
+        "qty": 200.0,
+        "unit": "g",
+        "category": "主食"
+      },
+      {
+        "name": "ほうれん草",
+        "qty": 100.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "ベーコン",
+        "qty": 60.0,
+        "unit": "g",
+        "category": "肉・魚"
+      },
+      {
+        "name": "にんにく",
+        "qty": 5.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "オリーブオイル",
+        "qty": 15.0,
+        "unit": "ml",
+        "category": "調味料"
+      },
+      {
+        "name": "塩",
+        "qty": 2.0,
+        "unit": "g",
+        "category": "調味料"
+      }
+    ],
+    "mainType": "麺"
+  },
+  {
+    "id": "洋-lunch-019",
+    "name": "タコライス",
+    "role": "lunch",
+    "genre": "洋",
+    "timeMin": 15,
+    "allergens": [
+      "乳",
+      "小麦",
+      "大豆"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "ご飯",
+        "qty": 400.0,
+        "unit": "g",
+        "category": "主食"
+      },
+      {
+        "name": "合いびき肉",
+        "qty": 150.0,
+        "unit": "g",
+        "category": "肉・魚"
+      },
+      {
+        "name": "レタス",
+        "qty": 60.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "トマト",
+        "qty": 100.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "チーズ",
+        "qty": 30.0,
+        "unit": "g",
+        "category": "乳・卵"
+      },
+      {
+        "name": "ケチャップ",
+        "qty": 30.0,
+        "unit": "g",
+        "category": "調味料"
+      },
+      {
+        "name": "ウスターソース",
+        "qty": 15.0,
+        "unit": "g",
+        "category": "調味料"
+      }
+    ],
+    "mainType": "肉"
+  },
+  {
+    "id": "洋-lunch-020",
+    "name": "カレーピラフ",
+    "role": "lunch",
+    "genre": "洋",
+    "timeMin": 15,
+    "allergens": [
+      "卵",
+      "乳",
+      "小麦",
+      "大豆"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "ご飯",
+        "qty": 400.0,
+        "unit": "g",
+        "category": "主食"
+      },
+      {
+        "name": "ウインナー",
+        "qty": 80.0,
+        "unit": "g",
+        "category": "肉・魚"
+      },
+      {
+        "name": "玉ねぎ",
+        "qty": 60.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "ピーマン",
+        "qty": 40.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "カレー粉",
+        "qty": 4.0,
+        "unit": "g",
+        "category": "調味料"
+      },
+      {
+        "name": "バター",
+        "qty": 10.0,
+        "unit": "g",
+        "category": "乳・卵"
+      },
+      {
+        "name": "塩",
+        "qty": 1.0,
+        "unit": "g",
+        "category": "調味料"
+      }
+    ],
+    "mainType": "肉"
+  },
+  {
+    "id": "中-lunch-021",
+    "name": "レタスチャーハン",
+    "role": "lunch",
+    "genre": "中",
+    "timeMin": 10,
+    "allergens": [
+      "卵",
+      "乳",
+      "小麦",
+      "大豆"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "ご飯",
+        "qty": 400.0,
+        "unit": "g",
+        "category": "主食"
+      },
+      {
+        "name": "レタス",
+        "qty": 100.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "卵",
+        "qty": 2.0,
+        "unit": "個",
+        "category": "乳・卵"
+      },
+      {
+        "name": "鶏ガラスープの素",
+        "qty": 4.0,
+        "unit": "g",
+        "category": "調味料"
+      },
+      {
+        "name": "ごま油",
+        "qty": 10.0,
+        "unit": "ml",
+        "category": "調味料"
+      },
+      {
+        "name": "塩",
+        "qty": 1.0,
+        "unit": "g",
+        "category": "調味料"
+      }
+    ],
+    "mainType": "卵"
+  },
+  {
+    "id": "中-lunch-022",
+    "name": "ジャージャー麺",
+    "role": "lunch",
+    "genre": "中",
+    "timeMin": 20,
+    "allergens": [
+      "卵",
+      "小麦",
+      "大豆"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "中華麺",
+        "qty": 300.0,
+        "unit": "g",
+        "category": "主食"
+      },
+      {
+        "name": "豚ひき肉",
+        "qty": 120.0,
+        "unit": "g",
+        "category": "肉・魚"
+      },
+      {
+        "name": "きゅうり",
+        "qty": 80.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "甜麺醤",
+        "qty": 30.0,
+        "unit": "g",
+        "category": "調味料"
+      },
+      {
+        "name": "味噌",
+        "qty": 10.0,
+        "unit": "g",
+        "category": "調味料"
+      },
+      {
+        "name": "長ねぎ",
+        "qty": 20.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "片栗粉",
+        "qty": 5.0,
+        "unit": "g",
+        "category": "主食"
+      },
+      {
+        "name": "水",
+        "qty": 80.0,
+        "unit": "ml",
+        "category": "調味料"
+      }
+    ],
+    "mainType": "麺"
+  },
+  {
+    "id": "中-lunch-023",
+    "name": "塩焼きそば",
+    "role": "lunch",
+    "genre": "中",
+    "timeMin": 15,
+    "allergens": [
+      "卵",
+      "乳",
+      "小麦",
+      "大豆"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "中華麺",
+        "qty": 300.0,
+        "unit": "g",
+        "category": "主食"
+      },
+      {
+        "name": "豚バラ肉",
+        "qty": 100.0,
+        "unit": "g",
+        "category": "肉・魚"
+      },
+      {
+        "name": "キャベツ",
+        "qty": 150.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "もやし",
+        "qty": 100.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "鶏ガラスープの素",
+        "qty": 5.0,
+        "unit": "g",
+        "category": "調味料"
+      },
+      {
+        "name": "ごま油",
+        "qty": 10.0,
+        "unit": "ml",
+        "category": "調味料"
+      },
+      {
+        "name": "塩",
+        "qty": 1.0,
+        "unit": "g",
+        "category": "調味料"
+      }
+    ],
+    "mainType": "麺"
+  },
+  {
+    "id": "中-lunch-024",
+    "name": "ちゃんぽん麺",
+    "role": "lunch",
+    "genre": "中",
+    "timeMin": 25,
+    "allergens": [
+      "卵",
+      "乳",
+      "小麦",
+      "大豆"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "中華麺",
+        "qty": 300.0,
+        "unit": "g",
+        "category": "主食"
+      },
+      {
+        "name": "豚こま切れ肉",
+        "qty": 100.0,
+        "unit": "g",
+        "category": "肉・魚"
+      },
+      {
+        "name": "キャベツ",
+        "qty": 100.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "もやし",
+        "qty": 100.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "にんじん",
+        "qty": 30.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "牛乳",
+        "qty": 200.0,
+        "unit": "ml",
+        "category": "乳・卵"
+      },
+      {
+        "name": "鶏ガラスープの素",
+        "qty": 8.0,
+        "unit": "g",
+        "category": "調味料"
+      },
+      {
+        "name": "水",
+        "qty": 400.0,
+        "unit": "ml",
+        "category": "調味料"
+      }
+    ],
+    "mainType": "麺"
+  },
+  {
+    "id": "中-lunch-025",
+    "name": "ルーロー飯",
+    "role": "lunch",
+    "genre": "中",
+    "timeMin": 30,
+    "allergens": [
+      "卵",
+      "小麦",
+      "大豆"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "ご飯",
+        "qty": 400.0,
+        "unit": "g",
+        "category": "主食"
+      },
+      {
+        "name": "豚バラ肉",
+        "qty": 200.0,
+        "unit": "g",
+        "category": "肉・魚"
+      },
+      {
+        "name": "しょうが",
+        "qty": 5.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "醤油",
+        "qty": 30.0,
+        "unit": "ml",
+        "category": "調味料"
+      },
+      {
+        "name": "オイスターソース",
+        "qty": 15.0,
+        "unit": "g",
+        "category": "調味料"
+      },
+      {
+        "name": "砂糖",
+        "qty": 10.0,
+        "unit": "g",
+        "category": "調味料"
+      },
+      {
+        "name": "卵",
+        "qty": 2.0,
+        "unit": "個",
+        "category": "乳・卵"
+      },
+      {
+        "name": "水",
+        "qty": 200.0,
+        "unit": "ml",
+        "category": "調味料"
+      }
+    ],
+    "mainType": "肉"
+  },
+  {
+    "id": "中-lunch-026",
+    "name": "マーボー春雨",
+    "role": "lunch",
+    "genre": "中",
+    "timeMin": 20,
+    "allergens": [
+      "乳",
+      "小麦",
+      "大豆"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "春雨",
+        "qty": 60.0,
+        "unit": "g",
+        "category": "その他"
+      },
+      {
+        "name": "豚ひき肉",
+        "qty": 100.0,
+        "unit": "g",
+        "category": "肉・魚"
+      },
+      {
+        "name": "長ねぎ",
+        "qty": 20.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "豆板醤",
+        "qty": 3.0,
+        "unit": "g",
+        "category": "調味料"
+      },
+      {
+        "name": "醤油",
+        "qty": 15.0,
+        "unit": "ml",
+        "category": "調味料"
+      },
+      {
+        "name": "鶏ガラスープの素",
+        "qty": 5.0,
+        "unit": "g",
+        "category": "調味料"
+      },
+      {
+        "name": "ごま油",
+        "qty": 5.0,
+        "unit": "ml",
+        "category": "調味料"
+      },
+      {
+        "name": "水",
+        "qty": 250.0,
+        "unit": "ml",
+        "category": "調味料"
+      }
+    ],
+    "mainType": "肉"
+  },
+  {
+    "id": "中-lunch-027",
+    "name": "ねぎ塩豚丼",
+    "role": "lunch",
+    "genre": "中",
+    "timeMin": 15,
+    "allergens": [
+      "乳",
+      "小麦",
+      "大豆"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "ご飯",
+        "qty": 400.0,
+        "unit": "g",
+        "category": "主食"
+      },
+      {
+        "name": "豚バラ肉",
+        "qty": 150.0,
+        "unit": "g",
+        "category": "肉・魚"
+      },
+      {
+        "name": "長ねぎ",
+        "qty": 50.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "鶏ガラスープの素",
+        "qty": 4.0,
+        "unit": "g",
+        "category": "調味料"
+      },
+      {
+        "name": "ごま油",
+        "qty": 10.0,
+        "unit": "ml",
+        "category": "調味料"
+      },
+      {
+        "name": "塩",
+        "qty": 1.0,
+        "unit": "g",
+        "category": "調味料"
+      },
+      {
+        "name": "レモン",
+        "qty": 10.0,
+        "unit": "g",
+        "category": "野菜"
+      }
+    ],
+    "mainType": "肉"
+  },
+  {
+    "id": "中-lunch-028",
+    "name": "えび玉丼",
+    "role": "lunch",
+    "genre": "中",
+    "timeMin": 15,
+    "allergens": [
+      "卵",
+      "乳",
+      "小麦",
+      "えび",
+      "大豆"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "ご飯",
+        "qty": 400.0,
+        "unit": "g",
+        "category": "主食"
+      },
+      {
+        "name": "えび",
+        "qty": 80.0,
+        "unit": "g",
+        "category": "肉・魚"
+      },
+      {
+        "name": "卵",
+        "qty": 3.0,
+        "unit": "個",
+        "category": "乳・卵"
+      },
+      {
+        "name": "長ねぎ",
+        "qty": 15.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "鶏ガラスープの素",
+        "qty": 4.0,
+        "unit": "g",
+        "category": "調味料"
+      },
+      {
+        "name": "片栗粉",
+        "qty": 6.0,
+        "unit": "g",
+        "category": "主食"
+      },
+      {
+        "name": "ごま油",
+        "qty": 5.0,
+        "unit": "ml",
+        "category": "調味料"
+      },
+      {
+        "name": "水",
+        "qty": 150.0,
+        "unit": "ml",
+        "category": "調味料"
+      }
+    ],
+    "mainType": "魚"
+  },
+  {
+    "id": "中-lunch-029",
+    "name": "中華あんかけ豆腐丼",
+    "role": "lunch",
+    "genre": "中",
+    "timeMin": 15,
+    "allergens": [
+      "乳",
+      "小麦",
+      "大豆"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "ご飯",
+        "qty": 400.0,
+        "unit": "g",
+        "category": "主食"
+      },
+      {
+        "name": "絹豆腐",
+        "qty": 200.0,
+        "unit": "g",
+        "category": "その他"
+      },
+      {
+        "name": "豚ひき肉",
+        "qty": 80.0,
+        "unit": "g",
+        "category": "肉・魚"
+      },
+      {
+        "name": "長ねぎ",
+        "qty": 15.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "オイスターソース",
+        "qty": 15.0,
+        "unit": "g",
+        "category": "調味料"
+      },
+      {
+        "name": "鶏ガラスープの素",
+        "qty": 4.0,
+        "unit": "g",
+        "category": "調味料"
+      },
+      {
+        "name": "片栗粉",
+        "qty": 6.0,
+        "unit": "g",
+        "category": "主食"
+      },
+      {
+        "name": "水",
+        "qty": 150.0,
+        "unit": "ml",
+        "category": "調味料"
+      }
+    ],
+    "mainType": "豆腐"
+  },
+  {
+    "id": "中-lunch-030",
+    "name": "ねぎ塩ラーメン",
+    "role": "lunch",
+    "genre": "中",
+    "timeMin": 15,
+    "allergens": [
+      "卵",
+      "乳",
+      "小麦",
+      "大豆"
+    ],
+    "servingsBase": 2,
+    "ingredients": [
+      {
+        "name": "中華麺",
+        "qty": 300.0,
+        "unit": "g",
+        "category": "主食"
+      },
+      {
+        "name": "長ねぎ",
+        "qty": 40.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "もやし",
+        "qty": 100.0,
+        "unit": "g",
+        "category": "野菜"
+      },
+      {
+        "name": "鶏ガラスープの素",
+        "qty": 10.0,
+        "unit": "g",
+        "category": "調味料"
+      },
+      {
+        "name": "ごま油",
+        "qty": 10.0,
+        "unit": "ml",
+        "category": "調味料"
+      },
+      {
+        "name": "塩",
+        "qty": 2.0,
+        "unit": "g",
+        "category": "調味料"
+      },
+      {
+        "name": "水",
+        "qty": 700.0,
+        "unit": "ml",
+        "category": "調味料"
+      }
+    ],
+    "mainType": "麺"
   }
 ];
 /** 汁物（味噌汁・スープ）。夕食の「汁物」枠に使う */
@@ -7630,4 +10641,10 @@ export const MAIN_RECIPES = RECIPES.filter(r => r.role === "main");
 /** 副菜（汁物を除く） */
 export const SIDE_RECIPES = RECIPES.filter(r => r.role === "side" && !isSoup(r));
 export const SOUP_RECIPES = RECIPES.filter(isSoup);
+/** 朝の主食（ごはん・パン・おかゆ） */
+export const BREAKFAST_RECIPES = RECIPES.filter(r => r.role === "breakfast");
+/** 朝のおかず（卵・野菜・果物・汁） */
+export const BSIDE_RECIPES = RECIPES.filter(r => r.role === "bside");
+/** 昼の1品（麺・丼・サンドなど） */
+export const LUNCH_RECIPES = RECIPES.filter(r => r.role === "lunch");
 export const RECIPE_BY_ID = new Map(RECIPES.map(r => [r.id, r]));

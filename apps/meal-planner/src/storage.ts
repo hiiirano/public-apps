@@ -1,6 +1,6 @@
 // 端末への保存（localStorage）。読み込み時に形と範囲を検査し、壊れていれば初期状態にする。
-import type { Allergen, GenrePref, PlannerInput } from "./types";
-import { ALL_ALLERGENS, GENRE_PREFS } from "./types";
+import type { Allergen, GenrePref, MealSet, PlannerInput } from "./types";
+import { ALL_ALLERGENS, GENRE_PREFS, MEAL_SETS } from "./types";
 
 export const KEY = "meal-planner.v3";
 const OLD_KEYS = ["meal-planner.input", "meal-planner.result.v1", "meal-planner.result.v2", "meal-planner.llm"];
@@ -9,8 +9,8 @@ const LIST_MAX = 30;
 
 export interface State {
   input: PlannerInput;
-  /** 「この日を変える」を押した回数（曜日 1..7 → 回数） */
-  swaps: Record<number, number>;
+  /** 「変える」を押した回数（夕食 "1"〜"7"、朝食・昼食 "1朝"・"1昼" → 回数） */
+  swaps: Record<string, number>;
   /** 買い物リストで買ったもの（材料名__単位） */
   checked: string[];
 }
@@ -20,6 +20,7 @@ export function defaultInput(seed = 1): PlannerInput {
     adults: 2,
     children: 1,
     genrePref: "おまかせ",
+    mealSet: "晩",
     excludeAllergens: [],
     dislikes: [],
     pantry: [],
@@ -51,6 +52,8 @@ export function validInput(v: any): PlannerInput | null {
     !isInt(v.adults, 1, 10) ||
     !isInt(v.children, 0, 10) ||
     !GENRE_PREFS.includes(v.genrePref) ||
+    // 作る食事は 2026-10-24 に追加。無ければ「晩だけ」として読む（ほかの設定を消さない）
+    !(v.mealSet === undefined || MEAL_SETS.includes(v.mealSet)) ||
     !Array.isArray(v.excludeAllergens) ||
     !v.excludeAllergens.every((a: unknown) => ALL_ALLERGENS.includes(a as Allergen)) ||
     !dislikes ||
@@ -65,6 +68,7 @@ export function validInput(v: any): PlannerInput | null {
     adults: v.adults,
     children: v.children,
     genrePref: v.genrePref as GenrePref,
+    mealSet: (v.mealSet ?? "晩") as MealSet,
     excludeAllergens: [...new Set(v.excludeAllergens as Allergen[])],
     dislikes,
     pantry,
@@ -81,9 +85,9 @@ export function parseState(raw: string | null, seed = 1): State {
     const s = JSON.parse(raw ?? "null");
     const input = validInput(s?.input);
     if (!s || s.v !== 3 || !input) return freshState(seed);
-    const swaps: Record<number, number> = {};
+    const swaps: Record<string, number> = {};
     if (s.swaps && typeof s.swaps === "object" && !Array.isArray(s.swaps)) {
-      for (const [k, n] of Object.entries(s.swaps)) if (isInt(Number(k), 1, 7) && isInt(n, 1, 50)) swaps[Number(k)] = n as number;
+      for (const [k, n] of Object.entries(s.swaps)) if (/^[1-7][朝昼]?$/.test(k) && isInt(n, 1, 50)) swaps[k] = n as number;
     }
     const checked = Array.isArray(s.checked) ? s.checked.filter((x: unknown) => typeof x === "string" && x.length <= 60).slice(0, 300) : [];
     return { input, swaps, checked };
