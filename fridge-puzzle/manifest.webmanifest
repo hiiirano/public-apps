@@ -1,0 +1,16 @@
+{
+  "name": "ヒエヒエ冷蔵庫",
+  "short_name": "ヒエヒエ",
+  "description": "冷蔵庫の中を入れかえて1段にそろえるパズル。クリアすると、なぜか持ち主当て。",
+  "lang": "ja",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#1b1446",
+  "theme_color": "#1b1446",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

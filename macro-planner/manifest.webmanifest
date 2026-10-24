@@ -1,0 +1,16 @@
+{
+  "name": "PFC・TDEE計算",
+  "short_name": "PFC計算",
+  "description": "1日の目標カロリーと、たんぱく質・脂質・炭水化物の量がわかる。食べたものも記録できる。",
+  "lang": "ja",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f1f8f0",
+  "theme_color": "#1d7443",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
