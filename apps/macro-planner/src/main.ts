@@ -49,7 +49,7 @@ function esc(s: string): string {
 const fmt = (n: number) => Math.round(n).toLocaleString("ja-JP");
 const fmt1 = (n: number) => (Math.round(n * 10) / 10).toLocaleString("ja-JP", { maximumFractionDigits: 1 });
 const art = (name: string, cls = "art", size = 64) =>
-  `<img class="${cls}" src="./art/${name}.svg" alt="" width="${size}" height="${size}" />`;
+  `<img class="${cls}" src="./art/${name}.webp" alt="" width="${size}" height="${size}" />`;
 
 // ---- 文言 ----
 const SEX_LABEL: Record<Sex, string> = { female: "女性", male: "男性" };

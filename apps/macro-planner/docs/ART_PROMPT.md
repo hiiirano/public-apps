@@ -1,6 +1,6 @@
 # PFC・TDEE計算 — 絵の発注書（ChatGPT 用）
 
-今は仮に Microsoft Fluent Emoji（MIT、Color 版の SVG）を使っている。下の一覧と同じファイル名で差し替える（SVG 以外にするときは `src/main.ts` と `src/foods.ts` の拡張子も変える）。
+2026-10-28 に、下のプロンプトで ChatGPT が描いたシートに差し替え済み（`public/art/*.webp`）。描き直すときは同じ名前で置き換え、`deploy/tools/cutsheet.py` で切り出す。
 
 ## 1. 必要な絵の一覧
 

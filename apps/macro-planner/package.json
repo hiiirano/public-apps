@@ -1,6 +1,6 @@
 {
   "name": "macro-planner",
-  "version": "2.0.0",
+  "version": "2.0.2",
   "private": true,
   "type": "module",
   "description": "1日の目標カロリーとPFCを計算し、食べたものを記録できる。登録不要・端末内だけで動く。",
