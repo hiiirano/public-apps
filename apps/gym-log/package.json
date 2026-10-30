@@ -1,6 +1,6 @@
 {
   "name": "gym-log",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "private": true,
   "type": "module",
   "description": "筋トレ記録。マシン中心の小さなジムでも、前回の記録を見ながら重さ・回数をその場で記録。登録不要・端末内保存。",

@@ -116,14 +116,14 @@ for (const scheme of ["light", "dark"]) {
   page.on("dialog", (d) => { errors.push(`dialog: ${d.message()}`); d.dismiss(); });
   await fresh(page);
   ok("初めは上半身をすすめる", (await page.textContent(".rec-title")) === "上半身の日");
-  ok("おすすめに絵が出る", (await page.$$(".mini-tiles svg.art")).length === 4);
+  ok("おすすめに絵が出る", (await page.$$(".mini-tiles img.art")).length === 4);
 
   // 1回目: 種目を選んで始める
   await page.click('text=種目を選んで始める');
   ok("種目選びが開く", await page.isVisible("#picker"));
   const allNames = await page.$$eval(".tile-name", (els) => els.map((e) => e.textContent));
   ok("マシンの見本がある", ["チェストプレス", "ラットプルダウン", "レッグプレス", "アブドミナル", "バイク"].every((n) => allNames.includes(n)), allNames.join());
-  ok("種目に絵がある", (await page.$$("#picker .tile svg.art")).length === allNames.length);
+  ok("種目に絵がある", (await page.$$("#picker .tile img.art")).length === allNames.length);
   await page.click('[data-act="picker-part"][data-part="chest"]');
   const chestNames = await page.$$eval(".tile-name", (els) => els.map((e) => e.textContent));
   ok("胸でしぼる", chestNames.includes("チェストプレス") && !chestNames.includes("レッグプレス"), chestNames.join());
@@ -299,6 +299,11 @@ for (const scheme of ["light", "dark"]) {
     offlineOk = (await page.$$(".set-row")).length === 1;
   } catch (e) { report.offlineError = String(e); }
   ok("オフラインで開いて記録できる", offlineOk, report.offlineError || "");
+  const cachedArt = await page.evaluate(async () => {
+    const c = await caches.open((await caches.keys()).find((k) => k.startsWith("gym-log-")));
+    return (await c.keys()).filter((r) => r.url.endsWith(".webp")).length;
+  });
+  ok("絵28点がオフライン用に保存されている", cachedArt === 28, String(cachedArt));
   await ctx.close();
 }
 

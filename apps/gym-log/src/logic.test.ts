@@ -208,7 +208,7 @@ check("見本は保存の検査を通る", checkState({ v: 2, ...freshState(), w
 check("見本の日付は過去", demo.every((w) => w.date < "2026-10-23"));
 check("見本は種目が実在", demo.every((w) => w.items.every((i) => PRESETS.some((p) => p.id === i.exId))));
 check("見本の種目すべてに絵", PRESETS.every((p) => ART_KEYS.includes(p.art)));
-check("自作の種目は部位の絵", artSvg("part-leg", "leg").includes("blob") || artSvg("part-leg", "leg").includes("hl"));
+check("自作の種目は部位の絵", artSvg("part-leg", "leg").includes("art/part-leg.webp") && artSvg("知らない絵", "core").includes("art/part-core.webp"));
 
 // ---- ランダム（性質）テスト ----
 let rnd = 12345;

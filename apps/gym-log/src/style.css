@@ -75,7 +75,6 @@ h1, h2, h3, p { margin: 0; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 .skip { position: absolute; left: 16px; top: -100px; z-index: 40; background: var(--surface); color: var(--text); border: 2px solid var(--strong); border-radius: 999px; padding: 8px 16px; }
 .skip:focus { top: 12px; }
-.art-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
 .icon { width: 22px; height: 22px; flex: none; }
 #view:focus { outline: none; }
 
@@ -172,18 +171,6 @@ h1, h2, h3, p { margin: 0; }
 /* ---- 絵 ---- */
 .art-tile { display: block; background: var(--ink); border-radius: var(--r-m); overflow: hidden; flex: none; }
 .art { display: block; width: 100%; height: auto; aspect-ratio: 4 / 3; background: #151515; }
-.art line, .art path, .art circle, .art rect, .art ellipse { fill: none; stroke-linecap: round; stroke-linejoin: round; }
-.art .bd { stroke: #ededed; stroke-width: 6; }
-.art .bd2 { stroke: #8a8a8a; stroke-width: 6; }
-.art .hl { stroke: #c8f04a; stroke-width: 6; }
-.art .head { fill: #ededed; }
-.art .mc { stroke: #5c5c5c; stroke-width: 3; }
-.art .mcw { stroke: #6e6e6e; stroke-width: 4.5; }
-.art .pad { fill: #3a3a3a; }
-.art .padc { fill: #3a3a3a; stroke: #5c5c5c; stroke-width: 2; }
-.art .floor { stroke: #333; stroke-width: 2; }
-.art .blob, .art .blobf { fill: #c8f04a; }
-.art .mv { stroke: #c8f04a; stroke-width: 2.5; }
 .mvh { fill: #c8f04a; }
 .art-tile.sm { width: 64px; border-radius: var(--r-s); }
 .art-tile.xs { width: 44px; border-radius: 8px; }

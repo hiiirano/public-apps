@@ -35,7 +35,7 @@ import {
 } from "./logic";
 import { freshState, load, makeBackup, newId, parseBackup, save } from "./storage";
 import { demoWorkouts } from "./demo";
-import { ART_DEFS, artSvg } from "./art";
+import { ART_KEYS, artSvg } from "./art";
 import { icon, type IconName } from "./icons";
 
 // ---- 状態 ----
@@ -92,7 +92,6 @@ function commit(): void {
 // ---- 骨組み ----
 const app = document.querySelector<HTMLDivElement>("#app")!;
 app.innerHTML = `
-  ${ART_DEFS}
   <a class="skip" href="#view">本文へ移動</a>
   <header class="top">
     <p class="brand"><span class="brand-en">GYM LOG</span><span class="brand-ja">筋トレ記録</span></p>
@@ -1181,6 +1180,9 @@ if (import.meta.env.PROD && "serviceWorker" in navigator) {
             .map((e) => e.name)
             .filter((u) => u.startsWith(location.origin)),
         ];
+        // 開いていない種目の絵もオフラインで出す
+        const art = [...ART_KEYS.map((k) => `ex-${k}`), ...PARTS.map((p) => `part-${p}`)];
+        urls.push(...art.map((n) => new URL(`./art/${n}.webp`, location.href).href));
         reg.active?.postMessage({ type: "precache", urls });
       })
       .catch(() => {});

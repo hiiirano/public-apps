@@ -1,7 +1,11 @@
 # 素材の出典
 
-## 種目の絵（21種）・部位の絵（7種）・アプリのアイコン
-- src/art.ts の SVG（画面の中に直接描画）/ ../icon-*.png / ../apple-touch-icon.png / ../favicon.png
+## 種目の絵（21種）・部位の絵（7種）
+- ex-*.webp / part-*.webp
+- 2026-10-30 に ChatGPT（OpenAI）の画像生成で作成し、黒地・白い人に整えた。
+
+## アプリのアイコン
+- ../icon-*.png / ../apple-touch-icon.png / ../favicon.png
 - 2026-10-23 に本アプリ用に作成した自作の図形。権利は作成者（ひらの）に帰属。
 
 ## 操作アイコン: Tabler Icons（outline。src/icons.ts にインラインで収録）

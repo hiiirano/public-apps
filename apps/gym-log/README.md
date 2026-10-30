@@ -21,7 +21,7 @@ npm run fonts -- <フォントのフォルダ>   # 画面の文言を変えた�
 | src/logic.ts | 計算と判定（次の初期値・自己ベスト・前回比・まとめ・週・おすすめ・CSV） |
 | src/storage.ts | 種目の見本、端末への保存と検査、前の版からの移行、バックアップ |
 | src/demo.ts | 見本の記録 |
-| src/art.ts | 種目の絵（自作 SVG） |
+| src/art.ts | 種目の絵（public/art の webp を返す） |
 | src/icons.ts | 操作アイコン（Tabler Icons） |
 | src/main.ts | 画面 |
 | src/style.css | 見た目 |
