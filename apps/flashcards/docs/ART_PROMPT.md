@@ -1,5 +1,7 @@
 # 暗記カード — 絵の発注書
 
+> 2026-10-30 に ChatGPT の絵へ差し替え済み（`public/art/`）。以下は当時の発注内容。
+
 今は Microsoft Fluent Emoji（MIT）を仮に使っている。下の一覧の絵を ChatGPT で同じ画風にそろえて描き、`public/art/` の同じファイル名（WebP、背景は透明）で置きかえる。
 
 ## 必要な絵

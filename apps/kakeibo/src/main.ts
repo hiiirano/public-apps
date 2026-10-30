@@ -24,7 +24,7 @@ function esc(s: string): string {
   return s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
 }
 
-const catImg = (id: CategoryId, cls = "cat-img") => `<img class="${cls}" src="./art/cat-${id}.svg" alt="" width="40" height="40" />`;
+const catImg = (id: CategoryId, cls = "cat-img") => `<img class="${cls}" src="./art/cat-${id}.webp" alt="" width="40" height="40" />`;
 
 // ---- 骨組み（1回だけ描く）----
 const app = $("#app");
@@ -32,7 +32,7 @@ app.innerHTML = `
   <a class="skip" href="#entry">書きこむ欄へ移動</a>
   <header class="masthead">
     <div class="title-row">
-      <img class="ledger" src="./art/ledger.svg" alt="" width="56" height="56" />
+      <img class="ledger" src="./art/ledger.webp" alt="" width="56" height="56" />
       <div>
         <h1>家計簿ノート</h1>
         <p class="lead">使いすぎを、月の途中で先回り。</p>
@@ -269,7 +269,7 @@ function renderPace(p: Pace): void {
   if (p.spent === 0) {
     body.innerHTML = `
       <div class="empty">
-        <img src="./art/notepad.svg" alt="" width="64" height="64" />
+        <img src="./art/notepad.webp" alt="" width="64" height="64" />
         <p>${p.phase === "current" ? "まだ記録がありません。金額と費目をえらんで書きこむと、月末の見込みがここに出ます。" : "この月の記録はありません。"}</p>
       </div>
       ${p.budget ? stats : noBudget}`;

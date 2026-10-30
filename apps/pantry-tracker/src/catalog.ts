@@ -1,4 +1,4 @@
-// 食材の絵と「よく買う物」の一覧。絵は public/art/<art>.webp（いまは Microsoft Fluent Emoji、のちに差し替え）
+// 食材の絵と「よく買う物」の一覧。絵は public/art/<art>.webp
 
 export type Place = "fridge" | "freezer" | "shelf";
 export const PLACES: readonly Place[] = ["fridge", "freezer", "shelf"];

@@ -1,6 +1,6 @@
 {
   "name": "flashcards",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "private": true,
   "type": "module",
   "description": "めくって覚える単語カード。忘れかけたころに、もう一度出してくれる。",

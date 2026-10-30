@@ -16,10 +16,12 @@ from PIL import Image
 from scipy import ndimage
 
 
-def cut(cell: np.ndarray, size: int, margin: float, clear_holes: bool = False) -> Image.Image:
+def cut(cell: np.ndarray, size: int, margin: float, clear_holes: bool = False,
+        bg_min: int = 188, bg_chroma: int = 22, min_area: float = 0.03) -> Image.Image:
     rgb = cell[:, :, :3].astype(np.int16)
     mx, mn = rgb.max(axis=2), rgb.min(axis=2)
-    bglike = (mn > 188) & ((mx - mn) < 22)
+    # 白い物（牛乳・白い服）が背景に溶けるときは bg_min を上げ、bg_chroma を下げる
+    bglike = (mn > bg_min) & ((mx - mn) < bg_chroma)
     labels, _ = ndimage.label(bglike)
     edge = np.unique(np.concatenate([labels[0], labels[-1], labels[:, 0], labels[:, -1]]))
     bg = np.isin(labels, edge[edge > 0])
@@ -34,7 +36,7 @@ def cut(cell: np.ndarray, size: int, margin: float, clear_holes: bool = False) -
     big = int(np.argmax(areas))
     big_h = slices[big][0].stop - slices[big][0].start
     ok = [i + 1 for i, sl in enumerate(slices)
-          if i == big or (areas[i] >= areas[big] * 0.03 and (sl[0].stop - sl[0].start) >= big_h * 0.12)]
+          if i == big or (areas[i] >= areas[big] * min_area and (sl[0].stop - sl[0].start) >= big_h * 0.12)]
     keep = np.isin(fl, ok)
     keep = ndimage.binary_fill_holes(keep)
     if clear_holes:

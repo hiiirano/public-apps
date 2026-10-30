@@ -1,11 +1,7 @@
 # 素材の出典
 
-## イラスト（Microsoft Fluent Emoji 3D）
-- umbrella.webp（Umbrella on ground）/ sun.webp（Sun）/ deciduous-tree.webp（Deciduous tree）/ station.webp（Station）/ classical-building.webp（Classical building）/ office-building.webp（Office building）/ metro.webp（Metro）
-- アプリのアイコン（../icon-*.png / ../apple-touch-icon.png / ../favicon.png）は Umbrella on ground を水色の地に置いて作成
-- 取得元: https://github.com/microsoft/fluentui-emoji （assets/*/3D/*.png を縮小し webp に変換）
-- ライセンス: MIT。Copyright (c) Microsoft Corporation. 全文は FLUENT-EMOJI-LICENSE.txt
-- 当面の仮の絵。docs/ART_PROMPT.md の絵に差し替える予定
+## イラスト
+- 作者が ChatGPT（OpenAI の画像生成）で描いたシート（2026-10-30）を、`deploy/tools/cutsheet.py` で切り出して背景を透明にしたもの（各 256px の WebP）。
 
 ## 操作アイコン: Tabler Icons（outline。src/icons.ts にインラインで収録）
 - arrows-up-down / sun / umbrella / clock / walk / map-pin / info-circle / alert-triangle / chevron-down / flag / building-arch / stairs-down / external-link

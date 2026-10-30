@@ -1,5 +1,7 @@
 # 日陰MAP 新宿β — 絵の発注書
 
+> 2026-10-30 に ChatGPT の絵へ差し替え済み（`public/art/`）。以下は当時の発注内容。
+
 今は Microsoft Fluent Emoji（MIT）を仮に使っている。下の絵を ChatGPT で描き、同じ名前で `public/art/` に置き換える（webp、背景は透明にして切り出す）。
 
 ## 必要な絵の一覧

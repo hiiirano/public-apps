@@ -1,6 +1,6 @@
 // 電波がなくても開けるよう、同じサイト内のファイルを控えておく。
 // 画面は「控えをすぐ出し、裏で新しいものに入れ替える」。更新は次に開いたときに反映される。
-const CACHE = "kakeibo-v2";
+const CACHE = "kakeibo-v3";
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE).then((c) => c.addAll(["./", "./manifest.webmanifest"])));

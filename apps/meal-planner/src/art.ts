@@ -1,4 +1,4 @@
-// 料理・食材の絵（public/art/*.webp）の割り当て。いまは Microsoft Fluent Emoji 3D（MIT）。
+// 料理・食材の絵（public/art/*.webp）の割り当て。作者が ChatGPT で描いた絵。
 // あとで専用の絵に差し替えるときは、ファイル名を変えずに置き換えればよい（docs/ART_PROMPT.md）。
 import type { Recipe } from "./types";
 

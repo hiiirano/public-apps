@@ -1,6 +1,6 @@
 {
   "name": "shade-map",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "private": true,
   "type": "module",
   "description": "新宿駅のまわりで、地下・屋根のある道を使って日なたを歩く時間を減らす道を、最短の道とくらべる",

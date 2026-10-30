@@ -1,11 +1,7 @@
 # 素材の出典
 
-## 食材の絵・アプリのアイコン（仮の絵）
-- *.webp（milk / egg / chicken / … / plate / basket）、../icon-*.png / ../apple-touch-icon.png / ../favicon.png
-- Microsoft Fluent Emoji（3D）を 128px の webp に縮小したもの。アイコンは basket（バスケット）の絵に淡い青緑の地を付けたもの。
-- 取得元: https://github.com/microsoft/fluentui-emoji （assets/*/3D/*.png）
-- ライセンス: MIT。Copyright (c) Microsoft Corporation. 全文は FLUENT-EMOJI-LICENSE.txt
-- のちに ChatGPT で作った同じ画風の絵に差し替える予定（docs/ART_PROMPT.md）。
+## イラスト
+- 作者が ChatGPT（OpenAI の画像生成）で描いたシート（2026-10-30）を、`deploy/tools/cutsheet.py` で切り出して背景を透明にしたもの（各 256px の WebP）。
 
 ## 操作アイコン: Tabler Icons（outline。src/icons.ts にインラインで収録）
 - alert-triangle / arrow-back-up / basket / box / calendar / chart-bar / check / chevron-down / clock / download / fridge / leaf / minus / pencil / plus / snowflake / sparkles / trash / upload / x

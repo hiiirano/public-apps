@@ -1,6 +1,6 @@
 // 電波の弱い店でも開けるよう、同じサイト内のファイルを控えておく。
 // 画面は「控えをすぐ出し、裏で新しいものに入れ替える」。更新は次に開いたときに反映される。
-const CACHE = "meal-planner-v4";
+const CACHE = "meal-planner-v5";
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE).then((c) => c.addAll(["./", "./manifest.webmanifest"])));

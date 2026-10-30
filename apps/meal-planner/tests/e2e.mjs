@@ -277,7 +277,7 @@ for (const scheme of ["light", "dark"]) {
     await page.locator(".day >> nth=4").scrollIntoViewIfNeeded();
     await page.waitForTimeout(500);
     const imgs = await page.$$eval(".day:nth-child(5) img", (els) => els.length > 0 && els.every((e) => e.complete && e.naturalWidth > 0));
-    const cachedArt = await page.evaluate(async () => (await (await caches.open("meal-planner-v4")).keys()).filter((r) => r.url.endsWith(".webp")).length);
+    const cachedArt = await page.evaluate(async () => (await (await caches.open("meal-planner-v5")).keys()).filter((r) => r.url.endsWith(".webp")).length);
     report.cachedArt = cachedArt;
     offlineOk = (await page.$$(".day")).length === 7 && imgs && cachedArt >= 40;
   } catch (e) { report.offlineError = String(e); }

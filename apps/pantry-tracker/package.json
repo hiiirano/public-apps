@@ -1,6 +1,6 @@
 {
   "name": "pantry-tracker",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "private": true,
   "type": "module",
   "description": "冷蔵庫・冷凍庫・棚にある物と期限を、絵で見て管理する。",

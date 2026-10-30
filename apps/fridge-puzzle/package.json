@@ -1,6 +1,6 @@
 {
   "name": "fridge-puzzle",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "private": true,
   "type": "module",
   "description": "ヒエヒエ冷蔵庫（しょうもなゲーム #01）。冷蔵庫の中を1段ずつそろえる3面パズルのあと、なぜか持ち主当てが始まる。",

@@ -1,6 +1,6 @@
 // 電車の中など電波の弱い所でも開けるよう、同じサイト内のファイルを控えておく。
 // 画面は「控えをすぐ出し、裏で新しいものに入れ替える」。更新は次に開いたときに反映される。
-const CACHE = "flashcards-v2";
+const CACHE = "flashcards-v3";
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE).then((c) => c.addAll(["./", "./manifest.webmanifest"])));
