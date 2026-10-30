@@ -1,0 +1,11 @@
+[
+  {"slug": "warikan", "emoji": "🧮", "name": "割り勘", "note": "飲み会の会計を、多め・少なめ・おごり込みで30秒で", "show": true},
+  {"slug": "gym-log", "emoji": "🏋️", "name": "筋トレ記録", "note": "マシンも自重も、前回を見ながら記録", "show": true},
+  {"slug": "meal-planner", "emoji": "🍽️", "name": "週間献立プランナー", "note": "苦手も残り物も、絵で選べる1週間の朝昼晩", "show": true},
+  {"slug": "kakeibo", "emoji": "📒", "name": "家計簿ノート", "note": "使いすぎを月の途中で先回りする家計簿", "show": true},
+  {"slug": "macro-planner", "emoji": "🥗", "name": "PFC・TDEE計算", "note": "目標カロリーとPFCを、ごはん何杯分で", "show": true},
+  {"slug": "pantry-tracker", "emoji": "🧺", "name": "在庫管理", "note": "冷蔵庫の中と期限が絵でひと目でわかる", "show": true},
+  {"slug": "flashcards", "emoji": "🧠", "name": "暗記カード", "note": "めくって覚える、紙の単語カード", "show": true},
+  {"slug": "fridge-puzzle", "emoji": "🧊", "name": "ヒエヒエ冷蔵庫", "note": "冷蔵庫をそろえたら、なぜか持ち主当て", "show": true},
+  {"slug": "shade-map", "emoji": "⛱️", "name": "日陰MAP 新宿β", "note": "地下と屋根で日なたを何分減らせるか比べる", "show": true}
+]
