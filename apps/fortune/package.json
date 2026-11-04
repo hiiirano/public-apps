@@ -1,0 +1,9 @@
+{
+  "name": "fortune",
+  "version": "0.2.0",
+  "private": true,
+  "description": "星と余白：タロット・易・数秘など11種類の占いを、仕組みを明示して試せる占いコーナー（ChatGPT 制作の単体HTMLを公開用に手直し）",
+  "scripts": {
+    "build": "python3 -I scripts/build.py"
+  }
+}

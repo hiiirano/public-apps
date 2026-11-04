@@ -7,5 +7,6 @@
   {"slug": "pantry-tracker", "emoji": "🧺", "name": "在庫管理", "note": "冷蔵庫の中と期限が絵でひと目でわかる", "show": true},
   {"slug": "flashcards", "emoji": "🧠", "name": "暗記カード", "note": "めくって覚える、紙の単語カード", "show": true},
   {"slug": "fridge-puzzle", "emoji": "🧊", "name": "ヒエヒエ冷蔵庫", "note": "冷蔵庫をそろえたら、なぜか持ち主当て", "show": true},
-  {"slug": "shade-map", "emoji": "⛱️", "name": "日陰MAP 新宿β", "note": "地下と屋根で日なたを何分減らせるか比べる", "show": true}
+  {"slug": "shade-map", "emoji": "⛱️", "name": "日陰MAP 新宿β", "note": "地下と屋根で日なたを何分減らせるか比べる", "show": true},
+  {"slug": "fortune", "emoji": "🔮", "name": "星と余白（占い）", "note": "タロット・易・数秘など11種類を、仕組みつきで試す", "show": true}
 ]
